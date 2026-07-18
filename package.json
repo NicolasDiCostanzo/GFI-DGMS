@@ -1,11 +1,36 @@
 {
   "name": "gfi-dgms",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "type": "module",
+  "description": "GFI-DGMS Web Component",
+  "main": "./dist/gfi-dgms.es.js",
+  "module": "./dist/gfi-dgms.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/gfi-dgms.es.js",
+      "require": "./dist/gfi-dgms.umd.js"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc -b --noEmit"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "vue": "^3.5.40"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5",
+    "vite-plugin-istanbul": "^9.0.1",
+    "vue-tsc": "^3.3.7"
+  }
 }
