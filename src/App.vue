@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const message = ref('Hello from GFI-DGMS!')
+const message = ref('Hello from GFI-DGMS!');
 </script>
 
 <template>
