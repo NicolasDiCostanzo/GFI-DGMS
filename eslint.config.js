@@ -47,6 +47,11 @@ export default [
     },
     {
         files: ['src/**/*.vue'],
+        languageOptions: {
+            parserOptions: {
+                parser: tsparser,
+            },
+        },
         rules: {
             'vue/multi-word-component-names': 'off',
             'vue/html-indent': ['warn', 4],
