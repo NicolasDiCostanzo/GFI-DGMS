@@ -7,5 +7,5 @@ if (!customElements.get('gfi-dgms-widget')) {
     customElements.define('gfi-dgms-widget', element)
 }
 
-export { defineCustomElement }
+export default element
 export default element
