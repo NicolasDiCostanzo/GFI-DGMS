@@ -155,8 +155,8 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 ### Unit/Integration Tests
 
 - **Framework**: Vitest
-- **Environment**: happy-dom
-- **Location**: `src/**/*.spec.ts`
+- **Environment**: node
+- **Location**: `src/**/*.{test,spec}.{ts,js}`
 - **Coverage**: 100% threshold enforced
 
 ### E2E Tests
