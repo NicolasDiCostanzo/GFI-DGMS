@@ -10,7 +10,7 @@ export default mergeConfig(
             include: ['src/**/*.{test,spec}.{ts,js}'],
             coverage: {
                 provider: 'istanbul',
-                reporter: ['text', 'lcov', 'html'],
+                reporter: ['text', 'lcov', 'html', 'json'],
                 include: ['src/**/*.ts', 'src/**/*.vue'],
                 exclude: ['src/**/*.{test,spec}.ts', 'src/vite-env.d.ts', 'src/main.ts'],
                 thresholds: {

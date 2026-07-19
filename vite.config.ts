@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import istanbul from 'vite-plugin-istanbul'
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import istanbul from 'vite-plugin-istanbul';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
     plugins: [
@@ -17,6 +17,11 @@ export default defineConfig({
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
+    },
+    server: {
+        // HMR wiring code is instrumented by vite-plugin-istanbul but can never execute
+        // during an automated test run, which makes 100% coverage unreachable.
+        hmr: process.env.VITE_COVERAGE !== 'true',
     },
     build: {
         sourcemap: true,
@@ -35,4 +40,4 @@ export default defineConfig({
             },
         },
     },
-})
+});
