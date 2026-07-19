@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './coverage-fixtures';
 
 test('renders the gfi-dgms-widget custom element with the greeting', async ({ page }) => {
     await page.goto('/');

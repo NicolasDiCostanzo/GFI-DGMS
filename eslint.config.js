@@ -19,14 +19,14 @@ export default [
     js.configs.recommended,
     ...tseslint.configs['flat/recommended'].map((config) => ({
         ...config,
-        files: ['src/**/*.ts'],
+        files: ['src/**/*.ts', 'e2e/**/*.ts'],
     })),
     ...vuePlugin.configs['flat/recommended'].map((config) => ({
         ...config,
         files: ['src/**/*.vue'],
     })),
     {
-        files: ['src/**/*.ts'],
+        files: ['src/**/*.ts', 'e2e/**/*.ts'],
         languageOptions: {
             parser: tsparser,
             parserOptions: {
