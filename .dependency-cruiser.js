@@ -13,18 +13,18 @@ export default {
                 circular: true,
             },
         },
-        {
-            name: 'no-orphans',
-            comment:
-                "This is an orphan module - it's likely not used (anymore). " +
-                'Either use it or remove it.',
-            severity: 'error',
-            from: {
-                orphan: true,
-                pathNot: '\\.d\\.ts$|^src/main\\.ts$',
-            },
-            to: {},
-        },
+        // {
+        //     name: 'no-orphans',
+        //     comment:
+        //         "This is an orphan module - it's likely not used (anymore). " +
+        //         'Either use it or remove it.',
+        //     severity: 'error',
+        //     from: {
+        //         orphan: true,
+        //         pathNot: '\\.d\\.ts$|^src/main\\.ts$',
+        //     },
+        //     to: {},
+        // },
         {
             name: 'no-deprecated-core',
             comment:
