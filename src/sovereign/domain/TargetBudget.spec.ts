@@ -1,18 +1,9 @@
+import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
+import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
+import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { Currency } from '@/shared/types/Currency';
 import { describe, expect, it } from 'vitest';
-import { DomainError } from './DomainError';
 import { TargetBudget } from './TargetBudget';
-
-describe('DomainError', () => {
-    it('is an Error subclass with the correct name and message', () => {
-        const error = new DomainError('TargetBudget amount must be greater than 0');
-
-        expect(error).toBeInstanceOf(Error);
-        expect(error).toBeInstanceOf(DomainError);
-        expect(error.name).toBe('DomainError');
-        expect(error.message).toBe('TargetBudget amount must be greater than 0');
-    });
-});
 
 describe('TargetBudget', () => {
     describe('constructor', () => {
@@ -24,17 +15,35 @@ describe('TargetBudget', () => {
             expect(target.currency).toBe(usd);
         });
 
-        it('throws DomainError when amount is zero', () => {
-            expect(() => new TargetBudget(0, Currency.USD())).toThrow(DomainError);
+        it('throws NonPositiveNumberException when amount is zero', () => {
+            expect(() => new TargetBudget(0, Currency.USD())).toThrow(NonPositiveNumberException);
         });
 
-        it('throws DomainError when amount is negative', () => {
-            expect(() => new TargetBudget(-500, Currency.USD())).toThrow(DomainError);
+        it('throws NonPositiveNumberException when amount is negative', () => {
+            expect(() => new TargetBudget(-500, Currency.USD())).toThrow(
+                NonPositiveNumberException,
+            );
         });
 
-        it('throws DomainError with a descriptive message', () => {
+        it('throws NonPositiveNumberException with a descriptive message', () => {
             expect(() => new TargetBudget(0, Currency.USD())).toThrow(
                 'TargetBudget amount must be greater than 0',
+            );
+        });
+
+        it('throws InvalidNumberException when amount is NaN', () => {
+            expect(() => new TargetBudget(NaN, Currency.USD())).toThrow(InvalidNumberException);
+        });
+
+        it('throws InfiniteNumberException when amount is Infinity', () => {
+            expect(() => new TargetBudget(Infinity, Currency.USD())).toThrow(
+                InfiniteNumberException,
+            );
+        });
+
+        it('throws InfiniteNumberException when amount is -Infinity', () => {
+            expect(() => new TargetBudget(-Infinity, Currency.USD())).toThrow(
+                InfiniteNumberException,
             );
         });
     });
