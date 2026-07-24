@@ -1,7 +1,7 @@
-import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
 import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { Currency } from '@/shared/types/Currency';
+import { validateNumeric } from '@/shared/utils/validateNumeric';
 import { TargetBudget } from './TargetBudget';
 
 export class InvestmentAmount {
@@ -10,21 +10,11 @@ export class InvestmentAmount {
     readonly maxAllowed: number;
 
     constructor(value: number, currency: Currency, maxAllowed: number) {
-        if (Number.isNaN(value)) {
-            throw new InvalidNumberException('InvestmentAmount value must not be NaN');
-        }
-        if (!Number.isFinite(value)) {
-            throw new InfiniteNumberException('InvestmentAmount value must be finite');
-        }
+        validateNumeric(value, 'InvestmentAmount', 'value');
         if (value < 0) {
             throw new InvalidNumberException('InvestmentAmount value must not be negative');
         }
-        if (Number.isNaN(maxAllowed)) {
-            throw new InvalidNumberException('InvestmentAmount maxAllowed must not be NaN');
-        }
-        if (!Number.isFinite(maxAllowed)) {
-            throw new InfiniteNumberException('InvestmentAmount maxAllowed must be finite');
-        }
+        validateNumeric(maxAllowed, 'InvestmentAmount', 'maxAllowed');
         if (maxAllowed <= 0) {
             throw new NonPositiveNumberException(
                 'InvestmentAmount maxAllowed must be greater than 0',

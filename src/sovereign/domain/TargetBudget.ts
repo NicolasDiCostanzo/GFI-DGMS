@@ -1,19 +1,13 @@
-import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
-import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { Currency } from '@/shared/types/Currency';
+import { validateNumeric } from '@/shared/utils/validateNumeric';
 
 export class TargetBudget {
     readonly amount: number;
     readonly currency: Currency;
 
     constructor(amount: number, currency: Currency) {
-        if (Number.isNaN(amount)) {
-            throw new InvalidNumberException('TargetBudget amount must not be NaN');
-        }
-        if (!Number.isFinite(amount)) {
-            throw new InfiniteNumberException('TargetBudget amount must be finite');
-        }
+        validateNumeric(amount, 'TargetBudget', 'amount');
         if (amount <= 0) {
             throw new NonPositiveNumberException('TargetBudget amount must be greater than 0');
         }
