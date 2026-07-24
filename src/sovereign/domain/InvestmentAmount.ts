@@ -21,9 +21,7 @@ export class InvestmentAmount {
             );
         }
         if (value > maxAllowed) {
-            throw new InvalidNumberException(
-                'InvestmentAmount value must not exceed maxAllowed',
-            );
+            throw new InvalidNumberException('InvestmentAmount value must not exceed maxAllowed');
         }
         this.value = value;
         this.currency = currency;
