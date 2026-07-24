@@ -52,9 +52,9 @@ Based on [Alistair Cockburn's Hexagonal Architecture](https://medium.com/ssense-
 │  │                           shared/                                       │  │
 │  │  ┌──────────────┐                                                       │  │
 │  │  │              │                                                       │  │
-│  │  │• utilities  │                                                       │  │
-│  │  │• types      │                                                       │  │
-│  │  │• constants  │                                                       │  │
+│  │  │• utilities   │                                                       │  │
+│  │  │• types       │                                                       │  │
+│  │  │• constants   │                                                       │  │
 │  │  └──────────────┘                                                       │  │
 │  └─────────────────────────────────────────────────────────────────────────┘  │
 │                                                                               │
