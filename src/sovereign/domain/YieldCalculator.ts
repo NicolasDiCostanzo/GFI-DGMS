@@ -1,9 +1,8 @@
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { validateNumeric } from '@/shared/utils/validateNumeric';
+import { MAX_FUNDING_PROGRESS_RATIO } from './constants/FundingConstants';
 
 export class YieldCalculator {
-    static readonly #MAX_FUNDING_PROGRESS_RATIO = 2;
-
     static calculateFundingProgress(investment: number, target: number): number {
         validateNumeric(investment, 'YieldCalculator', 'investment');
         validateNumeric(target, 'YieldCalculator', 'target');
@@ -16,8 +15,8 @@ export class YieldCalculator {
         if (ratio < 0) {
             return 0;
         }
-        if (ratio > this.#MAX_FUNDING_PROGRESS_RATIO) {
-            return this.#MAX_FUNDING_PROGRESS_RATIO;
+        if (ratio > MAX_FUNDING_PROGRESS_RATIO) {
+            return MAX_FUNDING_PROGRESS_RATIO;
         }
         return ratio;
     }
