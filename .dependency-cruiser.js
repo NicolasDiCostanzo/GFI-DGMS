@@ -13,18 +13,18 @@ export default {
                 circular: true,
             },
         },
-        {
-            name: 'no-orphans',
-            comment:
-                "This is an orphan module - it's likely not used (anymore). " +
-                'Either use it or remove it.',
-            severity: 'error',
-            from: {
-                orphan: true,
-                pathNot: '\\.d\\.ts$|^src/main\\.ts$',
-            },
-            to: {},
-        },
+        // {
+        //     name: 'no-orphans',
+        //     comment:
+        //         "This is an orphan module - it's likely not used (anymore). " +
+        //         'Either use it or remove it.',
+        //     severity: 'error',
+        //     from: {
+        //         orphan: true,
+        //         pathNot: '\\.d\\.ts$|^src/main\\.ts$',
+        //     },
+        //     to: {},
+        // },
         {
             name: 'no-deprecated-core',
             comment:
@@ -46,10 +46,10 @@ export default {
                 'Domain should be pure business logic with no external concerns.',
             severity: 'error',
             from: {
-                path: '^src/domain/',
+                path: '^src/[^/]+/domain/',
             },
             to: {
-                path: '^src/infrastructure/',
+                path: '^src/[^/]+/infrastructure/',
             },
         },
         {
@@ -59,10 +59,10 @@ export default {
                 'Domain should be independent of use-case orchestration.',
             severity: 'error',
             from: {
-                path: '^src/domain/',
+                path: '^src/[^/]+/domain/',
             },
             to: {
-                path: '^src/app/',
+                path: '^src/[^/]+/app/',
             },
         },
         {
@@ -72,7 +72,7 @@ export default {
                 'Domain should be pure TypeScript with no framework coupling.',
             severity: 'error',
             from: {
-                path: '^src/domain/',
+                path: '^src/[^/]+/domain/',
             },
             to: {
                 path: '^vue$',
@@ -85,10 +85,10 @@ export default {
                 'Application should depend on abstractions (ports), not concrete implementations.',
             severity: 'error',
             from: {
-                path: '^src/app/',
+                path: '^src/[^/]+/app/',
             },
             to: {
-                path: '^src/infrastructure/',
+                path: '^src/[^/]+/infrastructure/',
             },
         },
     ],

@@ -36,20 +36,30 @@ Based on [Alistair Cockburn's Hexagonal Architecture](https://medium.com/ssense-
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
 │                               src/                                            │
-│  ┌───────────────┐    ┌──────────────┐    ┌──────────────┐    ┌─────────────┐ │
-│  │   domain/     │    │    app/      │    │infrastructure│    │   shared/   │ │
-│  │               │    │              │    │              │    │             │ │
-│  │• entities     │    │• use cases   │    │• adapters    │    │• utilities  │ │
-│  │• value objects│    │• services    │    │• UI          │    │• types      │ │
-│  │• services     │    │              │    │• external    │    │• constants  │ │
-│  └───────────────┘    └──────────────┘    └──────────────┘    └─────────────┘ │
-│         ▲                     ▲                   ▲               ▲       │   |
-│         │                     │                   │               │       │   |
-│         └─────────────────────┴───────────────────┴───────────────┴───────┘   │
 │                                                                               │
-└───────────────────────────────────────────────────────────────────────────────┐
+│  ┌─────────────────────────────────────────────────────────────────────────┐  │
+│  │                           <bounded-context>/                            │  │
+│  │  ┌───────────────┐    ┌──────────────┐    ┌──────────────┐              │  │
+│  │  │   domain/     │    │    app/      │    │infrastructure│              │  │
+│  │  │               │    │              │    │              │              │  │
+│  │  │• entities     │    │• use cases   │    │• adapters    │              │  │
+│  │  │• value objects│    │• services    │    │• UI          │              │  │
+│  │  │• services     │    │              │    │• external    │              │  │
+│  │  └───────────────┘    └──────────────┘    └──────────────┘              │  │
+│  └─────────────────────────────────────────────────────────────────────────┘  │
+│                                                                               │
+│  ┌─────────────────────────────────────────────────────────────────────────┐  │
+│  │                           shared/                                       │  │
+│  │  ┌──────────────┐                                                       │  │
+│  │  │              │                                                       │  │
+│  │  │• utilities  │                                                       │  │
+│  │  │• types      │                                                       │  │
+│  │  │• constants  │                                                       │  │
+│  │  └──────────────┘                                                       │  │
+│  └─────────────────────────────────────────────────────────────────────────┘  │
+│                                                                               │
+└───────────────────────────────────────────────────────────────────────────────┘
 ```
-
 
 ### Dependency Rules (Dependency Inversion)
 
@@ -57,9 +67,9 @@ These rules are enforced by `dependency-cruiser` (run `npm run depcruise`):
 
 | From Layer | Must NOT Import From | MAY Import From |
 |------------|---------------------|-----------------|
-| `src/domain/` | `src/infrastructure/`, `src/app/`, `vue` | `src/shared/` |
-| `src/app/` | `src/infrastructure/` | `src/domain/`, `src/shared/` |
-| `src/infrastructure/` | - | `src/domain/`, `src/app/`, `src/shared/` |
+| `src/<bounded-context>/domain/` | `src/<bounded-context>/infrastructure/`, `src/<bounded-context>/app/`, `vue` | `src/shared/` |
+| `src/<bounded-context>/app/` | `src/<bounded-context>/infrastructure/` | `src/<bounded-context>/domain/`, `src/shared/` |
+| `src/<bounded-context>/infrastructure/` | - | `src/<bounded-context>/domain/`, `src/<bounded-context>/app/`, `src/shared/` |
 | `src/shared/` | - | `src/shared/` (self) |
 
 ### Two Sides of the Architecture
@@ -107,16 +117,16 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 
 ## File Structure
 
-### `src/domain/`
+### `src/<bounded-context>/domain/`
 
 - **Purpose**: Pure business logic, no external dependencies
 - **Contents**:
-  - `entities/` - Domain entities (e.g., `Region`, `Projection`)
-  - `value-objects/` - Immutable value objects (e.g., `Coordinates`, `GeoJson`)
-  - `services/` - Domain services (pure functions)
+  - Domain entities (e.g., `Country`)
+  - Value objects (e.g., `TargetBudget`, `Currency`)
+  - Domain errors (e.g., `DomainError`)
 - **Rules**: No Vue, no infrastructure imports, no side effects
 
-### `src/app/`
+### `src/<bounded-context>/app/`
 
 - **Purpose**: Use case orchestration and application logic
 - **Contents**:
@@ -124,7 +134,7 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
   - `services/` - Application services
 - **Rules**: Depends only on domain abstractions (ports), not infrastructure
 
-### `src/infrastructure/`
+### `src/<bounded-context>/infrastructure/`
 
 - **Purpose**: Adapters, UI components, external integrations
 - **Contents**:
