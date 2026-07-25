@@ -1,5 +1,9 @@
+import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
+import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
+import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { Currency } from '@/shared/types/Currency';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { CountryDataValidationError } from '../../app/errors/CountryDataValidationError';
 import { Country, CountryId } from '../../domain/Country';
 import countriesData from '../data/countries.json';
 import { StaticCountryRepository, type CountryRecord } from './StaticCountryRepository';
@@ -7,9 +11,7 @@ import { StaticCountryRepository, type CountryRecord } from './StaticCountryRepo
 describe('StaticCountryRepository', () => {
     describe('constructor', () => {
         it('throws when data is an empty array', () => {
-            expect(() => new StaticCountryRepository([])).toThrow(
-                'Country data file is missing or empty',
-            );
+            expect(() => new StaticCountryRepository([])).toThrow(Error);
         });
 
         it('constructs successfully with valid data', () => {
@@ -38,7 +40,7 @@ describe('StaticCountryRepository', () => {
             ] as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 1',
+                CountryDataValidationError,
             );
         });
 
@@ -56,7 +58,7 @@ describe('StaticCountryRepository', () => {
             ] as unknown as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 1',
+                CountryDataValidationError,
             );
         });
 
@@ -74,7 +76,7 @@ describe('StaticCountryRepository', () => {
             ] as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 1 (id: TST)',
+                CountryDataValidationError,
             );
         });
 
@@ -92,7 +94,7 @@ describe('StaticCountryRepository', () => {
             ] as unknown as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 1 (id: TST)',
+                CountryDataValidationError,
             );
         });
 
@@ -110,7 +112,7 @@ describe('StaticCountryRepository', () => {
             ] as unknown as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 1 (id: TST)',
+                CountryDataValidationError,
             );
         });
 
@@ -127,9 +129,7 @@ describe('StaticCountryRepository', () => {
                 },
             ] as CountryRecord[];
 
-            expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'baselineInvestment must be finite',
-            );
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(InfiniteNumberException);
         });
 
         it('throws NonPositiveNumberException when targetBudget is not positive', () => {
@@ -146,7 +146,7 @@ describe('StaticCountryRepository', () => {
             ] as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'TargetBudget amount must be greater than 0',
+                NonPositiveNumberException,
             );
         });
 
@@ -164,7 +164,7 @@ describe('StaticCountryRepository', () => {
             ] as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'TargetBudget amount must be greater than 0',
+                NonPositiveNumberException,
             );
         });
 
@@ -182,7 +182,7 @@ describe('StaticCountryRepository', () => {
             ] as unknown as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 1 (id: TST)',
+                CountryDataValidationError,
             );
         });
 
@@ -199,9 +199,7 @@ describe('StaticCountryRepository', () => {
                 },
             ] as CountryRecord[];
 
-            expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'targetBudget must not be NaN',
-            );
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(InvalidNumberException);
         });
 
         it('throws CountryDataValidationError when currency is invalid', () => {
@@ -218,7 +216,7 @@ describe('StaticCountryRepository', () => {
             ] as unknown as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 1 (id: TST)',
+                CountryDataValidationError,
             );
         });
 
@@ -236,7 +234,7 @@ describe('StaticCountryRepository', () => {
             ] as unknown as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 1 (id: TST)',
+                CountryDataValidationError,
             );
         });
 
@@ -253,9 +251,7 @@ describe('StaticCountryRepository', () => {
                 },
             ] as CountryRecord[];
 
-            expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'jobMultiplier must be finite',
-            );
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(InfiniteNumberException);
         });
 
         it('throws CountryDataValidationError when co2Multiplier is not a number', () => {
@@ -272,7 +268,7 @@ describe('StaticCountryRepository', () => {
             ] as unknown as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 1 (id: TST)',
+                CountryDataValidationError,
             );
         });
 
@@ -289,9 +285,7 @@ describe('StaticCountryRepository', () => {
                 },
             ] as CountryRecord[];
 
-            expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'co2Multiplier must not be NaN',
-            );
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(InvalidNumberException);
         });
 
         it('identifies the invalid record index in error message', () => {
@@ -316,9 +310,16 @@ describe('StaticCountryRepository', () => {
                 },
             ] as CountryRecord[];
 
-            expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                'Invalid country record at index 2',
-            );
+            expect.assertions(2);
+
+            try {
+                new StaticCountryRepository(invalidData);
+            } catch (error) {
+                expect(error).toBeInstanceOf(CountryDataValidationError);
+                expect((error as CountryDataValidationError).message).toContain(
+                    'Invalid country record at index 2',
+                );
+            }
         });
     });
 

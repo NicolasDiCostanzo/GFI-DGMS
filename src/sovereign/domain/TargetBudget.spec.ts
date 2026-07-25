@@ -26,9 +26,16 @@ describe('TargetBudget', () => {
         });
 
         it('throws NonPositiveNumberException with a descriptive message', () => {
-            expect(() => new TargetBudget(0, Currency.USD())).toThrow(
-                'TargetBudget amount must be greater than 0',
-            );
+            expect.assertions(2);
+
+            try {
+                new TargetBudget(0, Currency.USD());
+            } catch (error) {
+                expect(error).toBeInstanceOf(NonPositiveNumberException);
+                expect((error as NonPositiveNumberException).message).toContain(
+                    'TargetBudget amount must be greater than 0',
+                );
+            }
         });
 
         it('throws InvalidNumberException when amount is NaN', () => {
