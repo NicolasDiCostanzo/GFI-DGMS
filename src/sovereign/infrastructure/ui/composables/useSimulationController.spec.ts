@@ -16,10 +16,7 @@ const DEU = 'DEU' as CountryId;
 
 describe('useSimulationController', () => {
     describe('initial state', () => {
-        const controller = useSimulationController(
-            new MockUseCase() as unknown as never,
-            new MockRepository() as unknown as never,
-        );
+        const { controller } = createController();
 
         it('has correct default values', () => {
             expect(controller.selectedCountry.value).toBeNull();
