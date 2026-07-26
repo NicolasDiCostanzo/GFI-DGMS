@@ -51,9 +51,14 @@ describe('CalculateSimulationYields', () => {
             const repository = new MockCountryRepository(null);
             const useCase = new CalculateSimulationYields(repository);
 
-            await expect(useCase.execute('FRA', 500)).rejects.toThrow(
-                'Country with ID FRA not found',
-            );
+            expect.assertions(2);
+
+            try {
+                await useCase.execute('FRA', 500);
+            } catch (error) {
+                expect(error).toBeInstanceOf(CountryNotFoundError);
+                expect((error as CountryNotFoundError).message).toContain('FRA');
+            }
         });
 
         it('throws InvalidInvestmentError when investment exceeds max allowed', async () => {
@@ -67,9 +72,16 @@ describe('CalculateSimulationYields', () => {
             const repository = new MockCountryRepository(germany);
             const useCase = new CalculateSimulationYields(repository);
 
-            await expect(useCase.execute('DEU', 2500)).rejects.toThrow(
-                'Investment 2500 exceeds maximum allowed 2000 for country DEU',
-            );
+            expect.assertions(2);
+
+            try {
+                await useCase.execute('DEU', 2500);
+            } catch (error) {
+                expect(error).toBeInstanceOf(InvalidInvestmentError);
+                expect((error as InvalidInvestmentError).message).toContain(
+                    'Investment 2500 exceeds maximum allowed 2000 for country DEU',
+                );
+            }
         });
 
         it('returns isOverTarget true when investment exceeds target', async () => {

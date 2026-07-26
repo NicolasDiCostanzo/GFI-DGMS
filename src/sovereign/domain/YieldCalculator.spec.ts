@@ -45,9 +45,16 @@ describe('YieldCalculator', () => {
         });
 
         it('throws NonPositiveNumberException with descriptive message when target is zero', () => {
-            expect(() => YieldCalculator.calculateFundingProgress(500, 0)).toThrow(
-                'YieldCalculator target must be greater than 0',
-            );
+            expect.assertions(2);
+
+            try {
+                YieldCalculator.calculateFundingProgress(500, 0);
+            } catch (error) {
+                expect(error).toBeInstanceOf(NonPositiveNumberException);
+                expect((error as NonPositiveNumberException).message).toContain(
+                    'YieldCalculator target must be greater than 0',
+                );
+            }
         });
 
         it('throws NonPositiveNumberException when target is negative', () => {
@@ -63,9 +70,16 @@ describe('YieldCalculator', () => {
         });
 
         it('throws InvalidNumberException with descriptive message when investment is NaN', () => {
-            expect(() => YieldCalculator.calculateFundingProgress(NaN, 1000)).toThrow(
-                'YieldCalculator investment must not be NaN',
-            );
+            expect.assertions(2);
+
+            try {
+                YieldCalculator.calculateFundingProgress(NaN, 1000);
+            } catch (error) {
+                expect(error).toBeInstanceOf(InvalidNumberException);
+                expect((error as InvalidNumberException).message).toContain(
+                    'YieldCalculator investment must not be NaN',
+                );
+            }
         });
 
         it('throws InfiniteNumberException when investment is Infinity', () => {

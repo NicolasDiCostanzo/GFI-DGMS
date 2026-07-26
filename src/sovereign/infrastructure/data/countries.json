@@ -1,0 +1,254 @@
+[
+    {
+        "id": "DEU",
+        "name": "Germany",
+        "baselineInvestment": 500,
+        "targetBudget": 1000,
+        "currency": "USD",
+        "jobMultiplier": 10,
+        "co2Multiplier": 5
+    },
+    {
+        "id": "FRA",
+        "name": "France",
+        "baselineInvestment": 300,
+        "targetBudget": 800,
+        "currency": "EUR",
+        "jobMultiplier": 8,
+        "co2Multiplier": 4
+    },
+    {
+        "id": "GBR",
+        "name": "United Kingdom",
+        "baselineInvestment": 400,
+        "targetBudget": 900,
+        "currency": "USD",
+        "jobMultiplier": 9,
+        "co2Multiplier": 4.5
+    },
+    {
+        "id": "ITA",
+        "name": "Italy",
+        "baselineInvestment": 250,
+        "targetBudget": 600,
+        "currency": "EUR",
+        "jobMultiplier": 7,
+        "co2Multiplier": 3.5
+    },
+    {
+        "id": "ESP",
+        "name": "Spain",
+        "baselineInvestment": 200,
+        "targetBudget": 500,
+        "currency": "EUR",
+        "jobMultiplier": 6,
+        "co2Multiplier": 3
+    },
+    {
+        "id": "NLD",
+        "name": "Netherlands",
+        "baselineInvestment": 180,
+        "targetBudget": 450,
+        "currency": "EUR",
+        "jobMultiplier": 7,
+        "co2Multiplier": 3.5
+    },
+    {
+        "id": "POL",
+        "name": "Poland",
+        "baselineInvestment": 150,
+        "targetBudget": 400,
+        "currency": "EUR",
+        "jobMultiplier": 5,
+        "co2Multiplier": 2.5
+    },
+    {
+        "id": "BEL",
+        "name": "Belgium",
+        "baselineInvestment": 120,
+        "targetBudget": 300,
+        "currency": "EUR",
+        "jobMultiplier": 6,
+        "co2Multiplier": 3
+    },
+    {
+        "id": "SWE",
+        "name": "Sweden",
+        "baselineInvestment": 140,
+        "targetBudget": 350,
+        "currency": "USD",
+        "jobMultiplier": 7,
+        "co2Multiplier": 3.5
+    },
+    {
+        "id": "AUT",
+        "name": "Austria",
+        "baselineInvestment": 100,
+        "targetBudget": 250,
+        "currency": "EUR",
+        "jobMultiplier": 5,
+        "co2Multiplier": 2.5
+    },
+    {
+        "id": "IRL",
+        "name": "Ireland",
+        "baselineInvestment": 90,
+        "targetBudget": 220,
+        "currency": "EUR",
+        "jobMultiplier": 5,
+        "co2Multiplier": 2.5
+    },
+    {
+        "id": "DNK",
+        "name": "Denmark",
+        "baselineInvestment": 110,
+        "targetBudget": 280,
+        "currency": "USD",
+        "jobMultiplier": 6,
+        "co2Multiplier": 3
+    },
+    {
+        "id": "FIN",
+        "name": "Finland",
+        "baselineInvestment": 80,
+        "targetBudget": 200,
+        "currency": "USD",
+        "jobMultiplier": 4,
+        "co2Multiplier": 2
+    },
+    {
+        "id": "PRT",
+        "name": "Portugal",
+        "baselineInvestment": 70,
+        "targetBudget": 180,
+        "currency": "EUR",
+        "jobMultiplier": 4,
+        "co2Multiplier": 2
+    },
+    {
+        "id": "GRC",
+        "name": "Greece",
+        "baselineInvestment": 60,
+        "targetBudget": 150,
+        "currency": "EUR",
+        "jobMultiplier": 3,
+        "co2Multiplier": 1.5
+    },
+    {
+        "id": "CZE",
+        "name": "Czech Republic",
+        "baselineInvestment": 80,
+        "targetBudget": 200,
+        "currency": "EUR",
+        "jobMultiplier": 4,
+        "co2Multiplier": 2
+    },
+    {
+        "id": "ROU",
+        "name": "Romania",
+        "baselineInvestment": 50,
+        "targetBudget": 120,
+        "currency": "EUR",
+        "jobMultiplier": 3,
+        "co2Multiplier": 1.5
+    },
+    {
+        "id": "HUN",
+        "name": "Hungary",
+        "baselineInvestment": 55,
+        "targetBudget": 130,
+        "currency": "EUR",
+        "jobMultiplier": 3,
+        "co2Multiplier": 1.5
+    },
+    {
+        "id": "SVK",
+        "name": "Slovakia",
+        "baselineInvestment": 40,
+        "targetBudget": 100,
+        "currency": "EUR",
+        "jobMultiplier": 2,
+        "co2Multiplier": 1
+    },
+    {
+        "id": "BGR",
+        "name": "Bulgaria",
+        "baselineInvestment": 35,
+        "targetBudget": 90,
+        "currency": "EUR",
+        "jobMultiplier": 2,
+        "co2Multiplier": 1
+    },
+    {
+        "id": "HRV",
+        "name": "Croatia",
+        "baselineInvestment": 30,
+        "targetBudget": 75,
+        "currency": "EUR",
+        "jobMultiplier": 2,
+        "co2Multiplier": 1
+    },
+    {
+        "id": "SVN",
+        "name": "Slovenia",
+        "baselineInvestment": 25,
+        "targetBudget": 60,
+        "currency": "EUR",
+        "jobMultiplier": 1,
+        "co2Multiplier": 0.5
+    },
+    {
+        "id": "LTU",
+        "name": "Lithuania",
+        "baselineInvestment": 28,
+        "targetBudget": 70,
+        "currency": "EUR",
+        "jobMultiplier": 1,
+        "co2Multiplier": 0.5
+    },
+    {
+        "id": "LVA",
+        "name": "Latvia",
+        "baselineInvestment": 22,
+        "targetBudget": 55,
+        "currency": "EUR",
+        "jobMultiplier": 1,
+        "co2Multiplier": 0.5
+    },
+    {
+        "id": "EST",
+        "name": "Estonia",
+        "baselineInvestment": 20,
+        "targetBudget": 50,
+        "currency": "EUR",
+        "jobMultiplier": 1,
+        "co2Multiplier": 0.5
+    },
+    {
+        "id": "LUX",
+        "name": "Luxembourg",
+        "baselineInvestment": 15,
+        "targetBudget": 40,
+        "currency": "EUR",
+        "jobMultiplier": 1,
+        "co2Multiplier": 0.5
+    },
+    {
+        "id": "CYP",
+        "name": "Cyprus",
+        "baselineInvestment": 12,
+        "targetBudget": 30,
+        "currency": "EUR",
+        "jobMultiplier": 1,
+        "co2Multiplier": 0.5
+    },
+    {
+        "id": "MLT",
+        "name": "Malta",
+        "baselineInvestment": 10,
+        "targetBudget": 25,
+        "currency": "EUR",
+        "jobMultiplier": 1,
+        "co2Multiplier": 0.5
+    }
+]

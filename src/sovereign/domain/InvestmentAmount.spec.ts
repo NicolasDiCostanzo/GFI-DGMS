@@ -38,9 +38,16 @@ describe('InvestmentAmount', () => {
             });
 
             it('throws InvalidNumberException with a descriptive message for NaN value', () => {
-                expect(() => new InvestmentAmount(NaN, usd, 2000)).toThrow(
-                    'InvestmentAmount value must not be NaN',
-                );
+                expect.assertions(2);
+
+                try {
+                    new InvestmentAmount(NaN, usd, 2000);
+                } catch (error) {
+                    expect(error).toBeInstanceOf(InvalidNumberException);
+                    expect((error as InvalidNumberException).message).toContain(
+                        'InvestmentAmount value must not be NaN',
+                    );
+                }
             });
 
             it('throws InfiniteNumberException when value is Infinity', () => {
@@ -60,9 +67,16 @@ describe('InvestmentAmount', () => {
             });
 
             it('throws InvalidNumberException with a descriptive message for negative value', () => {
-                expect(() => new InvestmentAmount(-1, usd, 2000)).toThrow(
-                    'InvestmentAmount value must not be negative',
-                );
+                expect.assertions(2);
+
+                try {
+                    new InvestmentAmount(-1, usd, 2000);
+                } catch (error) {
+                    expect(error).toBeInstanceOf(InvalidNumberException);
+                    expect((error as InvalidNumberException).message).toContain(
+                        'InvestmentAmount value must not be negative',
+                    );
+                }
             });
 
             it('throws InvalidNumberException when value exceeds maxAllowed', () => {
@@ -70,9 +84,16 @@ describe('InvestmentAmount', () => {
             });
 
             it('throws InvalidNumberException with a descriptive message when value exceeds maxAllowed', () => {
-                expect(() => new InvestmentAmount(2500, usd, 2000)).toThrow(
-                    'InvestmentAmount value must not exceed maxAllowed',
-                );
+                expect.assertions(2);
+
+                try {
+                    new InvestmentAmount(2500, usd, 2000);
+                } catch (error) {
+                    expect(error).toBeInstanceOf(InvalidNumberException);
+                    expect((error as InvalidNumberException).message).toContain(
+                        'InvestmentAmount value must not exceed maxAllowed',
+                    );
+                }
             });
         });
 
@@ -82,9 +103,16 @@ describe('InvestmentAmount', () => {
             });
 
             it('throws InvalidNumberException with a descriptive message for NaN maxAllowed', () => {
-                expect(() => new InvestmentAmount(500, usd, NaN)).toThrow(
-                    'InvestmentAmount maxAllowed must not be NaN',
-                );
+                expect.assertions(2);
+
+                try {
+                    new InvestmentAmount(500, usd, NaN);
+                } catch (error) {
+                    expect(error).toBeInstanceOf(InvalidNumberException);
+                    expect((error as InvalidNumberException).message).toContain(
+                        'InvestmentAmount maxAllowed must not be NaN',
+                    );
+                }
             });
 
             it('throws InfiniteNumberException when maxAllowed is Infinity', () => {
@@ -110,9 +138,16 @@ describe('InvestmentAmount', () => {
             });
 
             it('throws NonPositiveNumberException with a descriptive message for invalid maxAllowed', () => {
-                expect(() => new InvestmentAmount(500, usd, 0)).toThrow(
-                    'InvestmentAmount maxAllowed must be greater than 0',
-                );
+                expect.assertions(2);
+
+                try {
+                    new InvestmentAmount(500, usd, 0);
+                } catch (error) {
+                    expect(error).toBeInstanceOf(NonPositiveNumberException);
+                    expect((error as NonPositiveNumberException).message).toContain(
+                        'InvestmentAmount maxAllowed must be greater than 0',
+                    );
+                }
             });
         });
     });
