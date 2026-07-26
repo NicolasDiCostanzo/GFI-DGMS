@@ -31,5 +31,44 @@ describe('Simulation', () => {
                 expect(results.fundingProgress).toBe(0.5);
             });
         });
+
+        describe('additionalJobs', () => {
+            it('rounds to the nearest whole number, matching YieldCalculator', async () => {
+                const fractionalCountry = new Country(
+                    CountryId('FRA'),
+                    'France',
+                    500,
+                    targetBudget,
+                    0.33,
+                    0.75,
+                );
+                const investment = new InvestmentAmount(501, usd, 2000);
+                const simulation = new Simulation(fractionalCountry, investment);
+
+                const results = simulation.getResults();
+
+                expect(results.additionalJobs).toBe(0);
+                expect(Number.isInteger(results.additionalJobs)).toBe(true);
+            });
+        });
+
+        describe('additionalCO2Tonnes', () => {
+            it('preserves decimal precision, matching YieldCalculator', async () => {
+                const fractionalCountry = new Country(
+                    CountryId('FRA'),
+                    'France',
+                    500,
+                    targetBudget,
+                    0.33,
+                    0.75,
+                );
+                const investment = new InvestmentAmount(1000, usd, 2000);
+                const simulation = new Simulation(fractionalCountry, investment);
+
+                const results = simulation.getResults();
+
+                expect(results.additionalCO2Tonnes).toBe(375);
+            });
+        });
     });
 });

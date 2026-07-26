@@ -4,11 +4,9 @@ import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberExc
 import { Currency } from '@/shared/types/Currency';
 import { describe, expect, it } from 'vitest';
 import { InvestmentAmount } from './InvestmentAmount';
-import { TargetBudget } from './TargetBudget';
 
 describe('InvestmentAmount', () => {
     const usd = Currency.USD();
-    const target = new TargetBudget(1000, usd);
 
     describe('constructor', () => {
         it('creates an InvestmentAmount with value, currency, and maxAllowed', () => {
@@ -149,32 +147,6 @@ describe('InvestmentAmount', () => {
                     );
                 }
             });
-        });
-    });
-
-    describe('toPercentageOf()', () => {
-        it('returns 0.0 when value is zero', () => {
-            const investment = new InvestmentAmount(0, usd, 2000);
-
-            expect(investment.toPercentageOf(target)).toBe(0);
-        });
-
-        it('returns 0.5 when value is half the target', () => {
-            const investment = new InvestmentAmount(500, usd, 2000);
-
-            expect(investment.toPercentageOf(target)).toBe(0.5);
-        });
-
-        it('returns 1.0 when value equals the target', () => {
-            const investment = new InvestmentAmount(1000, usd, 2000);
-
-            expect(investment.toPercentageOf(target)).toBe(1);
-        });
-
-        it('returns 2.0 when value is double the target', () => {
-            const investment = new InvestmentAmount(2000, usd, 2000);
-
-            expect(investment.toPercentageOf(target)).toBe(2);
         });
     });
 });

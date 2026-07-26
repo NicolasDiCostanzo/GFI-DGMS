@@ -14,8 +14,4 @@ export class TargetBudget {
         this.amount = amount;
         this.currency = currency;
     }
-
-    percentageOf(actual: number): number {
-        return actual / this.amount;
-    }
 }

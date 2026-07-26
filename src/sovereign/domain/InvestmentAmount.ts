@@ -2,7 +2,6 @@ import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { Currency } from '@/shared/types/Currency';
 import { validateNumeric } from '@/shared/utils/validateNumeric';
-import { TargetBudget } from './TargetBudget';
 
 export class InvestmentAmount {
     readonly value: number;
@@ -26,9 +25,5 @@ export class InvestmentAmount {
         this.value = value;
         this.currency = currency;
         this.maxAllowed = maxAllowed;
-    }
-
-    toPercentageOf(target: TargetBudget): number {
-        return this.value / target.amount;
     }
 }

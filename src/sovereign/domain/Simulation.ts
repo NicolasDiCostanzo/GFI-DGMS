@@ -18,8 +18,16 @@ export class Simulation {
 
         return {
             fundingProgress,
-            additionalJobs: this.country.getAdditionalJobs(this.investment.value),
-            additionalCO2Tonnes: this.country.getAdditionalCO2Saved(this.investment.value),
+            additionalJobs: YieldCalculator.calculateAdditionalJobs(
+                this.investment.value,
+                this.country.baselineInvestment,
+                this.country.jobMultiplier,
+            ),
+            additionalCO2Tonnes: YieldCalculator.calculateAdditionalCO2(
+                this.investment.value,
+                this.country.baselineInvestment,
+                this.country.co2Multiplier,
+            ),
             isOverTarget: fundingProgress > 1.0,
             colorHex: getColorForFundingProgress(fundingProgress),
         };

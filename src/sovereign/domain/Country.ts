@@ -12,16 +12,4 @@ export class Country {
         readonly jobMultiplier: number,
         readonly co2Multiplier: number,
     ) {}
-
-    getFundingProgress(investment: number): number {
-        return investment / this.targetBudget.amount;
-    }
-
-    getAdditionalJobs(investment: number): number {
-        return (investment - this.baselineInvestment) * this.jobMultiplier;
-    }
-
-    getAdditionalCO2Saved(investment: number): number {
-        return (investment - this.baselineInvestment) * this.co2Multiplier;
-    }
 }

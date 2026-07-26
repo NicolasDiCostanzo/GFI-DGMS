@@ -54,28 +54,4 @@ describe('TargetBudget', () => {
             );
         });
     });
-
-    describe('percentageOf()', () => {
-        const target = new TargetBudget(1000, Currency.USD());
-
-        it('returns 0.0 when actual is zero', () => {
-            expect(target.percentageOf(0)).toBe(0);
-        });
-
-        it('returns 0.5 when actual is half the target', () => {
-            expect(target.percentageOf(500)).toBe(0.5);
-        });
-
-        it('returns 1.0 when actual equals the target', () => {
-            expect(target.percentageOf(1000)).toBe(1);
-        });
-
-        it('returns 2.0 when actual is double the target', () => {
-            expect(target.percentageOf(2000)).toBe(2);
-        });
-
-        it('returns 3.0 when actual is triple the target', () => {
-            expect(target.percentageOf(3000)).toBe(3);
-        });
-    });
 });
