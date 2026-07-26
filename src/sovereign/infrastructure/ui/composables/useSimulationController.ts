@@ -1,5 +1,5 @@
+import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import { computed, ref } from 'vue';
-import { getErrorMessage } from '../../../../shared/utils/getErrorMessage';
 import type { CalculateSimulationYields } from '../../../app/CalculateSimulationYields';
 import type { Country, CountryId } from '../../../domain/Country';
 import type { CountryRepository } from '../../../domain/repository/CountryRepository';
