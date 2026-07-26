@@ -3,7 +3,7 @@ import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { Currency } from '@/shared/types/Currency';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { CountryDataValidationError } from '../../app/errors/CountryDataValidationError';
+import { CountryDataValidationError } from '../errors/CountryDataValidationError';
 import { Country, CountryId } from '../../domain/Country';
 import countriesData from '../data/countries.json';
 import { StaticCountryRepository, type CountryRecord } from './StaticCountryRepository';

@@ -1,6 +1,6 @@
-import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { MAX_FUNDING_PROGRESS_RATIO } from '../domain/constants/FundingConstants';
 import { CountryId } from '../domain/Country';
+import { InvestmentExceedsMaxAllowedException } from '../domain/errors/InvestmentExceedsMaxAllowedException';
 import { InvestmentAmount } from '../domain/InvestmentAmount';
 import { CountryRepository } from '../domain/repository/CountryRepository';
 import { Simulation } from '../domain/Simulation';
@@ -31,10 +31,7 @@ export class CalculateSimulationYields {
 
             return simulation.getResults();
         } catch (error) {
-            if (
-                error instanceof InvalidNumberException &&
-                error.message.includes('must not exceed maxAllowed')
-            ) {
+            if (error instanceof InvestmentExceedsMaxAllowedException) {
                 throw new InvalidInvestmentError(
                     `Investment ${investmentAmount} exceeds maximum allowed ${maxAllowed} for country ${countryId}`,
                 );

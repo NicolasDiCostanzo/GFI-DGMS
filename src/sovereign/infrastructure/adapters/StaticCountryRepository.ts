@@ -1,6 +1,6 @@
 import { Currency } from '@/shared/types/Currency';
 import { validateNumeric } from '@/shared/utils/validateNumeric';
-import { CountryDataValidationError } from '../../app/errors/CountryDataValidationError';
+import { CountryDataValidationError } from '../errors/CountryDataValidationError';
 import { Country, CountryId } from '../../domain/Country';
 import { CountryRepository } from '../../domain/repository/CountryRepository';
 import { TargetBudget } from '../../domain/TargetBudget';

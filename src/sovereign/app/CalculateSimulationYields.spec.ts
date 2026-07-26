@@ -106,7 +106,7 @@ describe('CalculateSimulationYields', () => {
             expect(results.colorHex).toBe(MapColors.NEON_GREEN);
         });
 
-        it('re-throws non-InvalidNumberException errors from InvestmentAmount', async () => {
+        it('re-throws errors from InvestmentAmount other than exceeding maxAllowed', async () => {
             const repository = new MockCountryRepository(germany);
             const useCase = new CalculateSimulationYields(repository);
 

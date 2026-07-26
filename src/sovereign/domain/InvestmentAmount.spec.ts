@@ -3,6 +3,7 @@ import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { Currency } from '@/shared/types/Currency';
 import { describe, expect, it } from 'vitest';
+import { InvestmentExceedsMaxAllowedException } from './errors/InvestmentExceedsMaxAllowedException';
 import { InvestmentAmount } from './InvestmentAmount';
 
 describe('InvestmentAmount', () => {
@@ -77,18 +78,20 @@ describe('InvestmentAmount', () => {
                 }
             });
 
-            it('throws InvalidNumberException when value exceeds maxAllowed', () => {
-                expect(() => new InvestmentAmount(2500, usd, 2000)).toThrow(InvalidNumberException);
+            it('throws InvestmentExceedsMaxAllowedException when value exceeds maxAllowed', () => {
+                expect(() => new InvestmentAmount(2500, usd, 2000)).toThrow(
+                    InvestmentExceedsMaxAllowedException,
+                );
             });
 
-            it('throws InvalidNumberException with a descriptive message when value exceeds maxAllowed', () => {
+            it('throws InvestmentExceedsMaxAllowedException with a descriptive message when value exceeds maxAllowed', () => {
                 expect.assertions(2);
 
                 try {
                     new InvestmentAmount(2500, usd, 2000);
                 } catch (error) {
-                    expect(error).toBeInstanceOf(InvalidNumberException);
-                    expect((error as InvalidNumberException).message).toContain(
+                    expect(error).toBeInstanceOf(InvestmentExceedsMaxAllowedException);
+                    expect((error as InvestmentExceedsMaxAllowedException).message).toContain(
                         'InvestmentAmount value must not exceed maxAllowed',
                     );
                 }

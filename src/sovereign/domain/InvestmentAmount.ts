@@ -2,6 +2,7 @@ import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { Currency } from '@/shared/types/Currency';
 import { validateNumeric } from '@/shared/utils/validateNumeric';
+import { InvestmentExceedsMaxAllowedException } from './errors/InvestmentExceedsMaxAllowedException';
 
 export class InvestmentAmount {
     readonly value: number;
@@ -20,7 +21,9 @@ export class InvestmentAmount {
             );
         }
         if (value > maxAllowed) {
-            throw new InvalidNumberException('InvestmentAmount value must not exceed maxAllowed');
+            throw new InvestmentExceedsMaxAllowedException(
+                'InvestmentAmount value must not exceed maxAllowed',
+            );
         }
         this.value = value;
         this.currency = currency;
