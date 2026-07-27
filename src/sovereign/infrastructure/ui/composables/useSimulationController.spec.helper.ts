@@ -18,7 +18,7 @@ export class MockRepository implements CountryRepository {
 }
 
 export const GERMANY = new Country(
-    CountryId('DEU'),
+    CountryId('276'),
     'Germany',
     500,
     new TargetBudget(1000, Currency.USD()),

@@ -1,6 +1,6 @@
 [
     {
-        "id": "DEU",
+        "id": "276",
         "name": "Germany",
         "baselineInvestment": 500,
         "targetBudget": 1000,
@@ -9,7 +9,7 @@
         "co2Multiplier": 5
     },
     {
-        "id": "FRA",
+        "id": "250",
         "name": "France",
         "baselineInvestment": 300,
         "targetBudget": 800,
@@ -18,7 +18,7 @@
         "co2Multiplier": 4
     },
     {
-        "id": "GBR",
+        "id": "826",
         "name": "United Kingdom",
         "baselineInvestment": 400,
         "targetBudget": 900,
@@ -27,7 +27,7 @@
         "co2Multiplier": 4.5
     },
     {
-        "id": "ITA",
+        "id": "380",
         "name": "Italy",
         "baselineInvestment": 250,
         "targetBudget": 600,
@@ -36,7 +36,7 @@
         "co2Multiplier": 3.5
     },
     {
-        "id": "ESP",
+        "id": "724",
         "name": "Spain",
         "baselineInvestment": 200,
         "targetBudget": 500,
@@ -45,7 +45,7 @@
         "co2Multiplier": 3
     },
     {
-        "id": "NLD",
+        "id": "528",
         "name": "Netherlands",
         "baselineInvestment": 180,
         "targetBudget": 450,
@@ -54,7 +54,7 @@
         "co2Multiplier": 3.5
     },
     {
-        "id": "POL",
+        "id": "616",
         "name": "Poland",
         "baselineInvestment": 150,
         "targetBudget": 400,
@@ -63,7 +63,7 @@
         "co2Multiplier": 2.5
     },
     {
-        "id": "BEL",
+        "id": "056",
         "name": "Belgium",
         "baselineInvestment": 120,
         "targetBudget": 300,
@@ -72,7 +72,7 @@
         "co2Multiplier": 3
     },
     {
-        "id": "SWE",
+        "id": "752",
         "name": "Sweden",
         "baselineInvestment": 140,
         "targetBudget": 350,
@@ -81,7 +81,7 @@
         "co2Multiplier": 3.5
     },
     {
-        "id": "AUT",
+        "id": "040",
         "name": "Austria",
         "baselineInvestment": 100,
         "targetBudget": 250,
@@ -90,7 +90,7 @@
         "co2Multiplier": 2.5
     },
     {
-        "id": "IRL",
+        "id": "372",
         "name": "Ireland",
         "baselineInvestment": 90,
         "targetBudget": 220,
@@ -99,7 +99,7 @@
         "co2Multiplier": 2.5
     },
     {
-        "id": "DNK",
+        "id": "208",
         "name": "Denmark",
         "baselineInvestment": 110,
         "targetBudget": 280,
@@ -108,7 +108,7 @@
         "co2Multiplier": 3
     },
     {
-        "id": "FIN",
+        "id": "246",
         "name": "Finland",
         "baselineInvestment": 80,
         "targetBudget": 200,
@@ -117,7 +117,7 @@
         "co2Multiplier": 2
     },
     {
-        "id": "PRT",
+        "id": "620",
         "name": "Portugal",
         "baselineInvestment": 70,
         "targetBudget": 180,
@@ -126,7 +126,7 @@
         "co2Multiplier": 2
     },
     {
-        "id": "GRC",
+        "id": "300",
         "name": "Greece",
         "baselineInvestment": 60,
         "targetBudget": 150,
@@ -135,7 +135,7 @@
         "co2Multiplier": 1.5
     },
     {
-        "id": "CZE",
+        "id": "203",
         "name": "Czech Republic",
         "baselineInvestment": 80,
         "targetBudget": 200,
@@ -144,7 +144,7 @@
         "co2Multiplier": 2
     },
     {
-        "id": "ROU",
+        "id": "642",
         "name": "Romania",
         "baselineInvestment": 50,
         "targetBudget": 120,
@@ -153,7 +153,7 @@
         "co2Multiplier": 1.5
     },
     {
-        "id": "HUN",
+        "id": "348",
         "name": "Hungary",
         "baselineInvestment": 55,
         "targetBudget": 130,
@@ -162,7 +162,7 @@
         "co2Multiplier": 1.5
     },
     {
-        "id": "SVK",
+        "id": "703",
         "name": "Slovakia",
         "baselineInvestment": 40,
         "targetBudget": 100,
@@ -171,7 +171,7 @@
         "co2Multiplier": 1
     },
     {
-        "id": "BGR",
+        "id": "100",
         "name": "Bulgaria",
         "baselineInvestment": 35,
         "targetBudget": 90,
@@ -180,7 +180,7 @@
         "co2Multiplier": 1
     },
     {
-        "id": "HRV",
+        "id": "191",
         "name": "Croatia",
         "baselineInvestment": 30,
         "targetBudget": 75,
@@ -189,7 +189,7 @@
         "co2Multiplier": 1
     },
     {
-        "id": "SVN",
+        "id": "705",
         "name": "Slovenia",
         "baselineInvestment": 25,
         "targetBudget": 60,
@@ -198,7 +198,7 @@
         "co2Multiplier": 0.5
     },
     {
-        "id": "LTU",
+        "id": "440",
         "name": "Lithuania",
         "baselineInvestment": 28,
         "targetBudget": 70,
@@ -207,7 +207,7 @@
         "co2Multiplier": 0.5
     },
     {
-        "id": "LVA",
+        "id": "428",
         "name": "Latvia",
         "baselineInvestment": 22,
         "targetBudget": 55,
@@ -216,7 +216,7 @@
         "co2Multiplier": 0.5
     },
     {
-        "id": "EST",
+        "id": "233",
         "name": "Estonia",
         "baselineInvestment": 20,
         "targetBudget": 50,
@@ -225,7 +225,7 @@
         "co2Multiplier": 0.5
     },
     {
-        "id": "LUX",
+        "id": "442",
         "name": "Luxembourg",
         "baselineInvestment": 15,
         "targetBudget": 40,
@@ -234,7 +234,7 @@
         "co2Multiplier": 0.5
     },
     {
-        "id": "CYP",
+        "id": "196",
         "name": "Cyprus",
         "baselineInvestment": 12,
         "targetBudget": 30,
@@ -243,7 +243,7 @@
         "co2Multiplier": 0.5
     },
     {
-        "id": "MLT",
+        "id": "470",
         "name": "Malta",
         "baselineInvestment": 10,
         "targetBudget": 25,

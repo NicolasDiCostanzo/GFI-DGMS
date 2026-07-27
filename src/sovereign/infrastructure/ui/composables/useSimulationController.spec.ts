@@ -12,7 +12,7 @@ import {
     useFakeDateTimers,
 } from './useSimulationController.spec.helper';
 
-const DEU = 'DEU' as CountryId;
+const DEU = '276' as CountryId;
 
 describe('useSimulationController', () => {
     describe('initial state', () => {
@@ -119,7 +119,7 @@ describe('useSimulationController', () => {
 
             await controller.selectCountry(DEU);
 
-            expect(useCase.execute).toHaveBeenCalledWith('DEU', 500);
+            expect(useCase.execute).toHaveBeenCalledWith('276', 500);
             expect(controller.simulationResults.value).toStrictEqual(RESULTS);
         });
 
@@ -234,7 +234,7 @@ describe('useSimulationController', () => {
             await controller.setSliderValue(750);
 
             expect(controller.sliderValue.value).toBe(750);
-            expect(useCase.execute).toHaveBeenCalledWith('DEU', 750);
+            expect(useCase.execute).toHaveBeenCalledWith('276', 750);
         });
 
         it('does nothing when no country is selected', async () => {
