@@ -2,7 +2,7 @@
     {
         "id": "276",
         "name": "Germany",
-        "baselineInvestment": 500,
+        "baselineInvestment": 900,
         "targetBudget": 1000,
         "currency": "USD",
         "jobMultiplier": 10,
@@ -11,7 +11,7 @@
     {
         "id": "250",
         "name": "France",
-        "baselineInvestment": 300,
+        "baselineInvestment": 600,
         "targetBudget": 800,
         "currency": "EUR",
         "jobMultiplier": 8,
@@ -20,7 +20,7 @@
     {
         "id": "826",
         "name": "United Kingdom",
-        "baselineInvestment": 400,
+        "baselineInvestment": 900,
         "targetBudget": 900,
         "currency": "USD",
         "jobMultiplier": 9,
@@ -38,7 +38,7 @@
     {
         "id": "724",
         "name": "Spain",
-        "baselineInvestment": 200,
+        "baselineInvestment": 600,
         "targetBudget": 500,
         "currency": "EUR",
         "jobMultiplier": 6,

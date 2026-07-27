@@ -96,7 +96,7 @@ test.describe('InteractiveMap', () => {
 
     test('country path aria-label includes funding progress', async ({ page }) => {
         const germanyPath = page.locator('path.country-path[data-country-id="276"]');
-        await expect(germanyPath).toHaveAttribute('aria-label', /50/);
+        await expect(germanyPath).toHaveAttribute('aria-label', /90/);
     });
 
     test('SVG is responsive with 100% width and height', async ({ page }) => {

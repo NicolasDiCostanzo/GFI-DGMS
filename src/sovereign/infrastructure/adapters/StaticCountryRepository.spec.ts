@@ -343,7 +343,7 @@ describe('StaticCountryRepository', () => {
 
                 expect(country.id).toBe('276');
                 expect(country.name).toBe('Germany');
-                expect(country.baselineInvestment).toBe(500);
+                expect(country.baselineInvestment).toBe(900);
                 expect(country.targetBudget.amount).toBe(1000);
                 expect(country.targetBudget.currency).toEqual(Currency.USD());
                 expect(country.jobMultiplier).toBe(10);
