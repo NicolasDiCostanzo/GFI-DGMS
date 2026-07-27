@@ -75,4 +75,23 @@ describe('useMapZoom', () => {
             expect(mapTransform.value).toBe('translate(-190,-95) scale(20)');
         });
     });
+
+    describe('panTo', () => {
+        it('moves the translate without changing the scale', () => {
+            const { mapTransform, panTo } = useMapZoom(200, 200);
+
+            panTo(30, 15);
+
+            expect(mapTransform.value).toBe('translate(30,15) scale(1)');
+        });
+
+        it('preserves the current scale when panning a zoomed-in map', () => {
+            const { mapTransform, zoomAtPoint, panTo } = useMapZoom(200, 200);
+
+            zoomAtPoint({ x: 50, y: 25 }, 2);
+            panTo(10, 5);
+
+            expect(mapTransform.value).toBe('translate(10,5) scale(2)');
+        });
+    });
 });

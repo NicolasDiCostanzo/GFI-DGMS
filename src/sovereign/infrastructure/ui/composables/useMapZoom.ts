@@ -55,11 +55,16 @@ export function useMapZoom(svgWidth: number, svgHeight: number) {
         };
     }
 
+    function panTo(translateX: number, translateY: number): void {
+        zoomState.value = { ...zoomState.value, translateX, translateY };
+    }
+
     return {
         zoomState,
         mapTransform,
         computeZoom,
         resetZoom,
         zoomAtPoint,
+        panTo,
     };
 }
