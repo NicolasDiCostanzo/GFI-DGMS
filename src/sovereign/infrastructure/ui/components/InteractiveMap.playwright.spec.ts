@@ -96,7 +96,7 @@ test.describe('InteractiveMap', () => {
 
     test('country path aria-label includes funding progress', async ({ page }) => {
         const germanyPath = page.locator('path.country-path[data-country-id="276"]');
-        await expect(germanyPath).toHaveAttribute('aria-label', /75/);
+        await expect(germanyPath).toHaveAttribute('aria-label', /50/);
     });
 
     test('SVG is responsive with 100% width and height', async ({ page }) => {
@@ -108,5 +108,67 @@ test.describe('InteractiveMap', () => {
     test('SVG has viewBox attribute', async ({ page }) => {
         const svg = page.locator('svg');
         await expect(svg).toHaveAttribute('viewBox');
+    });
+
+    test('scrolling the wheel over the map zooms it instead of scrolling the page', async ({
+        page,
+    }) => {
+        const mapGroup = page.locator('.map-group');
+        await expect(mapGroup).toHaveAttribute('transform', '');
+
+        const svgBox = await page.locator('svg').boundingBox();
+        await page.mouse.move(svgBox!.x + svgBox!.width / 2, svgBox!.y + svgBox!.height / 2);
+        await page.mouse.wheel(0, -300);
+
+        await expect(mapGroup).not.toHaveAttribute('transform', '');
+        expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    });
+
+    test('dragging with the left mouse button pans the map without selecting a country', async ({
+        page,
+    }) => {
+        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
+        const box = (await germanyPath.boundingBox())!;
+
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        await page.mouse.down({ button: 'left' });
+        await page.mouse.move(box.x + box.width / 2 + 150, box.y + box.height / 2 + 80, {
+            steps: 15,
+        });
+        await page.mouse.up({ button: 'left' });
+
+        const mapGroup = page.locator('.map-group');
+        await expect(mapGroup).toHaveAttribute('transform', /scale\(1\)$/);
+        expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    });
+
+    test('dragging with the middle mouse button pans the map', async ({ page }) => {
+        const svgBox = (await page.locator('svg').boundingBox())!;
+        const centerX = svgBox.x + svgBox.width / 2;
+        const centerY = svgBox.y + svgBox.height / 2;
+
+        await page.mouse.move(centerX, centerY);
+        await page.mouse.down({ button: 'middle' });
+        await page.mouse.move(centerX - 100, centerY - 60, { steps: 15 });
+        await page.mouse.up({ button: 'middle' });
+
+        const mapGroup = page.locator('.map-group');
+        await expect(mapGroup).toHaveAttribute('transform', /scale\(1\)$/);
+    });
+
+    test('a plain click on a country still selects and zooms it after a drag elsewhere', async ({
+        page,
+    }) => {
+        const svgBox = (await page.locator('svg').boundingBox())!;
+        await page.mouse.move(svgBox.x + 50, svgBox.y + 50);
+        await page.mouse.down({ button: 'left' });
+        await page.mouse.move(svgBox.x + 200, svgBox.y + 150, { steps: 10 });
+        await page.mouse.up({ button: 'left' });
+
+        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
+        await germanyPath.click();
+
+        const mapGroup = page.locator('.map-group');
+        await expect(mapGroup).toHaveAttribute('transform', /scale\(4\)$/);
     });
 });

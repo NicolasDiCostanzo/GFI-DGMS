@@ -4,7 +4,7 @@ import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import GeoJSON from 'geojson';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
-import { computed, useTemplateRef, watch } from 'vue';
+import { computed, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import worldAtlas from 'world-atlas/countries-50m.json';
 import type { Country, CountryId } from '../../../domain/Country';
 import type { SimulationResults } from '../../../domain/SimulationResults';
@@ -29,6 +29,8 @@ const emit = defineEmits<{
 const SVG_WIDTH = 960;
 const SVG_HEIGHT = 500;
 const WHEEL_ZOOM_FACTOR = 1.1;
+const DRAG_THRESHOLD_PX = 4;
+const PANNABLE_BUTTONS = [0, 1];
 
 interface NamedFeatureProperties {
     name: string;
@@ -57,8 +59,18 @@ const projection = computed(() => {
 const pathGenerator = computed(() => geoPath(projection.value));
 
 const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
-const { mapTransform, computeZoom, resetZoom, zoomAtPoint } = useMapZoom(SVG_WIDTH, SVG_HEIGHT);
+const { zoomState, mapTransform, computeZoom, resetZoom, zoomAtPoint, panTo } = useMapZoom(
+    SVG_WIDTH,
+    SVG_HEIGHT,
+);
 const mapGroupRef = useTemplateRef<SVGGElement>('mapGroupRef');
+const svgRef = useTemplateRef<SVGSVGElement>('svgRef');
+const isDragging = ref(false);
+
+let dragStartClient: { x: number; y: number } | null = null;
+let dragStartLocal: { x: number; y: number } | null = null;
+let dragStartTranslate: { x: number; y: number } | null = null;
+let didDrag = false;
 
 watch(
     () => props.selectedCountryId,
@@ -109,6 +121,10 @@ function getTooltipText(isoNumeric: string): string {
 }
 
 function handlePathClick(isoNumeric: string): void {
+    if (didDrag) {
+        didDrag = false;
+        return;
+    }
     emit('country-select', isoNumeric as CountryId);
 }
 
@@ -130,6 +146,75 @@ function handleWheel(event: WheelEvent): void {
     zoomAtPoint({ x: point.x, y: point.y }, factor);
 }
 
+function toLocalPoint(clientX: number, clientY: number): { x: number; y: number } | null {
+    const ctm = svgRef.value?.getScreenCTM();
+    if (!ctm) {
+        return null;
+    }
+    const point = new DOMPoint(clientX, clientY).matrixTransform(ctm.inverse());
+    return { x: point.x, y: point.y };
+}
+
+function handleDragMove(event: MouseEvent): void {
+    /* istanbul ignore next -- this listener is only attached between handleDragStart and
+       handleDragEnd, which always set/clear these three together; unreachable via the DOM */
+    if (!dragStartClient || !dragStartLocal || !dragStartTranslate) {
+        return;
+    }
+
+    if (!didDrag) {
+        const distance = Math.hypot(
+            event.clientX - dragStartClient.x,
+            event.clientY - dragStartClient.y,
+        );
+        didDrag = distance > DRAG_THRESHOLD_PX;
+    }
+
+    const local = toLocalPoint(event.clientX, event.clientY);
+    if (!local) {
+        return;
+    }
+    panTo(
+        dragStartTranslate.x + (local.x - dragStartLocal.x),
+        dragStartTranslate.y + (local.y - dragStartLocal.y),
+    );
+}
+
+function handleDragEnd(): void {
+    isDragging.value = false;
+    dragStartClient = null;
+    dragStartLocal = null;
+    dragStartTranslate = null;
+    window.removeEventListener('mousemove', handleDragMove);
+    window.removeEventListener('mouseup', handleDragEnd);
+}
+
+function handleDragStart(event: MouseEvent): void {
+    if (!PANNABLE_BUTTONS.includes(event.button)) {
+        return;
+    }
+    if (event.button === 1) {
+        event.preventDefault();
+    }
+    const local = toLocalPoint(event.clientX, event.clientY);
+    if (!local) {
+        return;
+    }
+
+    didDrag = false;
+    dragStartClient = { x: event.clientX, y: event.clientY };
+    dragStartLocal = local;
+    dragStartTranslate = { x: zoomState.value.translateX, y: zoomState.value.translateY };
+    isDragging.value = true;
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
+}
+
+onUnmounted(() => {
+    window.removeEventListener('mousemove', handleDragMove);
+    window.removeEventListener('mouseup', handleDragEnd);
+});
+
 function formatFundingProgressLabel(colorIndex: number): string {
     if (colorIndex === 0) {
         return `< ${toPercentage(FUNDING_PROGRESS_THRESHOLDS[0])}%`;
@@ -149,11 +234,14 @@ const LEGEND_COLORS = FUNDING_PROGRESS_COLORS.map((color, index) => ({
 <template>
     <div class="map-container">
         <svg
+            ref="svgRef"
             :viewBox="`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`"
             width="100%"
             height="100%"
             xmlns="http://www.w3.org/2000/svg"
+            :class="{ 'is-dragging': isDragging }"
             @wheel.prevent="handleWheel"
+            @mousedown="handleDragStart"
         >
             <rect width="100%" height="100%" fill="#e8f4f8" />
             <g
@@ -209,6 +297,14 @@ const LEGEND_COLORS = FUNDING_PROGRESS_COLORS.map((color, index) => ({
     width: 100%;
     height: 100%;
     overflow: hidden;
+}
+
+.map-container svg {
+    cursor: grab;
+}
+
+.map-container svg.is-dragging {
+    cursor: grabbing;
 }
 
 .country-path.clickable {

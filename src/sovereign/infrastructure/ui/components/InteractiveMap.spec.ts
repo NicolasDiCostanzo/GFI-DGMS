@@ -18,6 +18,16 @@ function dispatchWheel(
     return event;
 }
 
+function dispatchMouse(
+    target: EventTarget,
+    type: 'mousedown' | 'mousemove' | 'mouseup' | 'click',
+    options: { clientX: number; clientY: number; button?: number },
+): MouseEvent {
+    const event = new MouseEvent(type, { ...options, cancelable: true, bubbles: true });
+    target.dispatchEvent(event);
+    return event;
+}
+
 const GERMANY = new Country(
     CountryId('276'),
     'Germany',
@@ -287,6 +297,108 @@ describe('InteractiveMap', () => {
             await nextTick();
 
             expect(mapGroupElement.getAttribute('transform')).toBeFalsy();
+        });
+    });
+
+    describe('drag to pan', () => {
+        it('pans the map on left-button drag', async () => {
+            const wrapper = await createWrapper();
+            const svgElement = wrapper.find('svg').element;
+            dispatchMouse(svgElement, 'mousedown', { clientX: 0, clientY: 0, button: 0 });
+            dispatchMouse(window, 'mousemove', { clientX: 50, clientY: 30, button: 0 });
+            await nextTick();
+
+            const mapGroup = wrapper.find('.map-group');
+            expect(mapGroup.attributes('transform')).toBe('translate(50,30) scale(1)');
+
+            dispatchMouse(window, 'mouseup', { clientX: 50, clientY: 30, button: 0 });
+        });
+
+        it('pans the map on middle-button drag and prevents the default action', async () => {
+            const wrapper = await createWrapper();
+            const svgElement = wrapper.find('svg').element;
+            const mousedownEvent = dispatchMouse(svgElement, 'mousedown', {
+                clientX: 10,
+                clientY: 10,
+                button: 1,
+            });
+            expect(mousedownEvent.defaultPrevented).toBe(true);
+
+            dispatchMouse(window, 'mousemove', { clientX: 40, clientY: 10, button: 1 });
+            await nextTick();
+
+            const mapGroup = wrapper.find('.map-group');
+            expect(mapGroup.attributes('transform')).toBe('translate(30,0) scale(1)');
+
+            dispatchMouse(window, 'mouseup', { clientX: 40, clientY: 10, button: 1 });
+        });
+
+        it('does not start a drag for other mouse buttons', async () => {
+            const wrapper = await createWrapper();
+            const svgElement = wrapper.find('svg').element;
+            dispatchMouse(svgElement, 'mousedown', { clientX: 0, clientY: 0, button: 2 });
+            dispatchMouse(window, 'mousemove', { clientX: 50, clientY: 30, button: 2 });
+            await nextTick();
+
+            const mapGroup = wrapper.find('.map-group');
+            expect(mapGroup.attributes('transform')).toBeFalsy();
+        });
+
+        it('does nothing when the svg has no screen CTM', async () => {
+            const wrapper = await createWrapper();
+            const svgElement = wrapper.find('svg').element as SVGSVGElement;
+            svgElement.getScreenCTM = () => null;
+
+            dispatchMouse(svgElement, 'mousedown', { clientX: 0, clientY: 0, button: 0 });
+            dispatchMouse(window, 'mousemove', { clientX: 50, clientY: 30, button: 0 });
+            await nextTick();
+
+            const mapGroup = wrapper.find('.map-group');
+            expect(mapGroup.attributes('transform')).toBeFalsy();
+        });
+
+        it('stops panning if the screen CTM becomes unavailable mid-drag', async () => {
+            const wrapper = await createWrapper();
+            const svgElement = wrapper.find('svg').element as SVGSVGElement;
+            dispatchMouse(svgElement, 'mousedown', { clientX: 0, clientY: 0, button: 0 });
+            svgElement.getScreenCTM = () => null;
+
+            dispatchMouse(window, 'mousemove', { clientX: 50, clientY: 30, button: 0 });
+            await nextTick();
+
+            const mapGroup = wrapper.find('.map-group');
+            expect(mapGroup.attributes('transform')).toBeFalsy();
+
+            dispatchMouse(window, 'mouseup', { clientX: 50, clientY: 30, button: 0 });
+        });
+
+        it('still selects the country on a plain click with no movement', async () => {
+            const wrapper = await createWrapper();
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]').element;
+            dispatchMouse(germanPath, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
+            dispatchMouse(window, 'mouseup', { clientX: 100, clientY: 100, button: 0 });
+            dispatchMouse(germanPath, 'click', { clientX: 100, clientY: 100, button: 0 });
+            await nextTick();
+
+            expect(wrapper.emitted('country-select')).toHaveLength(1);
+        });
+
+        it('suppresses country-select when the click followed a drag', async () => {
+            const wrapper = await createWrapper();
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]').element;
+            dispatchMouse(germanPath, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
+            dispatchMouse(window, 'mousemove', { clientX: 150, clientY: 100, button: 0 });
+            dispatchMouse(window, 'mousemove', { clientX: 160, clientY: 100, button: 0 });
+            dispatchMouse(window, 'mouseup', { clientX: 160, clientY: 100, button: 0 });
+            dispatchMouse(germanPath, 'click', { clientX: 160, clientY: 100, button: 0 });
+            await nextTick();
+
+            expect(wrapper.emitted('country-select')).toBeUndefined();
+
+            dispatchMouse(germanPath, 'click', { clientX: 150, clientY: 100, button: 0 });
+            await nextTick();
+
+            expect(wrapper.emitted('country-select')).toHaveLength(1);
         });
     });
 
