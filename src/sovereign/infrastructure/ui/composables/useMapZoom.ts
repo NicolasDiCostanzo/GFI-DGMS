@@ -8,6 +8,8 @@ interface ZoomState {
 
 const ZOOM_PADDING = 40;
 const MAX_ZOOM_SCALE = 4;
+const MIN_ZOOM_SCALE = 1;
+const MAX_WHEEL_ZOOM_SCALE = 20;
 
 export function useMapZoom(svgWidth: number, svgHeight: number) {
     const zoomState = ref<ZoomState>({ scale: 1, translateX: 0, translateY: 0 });
@@ -39,10 +41,25 @@ export function useMapZoom(svgWidth: number, svgHeight: number) {
         zoomState.value = { scale: 1, translateX: 0, translateY: 0 };
     }
 
+    function zoomAtPoint(point: { x: number; y: number }, factor: number): void {
+        const current = zoomState.value;
+        const scale = Math.min(
+            Math.max(current.scale * factor, MIN_ZOOM_SCALE),
+            MAX_WHEEL_ZOOM_SCALE,
+        );
+
+        zoomState.value = {
+            scale,
+            translateX: current.translateX + point.x * (current.scale - scale),
+            translateY: current.translateY + point.y * (current.scale - scale),
+        };
+    }
+
     return {
         zoomState,
         mapTransform,
         computeZoom,
         resetZoom,
+        zoomAtPoint,
     };
 }
