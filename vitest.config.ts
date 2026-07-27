@@ -8,6 +8,7 @@ export default mergeConfig(
             globals: true,
             environment: 'node',
             include: ['src/**/*.{test,spec}.{ts,js}'],
+            exclude: ['src/**/*.playwright.spec.ts'],
             coverage: {
                 provider: 'istanbul',
                 reporter: ['text', 'lcov', 'html', 'json'],
