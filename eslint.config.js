@@ -43,6 +43,7 @@ export default [
                 'warn',
                 { argsIgnorePattern: '^_' },
             ],
+            'no-undef': 'off',
         },
     },
     {
@@ -55,6 +56,7 @@ export default [
         rules: {
             'vue/multi-word-component-names': 'off',
             'vue/html-indent': ['warn', 4],
+            'no-undef': 'off',
         },
     },
 ];
