@@ -13,6 +13,7 @@ const MAX_WHEEL_ZOOM_SCALE = 20;
 
 export function useMapZoom(svgWidth: number, svgHeight: number) {
     const zoomState = ref<ZoomState>({ scale: 1, translateX: 0, translateY: 0 });
+    const isAnimated = ref(true);
 
     const mapTransform = computed(() => {
         const z = zoomState.value;
@@ -34,10 +35,12 @@ export function useMapZoom(svgWidth: number, svgHeight: number) {
         const translateX = svgWidth / 2 - ((x0 + x1) / 2) * scale;
         const translateY = svgHeight / 2 - ((y0 + y1) / 2) * scale;
 
+        isAnimated.value = true;
         zoomState.value = { scale, translateX, translateY };
     }
 
     function resetZoom(): void {
+        isAnimated.value = true;
         zoomState.value = { scale: 1, translateX: 0, translateY: 0 };
     }
 
@@ -48,6 +51,7 @@ export function useMapZoom(svgWidth: number, svgHeight: number) {
             MAX_WHEEL_ZOOM_SCALE,
         );
 
+        isAnimated.value = false;
         zoomState.value = {
             scale,
             translateX: current.translateX + point.x * (current.scale - scale),
@@ -56,12 +60,14 @@ export function useMapZoom(svgWidth: number, svgHeight: number) {
     }
 
     function panTo(translateX: number, translateY: number): void {
+        isAnimated.value = false;
         zoomState.value = { ...zoomState.value, translateX, translateY };
     }
 
     return {
         zoomState,
         mapTransform,
+        isAnimated,
         computeZoom,
         resetZoom,
         zoomAtPoint,

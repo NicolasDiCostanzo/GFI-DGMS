@@ -59,10 +59,8 @@ const projection = computed(() => {
 const pathGenerator = computed(() => geoPath(projection.value));
 
 const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
-const { zoomState, mapTransform, computeZoom, resetZoom, zoomAtPoint, panTo } = useMapZoom(
-    SVG_WIDTH,
-    SVG_HEIGHT,
-);
+const { zoomState, mapTransform, isAnimated, computeZoom, resetZoom, zoomAtPoint, panTo } =
+    useMapZoom(SVG_WIDTH, SVG_HEIGHT);
 const mapGroupRef = useTemplateRef<SVGGElement>('mapGroupRef');
 const svgRef = useTemplateRef<SVGSVGElement>('svgRef');
 const isDragging = ref(false);
@@ -248,7 +246,7 @@ const LEGEND_COLORS = FUNDING_PROGRESS_COLORS.map((color, index) => ({
                 ref="mapGroupRef"
                 class="map-group"
                 :transform="mapTransform"
-                style="transition: transform 0.3s"
+                :style="{ transition: isAnimated ? 'transform 0.3s' : 'none' }"
             >
                 <g v-for="(countryFeature, index) in geoJsonCountries.features" :key="index">
                     <path
