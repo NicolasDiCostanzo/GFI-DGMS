@@ -116,7 +116,7 @@ function handleWheel(event: WheelEvent): void {
                 width="100%"
                 height="100%"
                 :fill="MapColors.OCEAN"
-                @click="emit('country-select', null)"
+                @click="didDragOccur() ? resetDidDrag() : emit('country-select', null)"
             />
             <g
                 ref="mapGroupRef"
