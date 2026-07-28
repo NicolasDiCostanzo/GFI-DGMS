@@ -34,7 +34,7 @@ export function useCountryDisplay(
     }
 
     function getCountryAriaLabel(isoNumeric: string): string {
-        const name = countryNameMap.value.get(isoNumeric) ?? 'Unknown';
+        const name = countryNameMap.value.get(isoNumeric);
         const results = resultsByCountry.value.get(isoNumeric as CountryId);
         if (results) {
             return `${name} — ${toPercentage(results.fundingProgress)}% funded`;
@@ -43,7 +43,7 @@ export function useCountryDisplay(
     }
 
     function getTooltipText(isoNumeric: string): string {
-        const name = countryNameMap.value.get(isoNumeric) ?? 'Unknown';
+        const name = countryNameMap.value.get(isoNumeric);
         const results = resultsByCountry.value.get(isoNumeric as CountryId);
         if (results) {
             return `${name} — ${toPercentage(results.fundingProgress)}%`;
