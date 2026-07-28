@@ -75,8 +75,14 @@ function handlePathClick(isoNumeric: string): void {
     emit('country-select', isoNumeric as CountryId);
 }
 
-function handlePathMouseEnter(isoNumeric: string, event: FocusEvent): void {
-    showTooltip(getTooltipText(isoNumeric), event as MouseEvent);
+function handlePathMouseEnter(isoNumeric: string, event: MouseEvent | FocusEvent): void {
+    const target = event.currentTarget as SVGGraphicsElement;
+    const box = target.getBoundingClientRect();
+    const point =
+        event instanceof MouseEvent
+            ? { clientX: event.clientX, clientY: event.clientY }
+            : { clientX: box.left + box.width / 2, clientY: box.top };
+    showTooltip(getTooltipText(isoNumeric), point);
 }
 
 function handlePathMouseLeave(): void {

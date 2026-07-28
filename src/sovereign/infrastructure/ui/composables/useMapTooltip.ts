@@ -15,10 +15,13 @@ export function useMapTooltip() {
         y: 0,
     });
 
-    function showTooltip(text: string, event: MouseEvent): void {
+    function showTooltip(
+        text: string,
+        { clientX, clientY }: { clientX: number; clientY: number },
+    ): void {
         tooltip.value.text = text;
-        tooltip.value.x = event.clientX;
-        tooltip.value.y = event.clientY;
+        tooltip.value.x = clientX;
+        tooltip.value.y = clientY;
         tooltip.value.visible = true;
     }
 
