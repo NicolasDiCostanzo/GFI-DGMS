@@ -54,6 +54,7 @@ const { zoomState, mapTransform, isAnimated, zoomAtPoint, panTo } = useMapZoom()
 const { getCountryFill, getCountryAriaLabel, getTooltipText } = useCountryDisplay(
     toRef(props, 'countries'),
     toRef(props, 'resultsByCountry'),
+    geoJsonCountries,
 );
 const { isDragging, handleDragStart, didDragOccur, resetDidDrag } = useMapDrag(
     svgRef,

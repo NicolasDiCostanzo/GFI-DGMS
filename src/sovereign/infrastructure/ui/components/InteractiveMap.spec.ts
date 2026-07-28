@@ -215,12 +215,13 @@ describe('InteractiveMap', () => {
             expect(tooltip.text()).toContain('no data');
         });
 
-        it('shows "Unknown" in the tooltip for a country not in the countries list', async () => {
+        it('shows the country name from world-atlas in the tooltip for a country not in the countries list', async () => {
             const wrapper = await createWrapper();
             const frenchPath = wrapper.find('path.country-path[data-country-id="250"]');
             await frenchPath.trigger('mouseenter');
             const tooltip = wrapper.find('.map-tooltip');
-            expect(tooltip.text()).toContain('Unknown');
+            expect(tooltip.text()).toContain('France');
+            expect(tooltip.text()).toContain('no data');
         });
 
         it('hides tooltip div on mouseleave', async () => {

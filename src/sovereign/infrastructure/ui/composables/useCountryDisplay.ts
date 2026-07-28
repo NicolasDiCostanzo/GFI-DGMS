@@ -1,17 +1,29 @@
 import { toPercentage } from '@/shared/utils/toPercentage';
+import type { FeatureCollection, Geometry } from 'geojson';
 import { computed, type Ref } from 'vue';
 import { MapColors } from '../../../domain/constants/MapColors';
 import type { Country, CountryId } from '../../../domain/Country';
 import type { SimulationResults } from '../../../domain/SimulationResults';
 
+interface NamedFeatureProperties {
+    name: string;
+}
+
 export function useCountryDisplay(
     countries: Ref<Country[]>,
     resultsByCountry: Ref<Map<CountryId, SimulationResults>>,
+    geoJsonCountries: Ref<FeatureCollection<Geometry, NamedFeatureProperties>>,
 ) {
     const countryNameMap = computed(() => {
         const map = new Map<string, string>();
         for (const country of countries.value) {
             map.set(country.id, country.name);
+        }
+        for (const feature of geoJsonCountries.value.features) {
+            const id = String(feature.id);
+            if (!map.has(id)) {
+                map.set(id, feature.properties.name);
+            }
         }
         return map;
     });
