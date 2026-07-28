@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { geoNaturalEarth1, geoPath } from 'd3-geo';
-import GeoJSON from 'geojson';
+import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import { computed, toRef, useTemplateRef } from 'vue';
@@ -34,8 +34,8 @@ interface NamedFeatureProperties {
 
 const geoJsonCountries = computed(() => {
     const topo = worldAtlas as unknown as Topology;
-    return feature(topo, topo.objects.countries) as GeoJSON.FeatureCollection<
-        GeoJSON.Geometry,
+    return feature(topo, topo.objects.countries) as FeatureCollection<
+        Geometry,
         NamedFeatureProperties
     >;
 });
@@ -62,9 +62,7 @@ const { isDragging, handleDragStart, didDragOccur, resetDidDrag } = useMapDrag(
     () => ({ x: zoomState.value.translateX, y: zoomState.value.translateY }),
 );
 
-function getCountryPath(
-    countryFeature: GeoJSON.Feature<GeoJSON.Geometry, NamedFeatureProperties>,
-): string {
+function getCountryPath(countryFeature: Feature<Geometry, NamedFeatureProperties>): string {
     /* istanbul ignore next -- pathGenerator only returns null for degenerate geometries; unreachable with the current world-atlas dataset */
     return pathGenerator.value(countryFeature) ?? '';
 }
