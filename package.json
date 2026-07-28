@@ -31,7 +31,7 @@
     "pretest:coverage:merge": "mkdir -p .nyc_output coverage/merged",
     "test:coverage:merge": "cp coverage/coverage-final.json .nyc_output/vitest.json && nyc merge .nyc_output coverage/merged/coverage-final.json && nyc report --temp-dir coverage/merged --report-dir coverage/merged-report --extension .ts --extension .vue --reporter=text --reporter=lcov --reporter=html --check-coverage --lines 100 --functions 100 --branches 100 --statements 100",
     "test:coverage:all": "npm run clean:coverage && npm run test:coverage && npm run test:e2e && npm run test:coverage:merge",
-    "clean": "npm run format && npm run check && npm run test:coverage"
+    "clean": "npm run lint -- --fix && npm run format && npm run check && npm run test:coverage"
   },
   "author": "",
   "license": "AGPL-3.0-only",
