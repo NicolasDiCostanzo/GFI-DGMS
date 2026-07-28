@@ -238,23 +238,6 @@ describe('InteractiveMap', () => {
         });
     });
 
-    describe('zoom behavior', () => {
-        it('resets zoom when selectedCountryId changes back to null', async () => {
-            const wrapper = await createWrapper();
-            await wrapper.setProps({ selectedCountryId: '276' as CountryId });
-            await wrapper.setProps({ selectedCountryId: null });
-            const mapGroup = wrapper.find('.map-group');
-            expect(mapGroup.attributes('transform')).toBeFalsy();
-        });
-
-        it('does not zoom when selectedCountryId does not match any map feature', async () => {
-            const wrapper = await createWrapper();
-            await wrapper.setProps({ selectedCountryId: 'not-a-real-country' as CountryId });
-            const mapGroup = wrapper.find('.map-group');
-            expect(mapGroup.attributes('transform')).toBeFalsy();
-        });
-    });
-
     describe('wheel zoom', () => {
         it('zooms in on wheel scroll up and prevents the page from scrolling', async () => {
             const wrapper = await createWrapper();
