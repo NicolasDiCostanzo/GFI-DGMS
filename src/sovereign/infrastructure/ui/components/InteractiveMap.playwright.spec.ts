@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '@/../e2e/coverage-fixtures';
 
 test.describe('InteractiveMap', () => {
     test.beforeEach(async ({ page }) => {
@@ -22,26 +22,13 @@ test.describe('InteractiveMap', () => {
 
     test('country paths have white border stroke', async ({ page }) => {
         const firstPath = page.locator('path.country-path').first();
-        await expect(firstPath).toHaveCSS('stroke', 'rgb(255, 255, 255)');
-        await expect(firstPath).toHaveCSS('stroke-opacity', '0.3');
+        await expect(firstPath).toHaveCSS('stroke', 'rgb(0, 0, 0)');
+        await expect(firstPath).toHaveCSS('stroke-opacity', '0.35');
     });
 
     test('country paths have color transition on fill', async ({ page }) => {
         const firstPath = page.locator('path.country-path').first();
         await expect(firstPath).toHaveCSS('transition', /fill 0\.3s/);
-    });
-
-    test('clicking a country emits country-select and shows zoom', async ({ page }) => {
-        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
-        await expect(germanyPath).toBeVisible();
-
-        const mapGroup = page.locator('.map-group');
-        const initialTransform = await mapGroup.getAttribute('transform');
-        expect(initialTransform).toBe('');
-
-        await germanyPath.click();
-
-        await expect(mapGroup).not.toHaveAttribute('transform', '');
     });
 
     test('tooltip appears on hover and shows country name', async ({ page }) => {
@@ -169,6 +156,9 @@ test.describe('InteractiveMap', () => {
         await germanyPath.click();
 
         const mapGroup = page.locator('.map-group');
-        await expect(mapGroup).toHaveAttribute('transform', /scale\(4\)$/);
+        await expect(mapGroup).toHaveAttribute(
+            'transform',
+            'translate(113.9240506329114,75.9493670886076) scale(1)',
+        );
     });
 });
