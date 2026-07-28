@@ -131,7 +131,8 @@ function handleWheel(event: WheelEvent): void {
                                 ? MapColors.SELECTION
                                 : MapColors.BORDER
                         "
-                        :stroke-opacity="String(countryFeature.id) === selectedCountryId ? 1 : 0.1"
+                        :stroke-opacity="String(countryFeature.id) === selectedCountryId ? 1 : 0.35"
+                        :stroke-width="String(countryFeature.id) === selectedCountryId ? 0.5 : 0.1"
                         role="button"
                         tabindex="0"
                         class="country-path clickable"
