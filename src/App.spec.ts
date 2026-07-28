@@ -1,4 +1,3 @@
-// @vitest-environment happy-dom
 import { Currency } from '@/shared/types/Currency';
 import { MapColors } from '@/sovereign/domain/constants/MapColors';
 import { Country, CountryId } from '@/sovereign/domain/Country';

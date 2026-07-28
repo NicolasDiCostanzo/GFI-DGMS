@@ -12,6 +12,7 @@ export default [
             '.dependency-cruiser.js',
             'vite.config.ts',
             'vitest.config.ts',
+            'vitest.setup.ts',
             'playwright.config.ts',
             'eslint.config.js',
         ],

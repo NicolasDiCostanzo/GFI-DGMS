@@ -8,7 +8,7 @@ export default defineConfig({
         vue({ customElement: true }),
         istanbul({
             include: 'src/**/*',
-            exclude: ['node_modules', 'test'],
+            exclude: ['node_modules', 'test', '**/*.{test,spec}.ts', 'src/vite-env.d.ts'],
             extension: ['.vue', '.ts'],
             requireEnv: true,
         }),
