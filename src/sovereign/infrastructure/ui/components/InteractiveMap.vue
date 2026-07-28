@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import { toPercentage } from '@/shared/utils/toPercentage';
 import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import GeoJSON from 'geojson';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
-import { computed, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-50m.json';
 import type { Country, CountryId } from '../../../domain/Country';
 import type { SimulationResults } from '../../../domain/SimulationResults';
-import {
-    FUNDING_PROGRESS_COLORS,
-    FUNDING_PROGRESS_THRESHOLDS,
-    MapColors,
-} from '../../../domain/constants/MapColors';
+import { MapColors } from '../../../domain/constants/MapColors';
+import { useCountryDisplay } from '../composables/useCountryDisplay';
+import { useMapDrag } from '../composables/useMapDrag';
 import { useMapTooltip } from '../composables/useMapTooltip';
 import { useMapZoom } from '../composables/useMapZoom';
+import { LEGEND_ITEMS } from '../utils/fundingProgressLegend';
 
 const props = defineProps<{
     countries: Country[];
@@ -23,14 +21,12 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    'country-select': [countryId: CountryId];
+    'country-select': [countryId: CountryId | null];
 }>();
 
 const SVG_WIDTH = 960;
 const SVG_HEIGHT = 500;
-const WHEEL_ZOOM_FACTOR = 1.1;
-const DRAG_THRESHOLD_PX = 4;
-const PANNABLE_BUTTONS = [0, 1];
+const WHEEL_ZOOM_FACTOR = 1.05;
 
 interface NamedFeatureProperties {
     name: string;
@@ -44,48 +40,25 @@ const geoJsonCountries = computed(() => {
     >;
 });
 
-const countryNameMap = computed(() => {
-    const map = new Map<string, string>();
-    for (const country of props.countries) {
-        map.set(country.id, country.name);
-    }
-    return map;
-});
-
 const projection = computed(() => {
     return geoNaturalEarth1().fitSize([SVG_WIDTH, SVG_HEIGHT], geoJsonCountries.value);
 });
 
 const pathGenerator = computed(() => geoPath(projection.value));
 
-const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
-const { zoomState, mapTransform, isAnimated, computeZoom, resetZoom, zoomAtPoint, panTo } =
-    useMapZoom(SVG_WIDTH, SVG_HEIGHT);
 const mapGroupRef = useTemplateRef<SVGGElement>('mapGroupRef');
 const svgRef = useTemplateRef<SVGSVGElement>('svgRef');
-const isDragging = ref(false);
 
-let dragStartClient: { x: number; y: number } | null = null;
-let dragStartLocal: { x: number; y: number } | null = null;
-let dragStartTranslate: { x: number; y: number } | null = null;
-let didDrag = false;
-
-watch(
-    () => props.selectedCountryId,
-    (id) => {
-        if (id) {
-            const match = geoJsonCountries.value.features.find((f) => f.id === id);
-            if (match) {
-                const bounds = pathGenerator.value.bounds(match);
-                computeZoom(bounds);
-            } else {
-                resetZoom();
-            }
-        } else {
-            resetZoom();
-        }
-    },
-    { immediate: true },
+const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
+const { zoomState, mapTransform, isAnimated, zoomAtPoint, panTo } = useMapZoom();
+const { getCountryFill, getCountryAriaLabel, getTooltipText } = useCountryDisplay(
+    toRef(props, 'countries'),
+    toRef(props, 'resultsByCountry'),
+);
+const { isDragging, handleDragStart, didDragOccur, resetDidDrag } = useMapDrag(
+    svgRef,
+    panTo,
+    () => ({ x: zoomState.value.translateX, y: zoomState.value.translateY }),
 );
 
 function getCountryPath(
@@ -95,32 +68,9 @@ function getCountryPath(
     return pathGenerator.value(countryFeature) ?? '';
 }
 
-function getCountryFill(isoNumeric: string): string {
-    const results = props.resultsByCountry.get(isoNumeric as CountryId);
-    return results ? results.colorHex : MapColors.INACTIVE;
-}
-
-function getCountryAriaLabel(isoNumeric: string): string {
-    const name = countryNameMap.value.get(isoNumeric) ?? 'Unknown';
-    const results = props.resultsByCountry.get(isoNumeric as CountryId);
-    if (results) {
-        return `${name} — ${toPercentage(results.fundingProgress)}% funded`;
-    }
-    return `${name} — no data`;
-}
-
-function getTooltipText(isoNumeric: string): string {
-    const name = countryNameMap.value.get(isoNumeric) ?? 'Unknown';
-    const results = props.resultsByCountry.get(isoNumeric as CountryId);
-    if (results) {
-        return `${name} — ${toPercentage(results.fundingProgress)}%`;
-    }
-    return `${name} — no data`;
-}
-
 function handlePathClick(isoNumeric: string): void {
-    if (didDrag) {
-        didDrag = false;
+    if (didDragOccur()) {
+        resetDidDrag();
         return;
     }
     emit('country-select', isoNumeric as CountryId);
@@ -143,90 +93,6 @@ function handleWheel(event: WheelEvent): void {
     const factor = event.deltaY < 0 ? WHEEL_ZOOM_FACTOR : 1 / WHEEL_ZOOM_FACTOR;
     zoomAtPoint({ x: point.x, y: point.y }, factor);
 }
-
-function toLocalPoint(clientX: number, clientY: number): { x: number; y: number } | null {
-    const ctm = svgRef.value?.getScreenCTM();
-    if (!ctm) {
-        return null;
-    }
-    const point = new DOMPoint(clientX, clientY).matrixTransform(ctm.inverse());
-    return { x: point.x, y: point.y };
-}
-
-function handleDragMove(event: MouseEvent): void {
-    /* istanbul ignore next -- this listener is only attached between handleDragStart and
-       handleDragEnd, which always set/clear these three together; unreachable via the DOM */
-    if (!dragStartClient || !dragStartLocal || !dragStartTranslate) {
-        return;
-    }
-
-    if (!didDrag) {
-        const distance = Math.hypot(
-            event.clientX - dragStartClient.x,
-            event.clientY - dragStartClient.y,
-        );
-        didDrag = distance > DRAG_THRESHOLD_PX;
-    }
-
-    const local = toLocalPoint(event.clientX, event.clientY);
-    if (!local) {
-        return;
-    }
-    panTo(
-        dragStartTranslate.x + (local.x - dragStartLocal.x),
-        dragStartTranslate.y + (local.y - dragStartLocal.y),
-    );
-}
-
-function handleDragEnd(): void {
-    isDragging.value = false;
-    dragStartClient = null;
-    dragStartLocal = null;
-    dragStartTranslate = null;
-    window.removeEventListener('mousemove', handleDragMove);
-    window.removeEventListener('mouseup', handleDragEnd);
-}
-
-function handleDragStart(event: MouseEvent): void {
-    if (!PANNABLE_BUTTONS.includes(event.button)) {
-        return;
-    }
-    if (event.button === 1) {
-        event.preventDefault();
-    }
-    const local = toLocalPoint(event.clientX, event.clientY);
-    if (!local) {
-        return;
-    }
-
-    didDrag = false;
-    dragStartClient = { x: event.clientX, y: event.clientY };
-    dragStartLocal = local;
-    dragStartTranslate = { x: zoomState.value.translateX, y: zoomState.value.translateY };
-    isDragging.value = true;
-    window.addEventListener('mousemove', handleDragMove);
-    window.addEventListener('mouseup', handleDragEnd);
-}
-
-onUnmounted(() => {
-    window.removeEventListener('mousemove', handleDragMove);
-    window.removeEventListener('mouseup', handleDragEnd);
-});
-
-function formatFundingProgressLabel(colorIndex: number): string {
-    if (colorIndex === 0) {
-        return `< ${toPercentage(FUNDING_PROGRESS_THRESHOLDS[0])}%`;
-    }
-    if (colorIndex === FUNDING_PROGRESS_THRESHOLDS.length) {
-        return `> ${toPercentage(FUNDING_PROGRESS_THRESHOLDS[colorIndex - 1])}%`;
-    }
-    return `${toPercentage(FUNDING_PROGRESS_THRESHOLDS[colorIndex - 1])}-${toPercentage(FUNDING_PROGRESS_THRESHOLDS[colorIndex])}%`;
-}
-
-const LEGEND_COLORS = FUNDING_PROGRESS_COLORS.map((color, index) => ({
-    color,
-    label: formatFundingProgressLabel(index),
-}));
 </script>
 
 <template>
@@ -241,7 +107,12 @@ const LEGEND_COLORS = FUNDING_PROGRESS_COLORS.map((color, index) => ({
             @wheel.prevent="handleWheel"
             @mousedown="handleDragStart"
         >
-            <rect width="100%" height="100%" fill="#e8f4f8" />
+            <rect
+                width="100%"
+                height="100%"
+                :fill="MapColors.OCEAN"
+                @click="emit('country-select', null)"
+            />
             <g
                 ref="mapGroupRef"
                 class="map-group"
@@ -254,11 +125,15 @@ const LEGEND_COLORS = FUNDING_PROGRESS_COLORS.map((color, index) => ({
                         :data-country-id="countryFeature.id"
                         :fill="getCountryFill(String(countryFeature.id))"
                         :aria-label="getCountryAriaLabel(String(countryFeature.id))"
+                        :stroke="
+                            String(countryFeature.id) === selectedCountryId
+                                ? MapColors.SELECTION
+                                : MapColors.BORDER
+                        "
+                        :stroke-opacity="String(countryFeature.id) === selectedCountryId ? 1 : 0.1"
                         role="button"
                         tabindex="0"
                         class="country-path clickable"
-                        stroke="#ffffff"
-                        stroke-opacity="0.3"
                         @click="handlePathClick(String(countryFeature.id))"
                         @keydown.enter="handlePathClick(String(countryFeature.id))"
                         @keydown.space.prevent="handlePathClick(String(countryFeature.id))"
@@ -281,7 +156,7 @@ const LEGEND_COLORS = FUNDING_PROGRESS_COLORS.map((color, index) => ({
             {{ tooltip.text }}
         </div>
         <div class="map-legend">
-            <div v-for="(entry, idx) in LEGEND_COLORS" :key="idx" class="legend-item">
+            <div v-for="(entry, idx) in LEGEND_ITEMS" :key="idx" class="legend-item">
                 <span class="legend-swatch" :style="{ backgroundColor: entry.color }" />
                 <span class="legend-label">{{ entry.label }}</span>
             </div>
@@ -307,7 +182,13 @@ const LEGEND_COLORS = FUNDING_PROGRESS_COLORS.map((color, index) => ({
 
 .country-path.clickable {
     cursor: pointer;
-    transition: fill 0.3s;
+    transition:
+        fill 0.3s,
+        stroke 0.3s;
+}
+
+.country-path.clickable:focus {
+    outline: none;
 }
 
 .country-path.clickable:hover {

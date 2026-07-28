@@ -104,15 +104,10 @@ describe('App', () => {
         const wrapper = mount(App);
         await flushPromises();
 
-        const mapGroup = wrapper.find('.map-group');
-        const transformBefore = mapGroup.attributes('transform');
-
         const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
         await germanPath.trigger('click');
         await flushPromises();
 
-        const transformAfter = mapGroup.attributes('transform');
-        expect(transformAfter).toMatch(/^translate\(.+,.+\) scale\(.+\)$/);
-        expect(transformAfter).not.toBe(transformBefore);
+        expect(germanPath.attributes('stroke')).toBe(MapColors.SELECTION);
     });
 });

@@ -127,6 +127,16 @@ describe('InteractiveMap', () => {
         });
     });
 
+    describe('ocean click', () => {
+        it('emits country-select with null when clicking the ocean background', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect');
+            await oceanRect.trigger('click');
+            expect(wrapper.emitted('country-select')).toHaveLength(1);
+            expect(wrapper.emitted('country-select')![0]).toEqual([null]);
+        });
+    });
+
     describe('keyboard accessibility', () => {
         it('emits country-select with countryId on Enter keydown', async () => {
             const wrapper = await createWrapper();
@@ -229,13 +239,6 @@ describe('InteractiveMap', () => {
     });
 
     describe('zoom behavior', () => {
-        it('zooms to the selected country when selectedCountryId changes to a match', async () => {
-            const wrapper = await createWrapper();
-            await wrapper.setProps({ selectedCountryId: '276' as CountryId });
-            const mapGroup = wrapper.find('.map-group');
-            expect(mapGroup.attributes('transform')).toBeTruthy();
-        });
-
         it('resets zoom when selectedCountryId changes back to null', async () => {
             const wrapper = await createWrapper();
             await wrapper.setProps({ selectedCountryId: '276' as CountryId });
@@ -264,7 +267,7 @@ describe('InteractiveMap', () => {
 
             expect(event.defaultPrevented).toBe(true);
             const mapGroup = wrapper.find('.map-group');
-            expect(mapGroup.attributes('transform')).toBe('translate(0,0) scale(1.1)');
+            expect(mapGroup.attributes('transform')).toBe('translate(0,0) scale(1.05)');
         });
 
         it('zooms back out on wheel scroll down at the same point', async () => {

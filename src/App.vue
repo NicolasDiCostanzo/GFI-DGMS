@@ -41,14 +41,16 @@ onMounted(async () => {
     resultsByCountry.value = new Map(entries.filter((entry) => entry !== null));
 });
 
-function handleCountrySelect(countryId: CountryId): void {
+function handleCountrySelect(countryId: CountryId | null): void {
     selectedCountryId.value = countryId;
 }
 </script>
 
 <template>
     <div class="app">
-        <p v-if="loadError" role="alert">{{ loadError.message }}</p>
+        <p v-if="loadError" role="alert">
+            {{ loadError.message }}
+        </p>
         <InteractiveMap
             v-else
             :countries="countries"

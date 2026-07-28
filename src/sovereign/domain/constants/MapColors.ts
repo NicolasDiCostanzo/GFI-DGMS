@@ -5,6 +5,9 @@ export const MapColors = {
     GREEN: '#4caf50',
     NEON_GREEN: '#00e676',
     INACTIVE: '#cccccc',
+    SELECTION: '#2196f3',
+    OCEAN: '#e8f4f8',
+    BORDER: '#000000',
 } as const;
 
 export type MapColor = (typeof MapColors)[keyof typeof MapColors];
