@@ -12,10 +12,24 @@ export default [
             '.dependency-cruiser.js',
             'vite.config.ts',
             'vitest.config.ts',
-            'vitest.setup.ts',
             'playwright.config.ts',
             'eslint.config.js',
         ],
+    },
+    {
+        files: ['vitest.setup.ts'],
+        languageOptions: {
+            parser: tsparser,
+            parserOptions: {
+                ecmaVersion: 'latest',
+                sourceType: 'module',
+            },
+            globals: {
+                afterAll: 'readonly',
+                process: 'readonly',
+                globalThis: 'readonly',
+            },
+        },
     },
     js.configs.recommended,
     ...tseslint.configs['flat/recommended'].map((config) => ({
