@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
+import eslintConfigPrettier from 'eslint-config-prettier';
 import vuePlugin from 'eslint-plugin-vue';
 
 export default [
@@ -15,6 +16,21 @@ export default [
             'playwright.config.ts',
             'eslint.config.js',
         ],
+    },
+    {
+        files: ['vitest.setup.ts'],
+        languageOptions: {
+            parser: tsparser,
+            parserOptions: {
+                ecmaVersion: 'latest',
+                sourceType: 'module',
+            },
+            globals: {
+                afterAll: 'readonly',
+                process: 'readonly',
+                globalThis: 'readonly',
+            },
+        },
     },
     js.configs.recommended,
     ...tseslint.configs['flat/recommended'].map((config) => ({
@@ -43,6 +59,7 @@ export default [
                 'warn',
                 { argsIgnorePattern: '^_' },
             ],
+            'no-undef': 'off',
         },
     },
     {
@@ -55,6 +72,8 @@ export default [
         rules: {
             'vue/multi-word-component-names': 'off',
             'vue/html-indent': ['warn', 4],
+            'no-undef': 'off',
         },
     },
+    eslintConfigPrettier,
 ];

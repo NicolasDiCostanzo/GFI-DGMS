@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getColorForFundingProgress, MapColors } from './MapColors';
+import { getColorForFundingProgress, MapColors, toRGB } from './MapColors';
 
 describe('MapColors', () => {
     describe('getColorForFundingProgress()', () => {
@@ -42,6 +42,20 @@ describe('MapColors', () => {
 
         it('returns NEON_GREEN when fundingProgress exceeds 1.2', () => {
             expect(getColorForFundingProgress(2.0)).toBe(MapColors.NEON_GREEN);
+        });
+    });
+
+    describe('toRGB', () => {
+        it('converts hex color to RGB format', () => {
+            expect(toRGB(MapColors.RED)).toBe('rgb(211, 47, 47)');
+            expect(toRGB(MapColors.ORANGE)).toBe('rgb(245, 124, 0)');
+            expect(toRGB(MapColors.YELLOW_AMBER)).toBe('rgb(253, 216, 53)');
+            expect(toRGB(MapColors.GREEN)).toBe('rgb(76, 175, 80)');
+            expect(toRGB(MapColors.NEON_GREEN)).toBe('rgb(0, 230, 118)');
+            expect(toRGB(MapColors.INACTIVE)).toBe('rgb(204, 204, 204)');
+            expect(toRGB(MapColors.SELECTION)).toBe('rgb(33, 150, 243)');
+            expect(toRGB(MapColors.OCEAN)).toBe('rgb(232, 244, 248)');
+            expect(toRGB(MapColors.BORDER)).toBe('rgb(0, 0, 0)');
         });
     });
 });

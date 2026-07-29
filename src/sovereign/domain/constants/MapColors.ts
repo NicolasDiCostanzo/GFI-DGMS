@@ -4,22 +4,34 @@ export const MapColors = {
     YELLOW_AMBER: '#fdd835',
     GREEN: '#4caf50',
     NEON_GREEN: '#00e676',
+    INACTIVE: '#cccccc',
+    SELECTION: '#2196f3',
+    OCEAN: '#e8f4f8',
+    BORDER: '#000000',
 } as const;
 
 export type MapColor = (typeof MapColors)[keyof typeof MapColors];
 
+export const FUNDING_PROGRESS_THRESHOLDS: readonly number[] = [0.5, 0.8, 1.0, 1.2];
+
+export const FUNDING_PROGRESS_COLORS: readonly MapColor[] = [
+    MapColors.RED,
+    MapColors.ORANGE,
+    MapColors.YELLOW_AMBER,
+    MapColors.GREEN,
+    MapColors.NEON_GREEN,
+];
+
 export function getColorForFundingProgress(fundingProgress: number): MapColor {
-    if (fundingProgress < 0.5) {
-        return MapColors.RED;
-    }
-    if (fundingProgress < 0.8) {
-        return MapColors.ORANGE;
-    }
-    if (fundingProgress < 1.0) {
-        return MapColors.YELLOW_AMBER;
-    }
-    if (fundingProgress < 1.2) {
-        return MapColors.GREEN;
-    }
-    return MapColors.NEON_GREEN;
+    const index = FUNDING_PROGRESS_THRESHOLDS.findIndex((threshold) => fundingProgress < threshold);
+    return index === -1
+        ? FUNDING_PROGRESS_COLORS[FUNDING_PROGRESS_COLORS.length - 1]
+        : FUNDING_PROGRESS_COLORS[index];
+}
+
+export function toRGB(hexColor: MapColor): string {
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
+    return `rgb(${r}, ${g}, ${b})`;
 }
