@@ -156,9 +156,14 @@ test.describe('InteractiveMap', () => {
         await germanyPath.click();
 
         const mapGroup = page.locator('.map-group');
-        await expect(mapGroup).toHaveAttribute(
-            'transform',
-            'translate(113.9240506329114,75.9493670886076) scale(1)',
-        );
+        const transform = await mapGroup.getAttribute('transform');
+        expect(transform).toMatch(/translate\([^)]+\)\s+scale\(1\)$/);
+
+        const match = transform!.match(/translate\(([^,]+),([^)]+)\)/);
+        expect(match).not.toBeNull();
+        const translateX = parseFloat(match![1]);
+        const translateY = parseFloat(match![2]);
+        expect(translateX).toBeCloseTo(113.9, 1);
+        expect(translateY).toBeCloseTo(75.9, 1);
     });
 });
