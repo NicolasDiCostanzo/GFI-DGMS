@@ -1,11 +1,10 @@
-import { Currency } from '@/shared/types/Currency';
 import { MapColors } from '@/sovereign/domain/constants/MapColors';
 import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
-import { TargetBudget } from '@/sovereign/domain/TargetBudget';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
+import { createWrapperDefaults } from './InteractiveMap.spec.fixture';
 import InteractiveMap from './InteractiveMap.vue';
 
 function dispatchWheel(
@@ -27,23 +26,6 @@ function dispatchMouse(
     return event;
 }
 
-const GERMANY = new Country(
-    CountryId('276'),
-    'Germany',
-    500,
-    new TargetBudget(1000, Currency.USD()),
-    10,
-    5,
-);
-
-const RESULTS_GERMANY: SimulationResults = {
-    fundingProgress: 0.75,
-    additionalJobs: 2500,
-    additionalCO2Tonnes: 1250,
-    isOverTarget: false,
-    colorHex: MapColors.ORANGE,
-};
-
 async function createWrapper(
     options: {
         countries?: Country[];
@@ -51,14 +33,7 @@ async function createWrapper(
         selectedCountryId?: CountryId | null;
     } = {},
 ) {
-    const defaults = {
-        countries: [GERMANY],
-        resultsByCountry: new Map<CountryId, SimulationResults>([
-            ['276' as CountryId, RESULTS_GERMANY],
-        ]),
-        selectedCountryId: null as CountryId | null,
-    };
-
+    const defaults = createWrapperDefaults();
     const props = { ...defaults, ...options };
 
     return mount(InteractiveMap, {

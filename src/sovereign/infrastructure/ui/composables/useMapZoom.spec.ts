@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { useMapZoom } from './useMapZoom';
+import {
+    ZOOM_TRANSFORM_IDENTITY,
+    ZOOM_TRANSFORM_MAX_ZOOM,
+    ZOOM_TRANSFORM_PAN,
+    ZOOM_TRANSFORM_PAN_AFTER_ZOOM,
+    ZOOM_TRANSFORM_ZOOM_IN,
+} from './useMapZoom.spec.fixture';
 
 describe('useMapZoom', () => {
     it('starts with no transform', () => {
         const { mapTransform } = useMapZoom();
-        expect(mapTransform.value).toBe('');
+        expect(mapTransform.value).toBe(ZOOM_TRANSFORM_IDENTITY);
     });
 
     describe('zoomAtPoint', () => {
@@ -13,7 +20,7 @@ describe('useMapZoom', () => {
 
             zoomAtPoint({ x: 50, y: 25 }, 2);
 
-            expect(mapTransform.value).toBe('translate(-50,-25) scale(2)');
+            expect(mapTransform.value).toBe(ZOOM_TRANSFORM_ZOOM_IN);
         });
 
         it('zooms out around the given point, keeping it visually fixed', () => {
@@ -22,7 +29,7 @@ describe('useMapZoom', () => {
             zoomAtPoint({ x: 50, y: 25 }, 2);
             zoomAtPoint({ x: 50, y: 25 }, 0.5);
 
-            expect(mapTransform.value).toBe('');
+            expect(mapTransform.value).toBe(ZOOM_TRANSFORM_IDENTITY);
         });
 
         it('does not zoom out past the minimum scale', () => {
@@ -30,7 +37,7 @@ describe('useMapZoom', () => {
 
             zoomAtPoint({ x: 50, y: 25 }, 0.5);
 
-            expect(mapTransform.value).toBe('');
+            expect(mapTransform.value).toBe(ZOOM_TRANSFORM_IDENTITY);
         });
 
         it('clamps to the maximum wheel zoom scale', () => {
@@ -38,7 +45,7 @@ describe('useMapZoom', () => {
 
             zoomAtPoint({ x: 10, y: 5 }, 100);
 
-            expect(mapTransform.value).toBe('translate(-190,-95) scale(20)');
+            expect(mapTransform.value).toBe(ZOOM_TRANSFORM_MAX_ZOOM);
         });
     });
 
@@ -48,7 +55,7 @@ describe('useMapZoom', () => {
 
             panTo(30, 15);
 
-            expect(mapTransform.value).toBe('translate(30,15) scale(1)');
+            expect(mapTransform.value).toBe(ZOOM_TRANSFORM_PAN);
         });
 
         it('preserves the current scale when panning a zoomed-in map', () => {
@@ -57,7 +64,7 @@ describe('useMapZoom', () => {
             zoomAtPoint({ x: 50, y: 25 }, 2);
             panTo(10, 5);
 
-            expect(mapTransform.value).toBe('translate(10,5) scale(2)');
+            expect(mapTransform.value).toBe(ZOOM_TRANSFORM_PAN_AFTER_ZOOM);
         });
     });
 });
