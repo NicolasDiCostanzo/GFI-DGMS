@@ -9,7 +9,7 @@ function formatFundingProgressLabel(colorIndex: number): string {
         return `< ${toPercentage(FUNDING_PROGRESS_THRESHOLDS[0])}%`;
     }
     if (colorIndex === FUNDING_PROGRESS_THRESHOLDS.length) {
-        return `> ${toPercentage(FUNDING_PROGRESS_THRESHOLDS[colorIndex - 1])}%`;
+        return `>= ${toPercentage(FUNDING_PROGRESS_THRESHOLDS[colorIndex - 1])}%`;
     }
     return `${toPercentage(FUNDING_PROGRESS_THRESHOLDS[colorIndex - 1])}-${toPercentage(FUNDING_PROGRESS_THRESHOLDS[colorIndex])}%`;
 }
