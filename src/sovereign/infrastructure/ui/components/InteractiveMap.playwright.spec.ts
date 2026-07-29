@@ -1,4 +1,5 @@
 import { expect, test } from '@/../e2e/coverage-fixtures';
+import { MapColors } from '@/sovereign/domain/constants/MapColors';
 
 test.describe('InteractiveMap', () => {
     test.beforeEach(async ({ page }) => {
@@ -165,5 +166,9 @@ test.describe('InteractiveMap', () => {
         const translateY = parseFloat(match![2]);
         expect(translateX).toBeCloseTo(113.9, 1);
         expect(translateY).toBeCloseTo(75.9, 1);
+
+        await expect(germanyPath).toHaveCSS('stroke', MapColors.SELECTION);
+        await expect(germanyPath).toHaveCSS('stroke-opacity', '1');
+        await expect(germanyPath).toHaveCSS('stroke-width', '0.5px');
     });
 });
