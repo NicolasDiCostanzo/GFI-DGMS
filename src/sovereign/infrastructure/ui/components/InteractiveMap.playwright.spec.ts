@@ -20,7 +20,7 @@ test.describe('InteractiveMap', () => {
         await expect(oceanRect).toBeVisible();
     });
 
-    test('country paths have white border stroke', async ({ page }) => {
+    test('country paths have black border stroke', async ({ page }) => {
         const firstPath = page.locator('path.country-path').first();
         await expect(firstPath).toHaveCSS('stroke', 'rgb(0, 0, 0)');
         await expect(firstPath).toHaveCSS('stroke-opacity', '0.35');
