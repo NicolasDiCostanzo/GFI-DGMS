@@ -47,5 +47,6 @@ export function createWrapperDefaults() {
             ['276' as CountryId, RESULTS_GERMANY],
         ]),
         selectedCountryId: null as CountryId | null,
+        themeMode: 'dark' as const,
     };
 }

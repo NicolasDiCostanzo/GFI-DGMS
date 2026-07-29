@@ -86,4 +86,43 @@ describe('App', () => {
 
         expect(germanPath.attributes('stroke')).toBe(MapColors.SELECTION);
     });
+
+    it('defaults to dark theme when no localStorage value exists', async () => {
+        localStorage.removeItem('gfi-dgms-settings');
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        expect(wrapper.find('.theme-dark').exists()).toBe(true);
+    });
+
+    it('loads theme from localStorage on mount', async () => {
+        localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        expect(wrapper.find('.theme-light').exists()).toBe(true);
+    });
+
+    it('persists theme change to localStorage', async () => {
+        localStorage.removeItem('gfi-dgms-settings');
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const toggle = wrapper.find('.theme-toggle');
+        await toggle.trigger('mouseenter');
+        const options = wrapper.findAll('.theme-toggle-option');
+        await options[2].trigger('click');
+
+        const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
+        expect(stored.themeMode).toBe('colorblind-light');
+    });
 });

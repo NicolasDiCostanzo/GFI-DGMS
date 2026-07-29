@@ -1,13 +1,13 @@
 import { expect, test } from '@/../e2e/coverage-fixtures';
-import { MapColors, toRGB } from '@/sovereign/domain/constants/MapColors';
+import { DARK_THEME_COLORS, MapColors, toRGB } from '@/sovereign/domain/constants/MapColors';
 import { CountryId } from '@/sovereign/domain/Country';
 import { GERMANY } from './InteractiveMap.spec.fixture';
 
 const GERMANY_ID = CountryId('276');
 const USA_ID = CountryId('840');
-const OCEAN_COLOR = MapColors.OCEAN;
+const OCEAN_COLOR = DARK_THEME_COLORS.OCEAN;
 const INACTIVE_COLOR = MapColors.INACTIVE;
-const BORDER_COLOR = MapColors.BORDER;
+const BORDER_COLOR = DARK_THEME_COLORS.BORDER;
 const SELECTION_COLOR = MapColors.SELECTION;
 
 test.describe('InteractiveMap', () => {

@@ -7,17 +7,18 @@ import { computed, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-50m.json';
 import type { Country, CountryId } from '../../../domain/Country';
 import type { SimulationResults } from '../../../domain/SimulationResults';
-import { MapColors } from '../../../domain/constants/MapColors';
+import { MapColors, getThemeColors, type ThemeMode } from '../../../domain/constants/MapColors';
 import { useCountryDisplay } from '../composables/useCountryDisplay';
 import { useMapDrag } from '../composables/useMapDrag';
 import { useMapTooltip } from '../composables/useMapTooltip';
 import { useMapZoom } from '../composables/useMapZoom';
-import { LEGEND_ITEMS } from '../utils/fundingProgressLegend';
+import { createLegendItems } from '../utils/fundingProgressLegend';
 
 const props = defineProps<{
     countries: Country[];
     resultsByCountry: Map<CountryId, SimulationResults>;
     selectedCountryId: CountryId | null;
+    themeMode: ThemeMode;
 }>();
 
 const emit = defineEmits<{
@@ -26,7 +27,7 @@ const emit = defineEmits<{
 
 const SVG_WIDTH = 960;
 const SVG_HEIGHT = 500;
-const WHEEL_ZOOM_FACTOR = 1.05;
+const WHEEL_ZOOM_FACTOR = 1.25;
 
 interface NamedFeatureProperties {
     name: string;
@@ -56,6 +57,10 @@ const { getCountryFill, getCountryAriaLabel, getTooltipText } = useCountryDispla
     toRef(props, 'resultsByCountry'),
     geoJsonCountries,
 );
+
+const themeColors = computed(() => getThemeColors(props.themeMode));
+const legendItems = computed(() => createLegendItems(props.themeMode));
+
 const { isDragging, handleDragStart, didDragOccur, resetDidDrag } = useMapDrag(
     svgRef,
     panTo,
@@ -115,7 +120,7 @@ function handleWheel(event: WheelEvent): void {
             <rect
                 width="100%"
                 height="100%"
-                :fill="MapColors.OCEAN"
+                :fill="themeColors.OCEAN"
                 @click="didDragOccur() ? resetDidDrag() : emit('country-select', null)"
             />
             <g
@@ -133,7 +138,7 @@ function handleWheel(event: WheelEvent): void {
                         :stroke="
                             String(countryFeature.id) === selectedCountryId
                                 ? MapColors.SELECTION
-                                : MapColors.BORDER
+                                : themeColors.BORDER
                         "
                         :stroke-opacity="String(countryFeature.id) === selectedCountryId ? 1 : 0.35"
                         :stroke-width="String(countryFeature.id) === selectedCountryId ? 0.5 : 0.1"
@@ -162,7 +167,7 @@ function handleWheel(event: WheelEvent): void {
             {{ tooltip.text }}
         </div>
         <div class="map-legend">
-            <div v-for="(entry, idx) in LEGEND_ITEMS" :key="idx" class="legend-item">
+            <div v-for="(entry, idx) in legendItems" :key="idx" class="legend-item">
                 <span class="legend-swatch" :style="{ backgroundColor: entry.color }" />
                 <span class="legend-label">{{ entry.label }}</span>
             </div>
@@ -205,8 +210,8 @@ function handleWheel(event: WheelEvent): void {
     position: fixed;
     z-index: 1000;
     padding: 6px 10px;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
+    background: var(--tooltip-bg);
+    color: var(--tooltip-text);
     font-size: 13px;
     border-radius: 4px;
     pointer-events: none;
@@ -217,10 +222,10 @@ function handleWheel(event: WheelEvent): void {
     position: absolute;
     bottom: 16px;
     right: 16px;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--legend-bg);
     border-radius: 6px;
     padding: 8px 12px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 4px var(--border);
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -242,6 +247,6 @@ function handleWheel(event: WheelEvent): void {
 
 .legend-label {
     font-size: 12px;
-    color: #333;
+    color: var(--legend-text);
 }
 </style>

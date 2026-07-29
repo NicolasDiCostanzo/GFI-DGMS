@@ -31,6 +31,7 @@ async function createWrapper(
         countries?: Country[];
         resultsByCountry?: Map<CountryId, SimulationResults>;
         selectedCountryId?: CountryId | null;
+        themeMode?: 'light' | 'dark' | 'colorblind-light' | 'colorblind-dark';
     } = {},
 ) {
     const defaults = createWrapperDefaults();
@@ -41,6 +42,7 @@ async function createWrapper(
             countries: props.countries,
             resultsByCountry: props.resultsByCountry,
             selectedCountryId: props.selectedCountryId,
+            themeMode: props.themeMode,
         },
     });
 }
@@ -69,7 +71,7 @@ describe('InteractiveMap', () => {
         it('renders ocean background rectangle', async () => {
             const wrapper = await createWrapper();
             const rects = wrapper.findAll('rect');
-            const oceanRect = rects.find((r) => r.attributes('fill') === '#e8f4f8');
+            const oceanRect = rects.find((r) => r.attributes('fill') === '#1a2634');
             expect(oceanRect).toBeDefined();
         });
     });
@@ -225,7 +227,7 @@ describe('InteractiveMap', () => {
 
             expect(event.defaultPrevented).toBe(true);
             const mapGroup = wrapper.find('.map-group');
-            expect(mapGroup.attributes('transform')).toBe('translate(0,0) scale(1.05)');
+            expect(mapGroup.attributes('transform')).toBe('translate(0,0) scale(1.25)');
         });
 
         it('zooms back out on wheel scroll down at the same point', async () => {
