@@ -1,5 +1,14 @@
 import { expect, test } from '@/../e2e/coverage-fixtures';
 import { MapColors, toRGB } from '@/sovereign/domain/constants/MapColors';
+import { CountryId } from '@/sovereign/domain/Country';
+import { GERMANY } from './InteractiveMap.spec.fixture';
+
+const GERMANY_ID = CountryId('276');
+const USA_ID = CountryId('840');
+const OCEAN_COLOR = MapColors.OCEAN;
+const INACTIVE_COLOR = MapColors.INACTIVE;
+const BORDER_COLOR = MapColors.BORDER;
+const SELECTION_COLOR = MapColors.SELECTION;
 
 test.describe('InteractiveMap', () => {
     test.beforeEach(async ({ page }) => {
@@ -17,13 +26,13 @@ test.describe('InteractiveMap', () => {
     });
 
     test('ocean background has correct color', async ({ page }) => {
-        const oceanRect = page.locator('rect[fill="#e8f4f8"]');
+        const oceanRect = page.locator(`rect[fill="${OCEAN_COLOR}"]`);
         await expect(oceanRect).toBeVisible();
     });
 
     test('country paths have black border stroke', async ({ page }) => {
         const firstPath = page.locator('path.country-path').first();
-        await expect(firstPath).toHaveCSS('stroke', 'rgb(0, 0, 0)');
+        await expect(firstPath).toHaveCSS('stroke', toRGB(BORDER_COLOR));
         await expect(firstPath).toHaveCSS('stroke-opacity', '0.35');
     });
 
@@ -33,16 +42,16 @@ test.describe('InteractiveMap', () => {
     });
 
     test('tooltip appears on hover and shows country name', async ({ page }) => {
-        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
         await germanyPath.hover();
 
         const tooltip = page.locator('.map-tooltip');
         await expect(tooltip).toBeVisible();
-        await expect(tooltip).toContainText('Germany');
+        await expect(tooltip).toContainText(GERMANY.name);
     });
 
     test('tooltip disappears on mouse leave', async ({ page }) => {
-        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
         await germanyPath.hover();
         await expect(page.locator('.map-tooltip')).toBeVisible();
 
@@ -62,28 +71,28 @@ test.describe('InteractiveMap', () => {
     });
 
     test('country path has cursor pointer on hover', async ({ page }) => {
-        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
         await expect(germanyPath).toHaveCSS('cursor', 'pointer');
     });
 
     test('country with simulation data has colored fill', async ({ page }) => {
-        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
         const fill = await germanyPath.getAttribute('fill');
-        expect(fill).not.toBe('#cccccc');
+        expect(fill).not.toBe(INACTIVE_COLOR);
     });
 
     test('country without simulation data has grey fill', async ({ page }) => {
-        const usaPath = page.locator('path.country-path[data-country-id="840"]');
-        await expect(usaPath).toHaveAttribute('fill', '#cccccc');
+        const usaPath = page.locator(`path.country-path[data-country-id="${USA_ID}"]`);
+        await expect(usaPath).toHaveAttribute('fill', INACTIVE_COLOR);
     });
 
     test('country path has aria-label with country name', async ({ page }) => {
-        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
-        await expect(germanyPath).toHaveAttribute('aria-label', /Germany/);
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
+        await expect(germanyPath).toHaveAttribute('aria-label', new RegExp(GERMANY.name));
     });
 
     test('country path aria-label includes funding progress', async ({ page }) => {
-        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
         await expect(germanyPath).toHaveAttribute('aria-label', /90/);
     });
 
@@ -115,7 +124,7 @@ test.describe('InteractiveMap', () => {
     test('dragging with the left mouse button pans the map without selecting a country', async ({
         page,
     }) => {
-        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
         const box = (await germanyPath.boundingBox())!;
 
         await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -153,7 +162,7 @@ test.describe('InteractiveMap', () => {
         await page.mouse.move(svgBox.x + 200, svgBox.y + 150, { steps: 10 });
         await page.mouse.up({ button: 'left' });
 
-        const germanyPath = page.locator('path.country-path[data-country-id="276"]');
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
         await germanyPath.click();
 
         const mapGroup = page.locator('.map-group');
@@ -167,7 +176,7 @@ test.describe('InteractiveMap', () => {
         expect(translateX).toBeCloseTo(113.9, 1);
         expect(translateY).toBeCloseTo(75.9, 1);
 
-        await expect(germanyPath).toHaveCSS('stroke', toRGB(MapColors.SELECTION));
+        await expect(germanyPath).toHaveCSS('stroke', toRGB(SELECTION_COLOR));
         await expect(germanyPath).toHaveCSS('stroke-opacity', '1');
         await expect(germanyPath).toHaveCSS('stroke-width', '0.5px');
     });

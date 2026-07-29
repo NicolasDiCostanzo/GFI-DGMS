@@ -1,10 +1,9 @@
 import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
-import { Currency } from '@/shared/types/Currency';
+import { GERMANY } from '@/sovereign/infrastructure/ui/components/InteractiveMap.spec.fixture';
 import { describe, expect, it } from 'vitest';
 import { MapColors } from '../domain/constants/MapColors';
 import { Country, CountryId } from '../domain/Country';
 import { CountryRepository } from '../domain/repository/CountryRepository';
-import { TargetBudget } from '../domain/TargetBudget';
 import { CalculateSimulationYields } from './CalculateSimulationYields';
 import { CountryNotFoundError } from './errors/CountryNotFoundError';
 import { InvalidInvestmentError } from './errors/InvalidInvestmentError';
@@ -22,9 +21,7 @@ class MockCountryRepository implements CountryRepository {
 }
 
 describe('CalculateSimulationYields', () => {
-    const usd = Currency.USD();
-    const targetBudget = new TargetBudget(1000, usd);
-    const germany = new Country(CountryId('276'), 'Germany', 500, targetBudget, 10, 5);
+    const germany = GERMANY;
 
     describe('execute()', () => {
         it('returns SimulationResults for a valid country and investment', async () => {
