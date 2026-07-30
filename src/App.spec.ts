@@ -125,4 +125,88 @@ describe('App', () => {
         const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
         expect(stored.themeMode).toBe('colorblind-light');
     });
+
+    describe('theme prop', () => {
+        it('uses the theme prop value when provided, overrides localStorage', async () => {
+            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'dark' }));
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            const wrapper = mount(App, {
+                props: { theme: 'light' },
+            });
+            await flushPromises();
+
+            expect(wrapper.find('.theme-light').exists()).toBe(true);
+            expect(wrapper.find('.theme-dark').exists()).toBe(false);
+        });
+
+        it('uses the theme prop value when provided, regardless of localStorage', async () => {
+            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            const wrapper = mount(App, {
+                props: { theme: 'colorblind-dark' },
+            });
+            await flushPromises();
+
+            expect(wrapper.find('.theme-colorblind-dark').exists()).toBe(true);
+        });
+
+        it('falls back to localStorage when theme prop is not provided', async () => {
+            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            const wrapper = mount(App);
+            await flushPromises();
+
+            expect(wrapper.find('.theme-light').exists()).toBe(true);
+        });
+
+        it('defaults to dark when neither theme prop nor localStorage is set', async () => {
+            localStorage.removeItem('gfi-dgms-settings');
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            const wrapper = mount(App);
+            await flushPromises();
+
+            expect(wrapper.find('.theme-dark').exists()).toBe(true);
+        });
+
+        it('still persists through localStorage when theme prop is used', async () => {
+            localStorage.removeItem('gfi-dgms-settings');
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            mount(App, {
+                props: { theme: 'colorblind-light' },
+            });
+            await flushPromises();
+
+            const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
+            expect(stored.themeMode).toBe('colorblind-light');
+        });
+
+        it('updates the UI when theme prop changes', async () => {
+            localStorage.removeItem('gfi-dgms-settings');
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            const wrapper = mount(App, {
+                props: { theme: 'dark' },
+            });
+            await flushPromises();
+
+            expect(wrapper.find('.theme-dark').exists()).toBe(true);
+
+            await wrapper.setProps({ theme: 'light' });
+            await flushPromises();
+
+            expect(wrapper.find('.theme-dark').exists()).toBe(false);
+            expect(wrapper.find('.theme-light').exists()).toBe(true);
+        });
+    });
 });

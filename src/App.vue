@@ -9,7 +9,16 @@ import { StaticCountryRepository } from '@/sovereign/infrastructure/adapters/Sta
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+
+const props = withDefaults(
+    defineProps<{
+        theme?: ThemeMode;
+    }>(),
+    {
+        theme: undefined,
+    },
+);
 
 const countryRepository = new StaticCountryRepository();
 const calculateSimulationYields = new CalculateSimulationYields(countryRepository);
@@ -61,13 +70,28 @@ function saveSettings(settings: Settings): void {
 
 const settings = ref<Settings>(loadSettings());
 
+if (props.theme && isThemeMode(props.theme)) {
+    settings.value.themeMode = props.theme;
+    saveSettings(settings.value);
+}
+
 const themeMode = computed({
-    get: () => settings.value.themeMode,
+    get: () => props.theme ?? settings.value.themeMode,
     set: (value: ThemeMode) => {
         settings.value.themeMode = value;
         saveSettings(settings.value);
     },
 });
+
+watch(
+    () => props.theme,
+    (newTheme) => {
+        if (newTheme && isThemeMode(newTheme)) {
+            settings.value.themeMode = newTheme;
+            saveSettings(settings.value);
+        }
+    },
+);
 
 const themeStyle = computed(() => {
     const colors = getThemeColors(themeMode.value);
