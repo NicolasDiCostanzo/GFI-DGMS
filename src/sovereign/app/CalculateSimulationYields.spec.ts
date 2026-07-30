@@ -1,10 +1,9 @@
 import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
-import { Currency } from '@/shared/types/Currency';
+import { GERMANY } from '@/sovereign/infrastructure/ui/components/InteractiveMap.spec.fixture';
 import { describe, expect, it } from 'vitest';
 import { MapColors } from '../domain/constants/MapColors';
 import { Country, CountryId } from '../domain/Country';
 import { CountryRepository } from '../domain/repository/CountryRepository';
-import { TargetBudget } from '../domain/TargetBudget';
 import { CalculateSimulationYields } from './CalculateSimulationYields';
 import { CountryNotFoundError } from './errors/CountryNotFoundError';
 import { InvalidInvestmentError } from './errors/InvalidInvestmentError';
@@ -22,16 +21,14 @@ class MockCountryRepository implements CountryRepository {
 }
 
 describe('CalculateSimulationYields', () => {
-    const usd = Currency.USD();
-    const targetBudget = new TargetBudget(1000, usd);
-    const germany = new Country(CountryId('DEU'), 'Germany', 500, targetBudget, 10, 5);
+    const germany = GERMANY;
 
     describe('execute()', () => {
         it('returns SimulationResults for a valid country and investment', async () => {
             const repository = new MockCountryRepository(germany);
             const useCase = new CalculateSimulationYields(repository);
 
-            const results = await useCase.execute('DEU', 750);
+            const results = await useCase.execute('276', 750);
 
             expect(results.fundingProgress).toBe(0.75);
             expect(results.additionalJobs).toBe(2500);
@@ -44,7 +41,7 @@ describe('CalculateSimulationYields', () => {
             const repository = new MockCountryRepository(null);
             const useCase = new CalculateSimulationYields(repository);
 
-            await expect(useCase.execute('FRA', 500)).rejects.toThrow(CountryNotFoundError);
+            await expect(useCase.execute('250', 500)).rejects.toThrow(CountryNotFoundError);
         });
 
         it('throws CountryNotFoundError with the requested country ID', async () => {
@@ -54,10 +51,10 @@ describe('CalculateSimulationYields', () => {
             expect.assertions(2);
 
             try {
-                await useCase.execute('FRA', 500);
+                await useCase.execute('250', 500);
             } catch (error) {
                 expect(error).toBeInstanceOf(CountryNotFoundError);
-                expect((error as CountryNotFoundError).message).toContain('FRA');
+                expect((error as CountryNotFoundError).message).toContain('250');
             }
         });
 
@@ -65,7 +62,7 @@ describe('CalculateSimulationYields', () => {
             const repository = new MockCountryRepository(germany);
             const useCase = new CalculateSimulationYields(repository);
 
-            await expect(useCase.execute('DEU', 2500)).rejects.toThrow(InvalidInvestmentError);
+            await expect(useCase.execute('276', 2500)).rejects.toThrow(InvalidInvestmentError);
         });
 
         it('throws InvalidInvestmentError with a descriptive reason', async () => {
@@ -75,11 +72,11 @@ describe('CalculateSimulationYields', () => {
             expect.assertions(2);
 
             try {
-                await useCase.execute('DEU', 2500);
+                await useCase.execute('276', 2500);
             } catch (error) {
                 expect(error).toBeInstanceOf(InvalidInvestmentError);
                 expect((error as InvalidInvestmentError).message).toContain(
-                    'Investment 2500 exceeds maximum allowed 2000 for country DEU',
+                    'Investment 2500 exceeds maximum allowed 2000 for country 276',
                 );
             }
         });
@@ -88,7 +85,7 @@ describe('CalculateSimulationYields', () => {
             const repository = new MockCountryRepository(germany);
             const useCase = new CalculateSimulationYields(repository);
 
-            const results = await useCase.execute('DEU', 1500);
+            const results = await useCase.execute('276', 1500);
 
             expect(results.fundingProgress).toBe(1.5);
             expect(results.isOverTarget).toBe(true);
@@ -99,7 +96,7 @@ describe('CalculateSimulationYields', () => {
             const repository = new MockCountryRepository(germany);
             const useCase = new CalculateSimulationYields(repository);
 
-            const results = await useCase.execute('DEU', 2000);
+            const results = await useCase.execute('276', 2000);
 
             expect(results.fundingProgress).toBe(2.0);
             expect(results.isOverTarget).toBe(true);
@@ -110,7 +107,7 @@ describe('CalculateSimulationYields', () => {
             const repository = new MockCountryRepository(germany);
             const useCase = new CalculateSimulationYields(repository);
 
-            await expect(useCase.execute('DEU', Infinity)).rejects.toThrow(InfiniteNumberException);
+            await expect(useCase.execute('276', Infinity)).rejects.toThrow(InfiniteNumberException);
         });
     });
 });

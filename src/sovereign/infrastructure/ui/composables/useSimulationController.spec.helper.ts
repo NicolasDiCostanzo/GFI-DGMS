@@ -18,7 +18,7 @@ export class MockRepository implements CountryRepository {
 }
 
 export const GERMANY = new Country(
-    CountryId('DEU'),
+    CountryId('276'),
     'Germany',
     500,
     new TargetBudget(1000, Currency.USD()),
@@ -26,10 +26,19 @@ export const GERMANY = new Country(
     5,
 );
 
+export const FRANCE = new Country(
+    CountryId('250'),
+    'France',
+    300,
+    new TargetBudget(800, Currency.EUR()),
+    8,
+    4,
+);
+
 export const RESULTS: SimulationResults = {
-    fundingProgress: 0.5,
-    additionalJobs: 1000,
-    additionalCO2Tonnes: 500,
+    fundingProgress: 0.75,
+    additionalJobs: 2500,
+    additionalCO2Tonnes: 1250,
     isOverTarget: false,
     colorHex: MapColors.ORANGE,
 };

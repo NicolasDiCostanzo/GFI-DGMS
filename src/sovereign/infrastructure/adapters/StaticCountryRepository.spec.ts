@@ -3,9 +3,9 @@ import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { Currency } from '@/shared/types/Currency';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { CountryDataValidationError } from '../errors/CountryDataValidationError';
 import { Country, CountryId } from '../../domain/Country';
 import countriesData from '../data/countries.json';
+import { CountryDataValidationError } from '../errors/CountryDataValidationError';
 import { StaticCountryRepository, type CountryRecord } from './StaticCountryRepository';
 
 describe('StaticCountryRepository', () => {
@@ -332,7 +332,7 @@ describe('StaticCountryRepository', () => {
 
         describe('findById()', () => {
             it('returns the country for a known ID', async () => {
-                const country = await repository.findById(CountryId('DEU'));
+                const country = await repository.findById(CountryId('276'));
 
                 expect(country).toBeInstanceOf(Country);
                 expect(country).not.toBeNull();
@@ -341,9 +341,9 @@ describe('StaticCountryRepository', () => {
                     throw new Error('Country should not be null');
                 }
 
-                expect(country.id).toBe('DEU');
+                expect(country.id).toBe('276');
                 expect(country.name).toBe('Germany');
-                expect(country.baselineInvestment).toBe(500);
+                expect(country.baselineInvestment).toBe(900);
                 expect(country.targetBudget.amount).toBe(1000);
                 expect(country.targetBudget.currency).toEqual(Currency.USD());
                 expect(country.jobMultiplier).toBe(10);
@@ -359,7 +359,7 @@ describe('StaticCountryRepository', () => {
             it('does not iterate all entries for a single lookup', async () => {
                 const valuesSpy = vi.spyOn(Map.prototype, 'values');
 
-                await repository.findById(CountryId('DEU'));
+                await repository.findById(CountryId('276'));
 
                 expect(valuesSpy).not.toHaveBeenCalled();
                 valuesSpy.mockRestore();
@@ -371,8 +371,8 @@ describe('StaticCountryRepository', () => {
                 const countries = await repository.findAll();
 
                 expect(countries).toHaveLength(28);
-                expect(countries[0].id).toBe('DEU');
-                expect(countries[countries.length - 1].id).toBe('MLT');
+                expect(countries[0].id).toBe('276');
+                expect(countries[countries.length - 1].id).toBe('470');
             });
 
             it('returns Country instances', async () => {

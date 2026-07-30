@@ -12,7 +12,7 @@ import {
     useFakeDateTimers,
 } from './useSimulationController.spec.helper';
 
-const DEU = 'DEU' as CountryId;
+const GERMANY_ID = '276' as CountryId;
 
 describe('useSimulationController', () => {
     describe('initial state', () => {
@@ -108,7 +108,7 @@ describe('useSimulationController', () => {
         it('sets selectedCountry and resets sliderValue to baseline', async () => {
             mockHappyPath(repository, useCase);
 
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
             expect(controller.selectedCountry.value).toStrictEqual(GERMANY);
             expect(controller.sliderValue.value).toBe(500);
@@ -117,16 +117,16 @@ describe('useSimulationController', () => {
         it('runs simulation with country id and baseline investment', async () => {
             mockHappyPath(repository, useCase);
 
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
-            expect(useCase.execute).toHaveBeenCalledWith('DEU', 500);
+            expect(useCase.execute).toHaveBeenCalledWith('276', 500);
             expect(controller.simulationResults.value).toStrictEqual(RESULTS);
         });
 
         it('toggles isLoading during execution', async () => {
             mockHappyPath(repository, useCase);
 
-            const promise = controller.selectCountry(DEU);
+            const promise = controller.selectCountry(GERMANY_ID);
 
             expect(controller.isLoading.value).toBe(true);
             await promise;
@@ -148,7 +148,7 @@ describe('useSimulationController', () => {
             repository.findById.mockResolvedValue(GERMANY);
             useCase.execute.mockRejectedValue(new Error('Investment invalid'));
 
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
             expect(controller.error.value).toBe('Investment invalid');
             expect(controller.isLoading.value).toBe(false);
@@ -161,11 +161,11 @@ describe('useSimulationController', () => {
                 .mockRejectedValueOnce(new Error('Previous error'))
                 .mockResolvedValueOnce(RESULTS);
 
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
             expect(controller.error.value).toBe('Previous error');
 
             useCase.execute.mockResolvedValue(RESULTS);
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
             expect(controller.error.value).toBeNull();
         });
@@ -179,10 +179,10 @@ describe('useSimulationController', () => {
             repository.findById.mockReturnValueOnce(findById.promise);
             useCase.execute.mockResolvedValue(RESULTS);
 
-            const firstPromise = controller.selectCountry(DEU);
+            const firstPromise = controller.selectCountry(GERMANY_ID);
 
             mockHappyPath(repository, useCase);
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
             findById.resolve(GERMANY);
             await firstPromise;
@@ -196,10 +196,10 @@ describe('useSimulationController', () => {
             mockHappyPath(repository, useCase);
             useCase.execute.mockReturnValueOnce(firstExecute.promise).mockResolvedValue(RESULTS);
 
-            const firstPromise = controller.selectCountry(DEU);
+            const firstPromise = controller.selectCountry(GERMANY_ID);
             await vi.waitFor(() => expect(useCase.execute).toHaveBeenCalledTimes(1));
 
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
             firstExecute.resolve(RESULTS);
             await firstPromise;
@@ -213,10 +213,10 @@ describe('useSimulationController', () => {
             mockHappyPath(repository, useCase);
             useCase.execute.mockReturnValueOnce(firstExecute.promise).mockResolvedValue(RESULTS);
 
-            const firstPromise = controller.selectCountry(DEU);
+            const firstPromise = controller.selectCountry(GERMANY_ID);
             await vi.waitFor(() => expect(useCase.execute).toHaveBeenCalledTimes(1));
 
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
             firstExecute.reject(new Error('Stale error'));
             await firstPromise;
@@ -229,12 +229,12 @@ describe('useSimulationController', () => {
     describe('setSliderValue()', () => {
         it('updates sliderValue and recalculates simulation', async () => {
             mockHappyPath(repository, useCase);
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
             await controller.setSliderValue(750);
 
             expect(controller.sliderValue.value).toBe(750);
-            expect(useCase.execute).toHaveBeenCalledWith('DEU', 750);
+            expect(useCase.execute).toHaveBeenCalledWith('276', 750);
         });
 
         it('does nothing when no country is selected', async () => {
@@ -246,7 +246,7 @@ describe('useSimulationController', () => {
 
         it('handles use case errors', async () => {
             mockHappyPath(repository, useCase);
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
             useCase.execute.mockRejectedValueOnce(new Error('Exceeds maximum'));
 
             await controller.setSliderValue(9999);
@@ -258,7 +258,7 @@ describe('useSimulationController', () => {
 
         it('clears previous error on success', async () => {
             mockHappyPath(repository, useCase);
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
             useCase.execute
                 .mockRejectedValueOnce(new Error('Previous error'))
                 .mockResolvedValueOnce(RESULTS);
@@ -278,7 +278,7 @@ describe('useSimulationController', () => {
 
         it('ignores stale result when superseded by newer request', async () => {
             mockHappyPath(repository, useCase);
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
             const first = deferred<typeof RESULTS>();
             useCase.execute.mockReturnValueOnce(first.promise);
@@ -297,7 +297,7 @@ describe('useSimulationController', () => {
 
         it('ignores stale error when superseded by newer request', async () => {
             mockHappyPath(repository, useCase);
-            await controller.selectCountry(DEU);
+            await controller.selectCountry(GERMANY_ID);
 
             const first = deferred<typeof RESULTS>();
             useCase.execute.mockReturnValueOnce(first.promise);
