@@ -43,9 +43,16 @@ function isThemeMode(value: unknown): value is ThemeMode {
 }
 
 function loadSettings(): Settings {
+    let stored: string | null;
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
+        stored = localStorage.getItem(STORAGE_KEY);
+    } catch (cause) {
+        throw new SettingsStorageError(
+            `Failed to read settings from localStorage: ${getErrorMessage(cause)}`,
+        );
+    }
+    if (stored) {
+        try {
             const parsed: unknown = JSON.parse(stored);
             if (
                 typeof parsed === 'object' &&
@@ -55,11 +62,11 @@ function loadSettings(): Settings {
             ) {
                 return { themeMode: parsed.themeMode };
             }
+        } catch (cause) {
+            throw new SettingsParseError(
+                `Failed to parse settings from localStorage: ${getErrorMessage(cause)}`,
+            );
         }
-    } catch (cause) {
-        throw new SettingsParseError(
-            `Failed to parse settings from localStorage: ${getErrorMessage(cause)}`,
-        );
     }
     return { themeMode: 'dark' };
 }
@@ -82,7 +89,7 @@ if (props.theme && isThemeMode(props.theme)) {
 }
 
 const themeMode = computed({
-    get: () => props.theme ?? settings.value.themeMode,
+    get: () => (isThemeMode(props.theme) ? props.theme : settings.value.themeMode),
     set: (value: ThemeMode) => {
         settings.value.themeMode = value;
         saveSettings(settings.value);

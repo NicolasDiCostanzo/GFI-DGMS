@@ -1,3 +1,4 @@
+import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { MapColors } from '@/sovereign/domain/constants/MapColors';
 import { Country } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
@@ -137,6 +138,31 @@ describe('App', () => {
             expect(() => mount(App)).toThrow(SettingsParseError);
         });
 
+        it('throws SettingsStorageError when localStorage.getItem fails', async () => {
+            const mockLocalStorage = {
+                getItem: vi.fn(() => {
+                    throw new Error('storage access denied');
+                }),
+                setItem: vi.fn(),
+                removeItem: vi.fn(),
+                clear: vi.fn(),
+                get length() {
+                    return 0;
+                },
+                key: vi.fn((_index: number) => null),
+            };
+            vi.stubGlobal('localStorage', mockLocalStorage);
+            try {
+                findAllMock.mockResolvedValue([GERMANY]);
+                executeMock.mockResolvedValue(RESULTS);
+
+                expect(() => mount(App)).toThrow(SettingsStorageError);
+                expect(mockLocalStorage.getItem).toHaveBeenCalledWith('gfi-dgms-settings');
+            } finally {
+                vi.unstubAllGlobals();
+            }
+        });
+
         it('propagates SettingsStorageError when localStorage.setItem fails', async () => {
             const fakeStorage: Record<string, string> = {};
             const mockLocalStorage = {
@@ -253,6 +279,20 @@ describe('App', () => {
 
             const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
             expect(stored.themeMode).toBe('colorblind-light');
+        });
+
+        it('falls back to settings when theme prop has an invalid runtime value', async () => {
+            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            const wrapper = mount(App, {
+                props: { theme: 'invalid-theme' as unknown as ThemeMode },
+            });
+            await flushPromises();
+
+            expect(wrapper.find('.theme-light').exists()).toBe(true);
+            expect(wrapper.find('.theme-invalid-theme').exists()).toBe(false);
         });
 
         it('updates the UI when theme prop changes', async () => {
