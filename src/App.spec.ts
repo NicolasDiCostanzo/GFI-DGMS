@@ -10,6 +10,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
+import { SettingsStorageError } from './shared/errors/SettingsStorageError.ts';
 
 const findAllMock = vi.fn<() => Promise<Country[]>>();
 const executeMock =
@@ -136,7 +137,7 @@ describe('App', () => {
             expect(() => mount(App)).toThrow(SettingsParseError);
         });
 
-        it('invokes SettingsStorageError catch when localStorage.setItem fails', async () => {
+        it('propagates SettingsStorageError when localStorage.setItem fails', async () => {
             const fakeStorage: Record<string, string> = {};
             const mockLocalStorage = {
                 getItem: vi.fn((key: string) => fakeStorage[key] ?? null),
@@ -159,20 +160,30 @@ describe('App', () => {
                 findAllMock.mockResolvedValue([GERMANY]);
                 executeMock.mockResolvedValue(RESULTS);
 
-                const wrapper = mount(App);
+                const capturedErrors: unknown[] = [];
+
+                const wrapper = mount(App, {
+                    global: {
+                        config: {
+                            errorHandler: (err: unknown) => {
+                                capturedErrors.push(err);
+                            },
+                        },
+                    },
+                });
                 await flushPromises();
 
                 const toggle = wrapper.find('.theme-toggle');
                 await toggle.trigger('mouseenter');
                 const options = wrapper.findAll('.theme-toggle-option');
-
-                try {
-                    await options[2].trigger('click');
-                } catch {
-                    // expected: SettingsStorageError propagates through Vue event system
-                }
+                await options[2].trigger('click');
                 await flushPromises();
 
+                expect(capturedErrors.length).toBeGreaterThan(0);
+                const settingsStorageError = capturedErrors.find(
+                    (e) => e instanceof SettingsStorageError,
+                );
+                expect(settingsStorageError).toBeInstanceOf(SettingsStorageError);
                 expect(mockLocalStorage.setItem).toHaveBeenCalled();
             } finally {
                 vi.unstubAllGlobals();
