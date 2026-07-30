@@ -8,6 +8,8 @@ interface ZoomState {
 
 const MIN_ZOOM_SCALE = 1;
 const MAX_WHEEL_ZOOM_SCALE = 20;
+const SVG_WIDTH = 960;
+const SVG_HEIGHT = 500;
 
 export function useMapZoom() {
     const zoomState = ref<ZoomState>({ scale: 1, translateX: 0, translateY: 0 });
@@ -28,17 +30,30 @@ export function useMapZoom() {
             MAX_WHEEL_ZOOM_SCALE,
         );
 
+        const translateX = current.translateX + point.x * (current.scale - scale);
+        const translateY = current.translateY + point.y * (current.scale - scale);
+
+        const maxTranslateX = SVG_WIDTH * (1 - scale);
+        const maxTranslateY = SVG_HEIGHT * (1 - scale);
+        const clampedX = scale > 1 ? Math.min(0, Math.max(translateX, maxTranslateX)) : translateX;
+        const clampedY = scale > 1 ? Math.min(0, Math.max(translateY, maxTranslateY)) : translateY;
+
         isAnimated.value = false;
         zoomState.value = {
             scale,
-            translateX: current.translateX + point.x * (current.scale - scale),
-            translateY: current.translateY + point.y * (current.scale - scale),
+            translateX: clampedX,
+            translateY: clampedY,
         };
     }
 
     function panTo(translateX: number, translateY: number): void {
         isAnimated.value = false;
-        zoomState.value = { ...zoomState.value, translateX, translateY };
+        const { scale } = zoomState.value;
+        const maxTranslateX = SVG_WIDTH * (1 - scale);
+        const maxTranslateY = SVG_HEIGHT * (1 - scale);
+        const clampedX = scale > 1 ? Math.min(0, Math.max(translateX, maxTranslateX)) : translateX;
+        const clampedY = scale > 1 ? Math.min(0, Math.max(translateY, maxTranslateY)) : translateY;
+        zoomState.value = { ...zoomState.value, translateX: clampedX, translateY: clampedY };
     }
 
     return {

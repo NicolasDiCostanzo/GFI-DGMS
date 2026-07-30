@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import { CalculateSimulationYields } from '@/sovereign/app/CalculateSimulationYields';
+import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { getThemeColors } from '@/sovereign/domain/constants/MapColors';
 import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { StaticCountryRepository } from '@/sovereign/infrastructure/adapters/StaticCountryRepository';
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
-import { onMounted, ref } from 'vue';
+import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
+import { computed, onMounted, ref } from 'vue';
 
 const countryRepository = new StaticCountryRepository();
 const calculateSimulationYields = new CalculateSimulationYields(countryRepository);
@@ -15,6 +18,69 @@ const countries = ref<Country[]>([]);
 const resultsByCountry = ref<Map<CountryId, SimulationResults>>(new Map());
 const selectedCountryId = ref<CountryId | null>(null);
 const loadError = ref<CountryLoadError | null>(null);
+
+const STORAGE_KEY = 'gfi-dgms-settings';
+
+interface Settings {
+    themeMode: ThemeMode;
+}
+
+const themeModes = new Set<ThemeMode>(['light', 'dark', 'colorblind-light', 'colorblind-dark']);
+
+function isThemeMode(value: unknown): value is ThemeMode {
+    return typeof value === 'string' && themeModes.has(value as ThemeMode);
+}
+
+function loadSettings(): Settings {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            const parsed: unknown = JSON.parse(stored);
+            if (
+                typeof parsed === 'object' &&
+                parsed !== null &&
+                'themeMode' in parsed &&
+                isThemeMode(parsed.themeMode)
+            ) {
+                return { themeMode: parsed.themeMode };
+            }
+        }
+    } catch {
+        // ignore parse errors
+    }
+    return { themeMode: 'dark' };
+}
+
+function saveSettings(settings: Settings): void {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    } catch {
+        // ignore storage errors
+    }
+}
+
+const settings = ref<Settings>(loadSettings());
+
+const themeMode = computed({
+    get: () => settings.value.themeMode,
+    set: (value: ThemeMode) => {
+        settings.value.themeMode = value;
+        saveSettings(settings.value);
+    },
+});
+
+const themeStyle = computed(() => {
+    const colors = getThemeColors(themeMode.value);
+    return {
+        '--ocean': colors.OCEAN,
+        '--inactive': colors.INACTIVE,
+        '--border': colors.BORDER,
+        '--tooltip-bg': colors.TOOLTIP_BG,
+        '--tooltip-text': colors.TOOLTIP_TEXT,
+        '--legend-bg': colors.LEGEND_BG,
+        '--legend-text': colors.LEGEND_TEXT,
+    } as Record<string, string>;
+});
 
 onMounted(async () => {
     try {
@@ -47,7 +113,7 @@ function handleCountrySelect(countryId: CountryId | null): void {
 </script>
 
 <template>
-    <div class="app">
+    <div class="app" :class="`theme-${themeMode}`" :style="themeStyle">
         <p v-if="loadError" role="alert">
             {{ loadError.message }}
         </p>
@@ -56,8 +122,10 @@ function handleCountrySelect(countryId: CountryId | null): void {
             :countries="countries"
             :results-by-country="resultsByCountry"
             :selected-country-id="selectedCountryId"
+            :theme-mode="themeMode"
             @country-select="handleCountrySelect"
         />
+        <ThemeToggle v-model:model-value="themeMode" />
     </div>
 </template>
 
