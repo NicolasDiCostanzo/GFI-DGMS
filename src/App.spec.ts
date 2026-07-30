@@ -9,6 +9,7 @@ import {
 import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App.vue';
+import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
 
 const findAllMock = vi.fn<() => Promise<Country[]>>();
 const executeMock =
@@ -124,6 +125,59 @@ describe('App', () => {
 
         const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
         expect(stored.themeMode).toBe('colorblind-light');
+    });
+
+    describe('settings persistence errors', () => {
+        it('throws SettingsParseError when localStorage contains invalid JSON', async () => {
+            localStorage.setItem('gfi-dgms-settings', '{invalid json}');
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            expect(() => mount(App)).toThrow(SettingsParseError);
+        });
+
+        it('invokes SettingsStorageError catch when localStorage.setItem fails', async () => {
+            const fakeStorage: Record<string, string> = {};
+            const mockLocalStorage = {
+                getItem: vi.fn((key: string) => fakeStorage[key] ?? null),
+                setItem: vi.fn(() => {
+                    throw new Error('storage quota exceeded');
+                }),
+                removeItem: vi.fn((key: string) => {
+                    delete fakeStorage[key];
+                }),
+                clear: vi.fn(() => {
+                    Object.keys(fakeStorage).forEach((k) => delete fakeStorage[k]);
+                }),
+                get length() {
+                    return Object.keys(fakeStorage).length;
+                },
+                key: vi.fn((_index: number) => null),
+            };
+            vi.stubGlobal('localStorage', mockLocalStorage);
+            try {
+                findAllMock.mockResolvedValue([GERMANY]);
+                executeMock.mockResolvedValue(RESULTS);
+
+                const wrapper = mount(App);
+                await flushPromises();
+
+                const toggle = wrapper.find('.theme-toggle');
+                await toggle.trigger('mouseenter');
+                const options = wrapper.findAll('.theme-toggle-option');
+
+                try {
+                    await options[2].trigger('click');
+                } catch {
+                    // expected: SettingsStorageError propagates through Vue event system
+                }
+                await flushPromises();
+
+                expect(mockLocalStorage.setItem).toHaveBeenCalled();
+            } finally {
+                vi.unstubAllGlobals();
+            }
+        });
     });
 
     describe('theme prop', () => {

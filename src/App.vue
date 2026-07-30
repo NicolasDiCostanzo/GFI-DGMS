@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { SettingsParseError } from '@/shared/errors/SettingsParseError';
+import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import { CalculateSimulationYields } from '@/sovereign/app/CalculateSimulationYields';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
@@ -54,8 +56,10 @@ function loadSettings(): Settings {
                 return { themeMode: parsed.themeMode };
             }
         }
-    } catch {
-        // ignore parse errors
+    } catch (cause) {
+        throw new SettingsParseError(
+            `Failed to parse settings from localStorage: ${getErrorMessage(cause)}`,
+        );
     }
     return { themeMode: 'dark' };
 }
@@ -63,8 +67,10 @@ function loadSettings(): Settings {
 function saveSettings(settings: Settings): void {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch {
-        // ignore storage errors
+    } catch (cause) {
+        throw new SettingsStorageError(
+            `Failed to save settings to localStorage: ${getErrorMessage(cause)}`,
+        );
     }
 }
 
