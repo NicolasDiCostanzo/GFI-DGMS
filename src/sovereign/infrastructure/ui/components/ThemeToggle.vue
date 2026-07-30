@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { type ThemeMode } from '../utils/fundingProgressLegend';
+import {
+    COLORBLIND_FUNDING_PROGRESS_COLORS,
+    DARK_THEME_COLORS,
+    LIGHT_THEME_COLORS,
+    type ThemeMode,
+} from '../../../domain/constants/MapColors';
 
 const props = defineProps<{
     modelValue: ThemeMode;
@@ -22,6 +27,16 @@ const options: { value: ThemeMode; label: string }[] = [
 const currentLabel = computed(() => {
     return options.find((opt) => opt.value === props.modelValue)?.label ?? 'Dark';
 });
+
+function getSwatchColor(value: ThemeMode): string {
+    if (value.includes('colorblind')) {
+        return COLORBLIND_FUNDING_PROGRESS_COLORS[0];
+    }
+    if (value === 'light') {
+        return LIGHT_THEME_COLORS.OCEAN;
+    }
+    return DARK_THEME_COLORS.OCEAN;
+}
 
 function select(value: ThemeMode): void {
     emit('update:modelValue', value);
@@ -45,13 +60,7 @@ function select(value: ThemeMode): void {
             >
                 <span
                     class="theme-toggle-swatch"
-                    :style="{
-                        backgroundColor: option.value.includes('colorblind')
-                            ? '#0072B2'
-                            : option.value === 'light'
-                              ? '#e8f4f8'
-                              : '#1a2634',
-                    }"
+                    :style="{ backgroundColor: getSwatchColor(option.value) }"
                 />
                 {{ option.label }}
             </button>

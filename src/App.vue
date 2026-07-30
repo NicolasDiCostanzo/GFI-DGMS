@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { SettingsParseError } from '@/shared/errors/SettingsParseError';
+import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import { CalculateSimulationYields } from '@/sovereign/app/CalculateSimulationYields';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
@@ -9,7 +11,16 @@ import { StaticCountryRepository } from '@/sovereign/infrastructure/adapters/Sta
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+
+const props = withDefaults(
+    defineProps<{
+        theme?: ThemeMode;
+    }>(),
+    {
+        theme: undefined,
+    },
+);
 
 const countryRepository = new StaticCountryRepository();
 const calculateSimulationYields = new CalculateSimulationYields(countryRepository);
@@ -32,9 +43,16 @@ function isThemeMode(value: unknown): value is ThemeMode {
 }
 
 function loadSettings(): Settings {
+    let stored: string | null;
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
+        stored = localStorage.getItem(STORAGE_KEY);
+    } catch (cause) {
+        throw new SettingsStorageError(
+            `Failed to read settings from localStorage: ${getErrorMessage(cause)}`,
+        );
+    }
+    if (stored) {
+        try {
             const parsed: unknown = JSON.parse(stored);
             if (
                 typeof parsed === 'object' &&
@@ -44,9 +62,11 @@ function loadSettings(): Settings {
             ) {
                 return { themeMode: parsed.themeMode };
             }
+        } catch (cause) {
+            throw new SettingsParseError(
+                `Failed to parse settings from localStorage: ${getErrorMessage(cause)}`,
+            );
         }
-    } catch {
-        // ignore parse errors
     }
     return { themeMode: 'dark' };
 }
@@ -54,20 +74,37 @@ function loadSettings(): Settings {
 function saveSettings(settings: Settings): void {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch {
-        // ignore storage errors
+    } catch (cause) {
+        throw new SettingsStorageError(
+            `Failed to save settings to localStorage: ${getErrorMessage(cause)}`,
+        );
     }
 }
 
 const settings = ref<Settings>(loadSettings());
 
+if (props.theme && isThemeMode(props.theme)) {
+    settings.value.themeMode = props.theme;
+    saveSettings(settings.value);
+}
+
 const themeMode = computed({
-    get: () => settings.value.themeMode,
+    get: () => (isThemeMode(props.theme) ? props.theme : settings.value.themeMode),
     set: (value: ThemeMode) => {
         settings.value.themeMode = value;
         saveSettings(settings.value);
     },
 });
+
+watch(
+    () => props.theme,
+    (newTheme) => {
+        if (newTheme && isThemeMode(newTheme)) {
+            settings.value.themeMode = newTheme;
+            saveSettings(settings.value);
+        }
+    },
+);
 
 const themeStyle = computed(() => {
     const colors = getThemeColors(themeMode.value);

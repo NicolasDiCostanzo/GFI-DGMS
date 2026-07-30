@@ -1,2 +1,6 @@
+#!/bin/sh
+set -e
+NODE_VERSION=$(cat .nvmrc)
+export PATH="$HOME/.nvm/versions/node/${NODE_VERSION}/bin:$PATH"
 npm run check
 npm run test
