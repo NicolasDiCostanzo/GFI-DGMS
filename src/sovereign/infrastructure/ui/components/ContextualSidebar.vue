@@ -52,15 +52,15 @@ const flagEmoji = computed(() => (props.country ? isoToFlagEmoji(props.country.i
 const countryName = computed(() => props.country?.name ?? '');
 const currentInvestment = computed(() => formatInvestment(props.sliderValue));
 
-const fundingProgressPercent = computed(() => toPercentage(props.results!.fundingProgress));
+const fundingProgressPercent = computed(() => toPercentage(props.results?.fundingProgress ?? 0));
 
 const progressColor = computed(() =>
-    getColorForFundingProgress(props.results!.fundingProgress, props.themeMode),
+    getColorForFundingProgress(props.results?.fundingProgress ?? 0, props.themeMode),
 );
 
-const co2Tonnes = computed(() => props.results!.additionalCO2Tonnes);
+const co2Tonnes = computed(() => props.results?.additionalCO2Tonnes ?? 0);
 const carsEquivalent = computed(() =>
-    formatCarsEquivalent(co2TonnesToCarsEquivalent(props.results!.additionalCO2Tonnes)),
+    formatCarsEquivalent(co2TonnesToCarsEquivalent(props.results?.additionalCO2Tonnes ?? 0)),
 );
 
 const co2BarWidth = computed(() =>
