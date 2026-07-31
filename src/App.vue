@@ -118,6 +118,10 @@ const themeStyle = computed(() => {
         '--tooltip-text': colors.TOOLTIP_TEXT,
         '--legend-bg': colors.LEGEND_BG,
         '--legend-text': colors.LEGEND_TEXT,
+        '--sidebar-bg': colors.SIDEBAR_BG,
+        '--accent': colors.ACCENT,
+        '--progress-bg': colors.PROGRESS_BG,
+        '--error': colors.ERROR,
     } as Record<string, string>;
 });
 
@@ -177,19 +181,17 @@ function handleSliderUpdate(value: number): void {
                 :theme-mode="themeMode"
                 @country-select="handleCountrySelect"
             />
-            <ContextualSidebar
-                :country="
-                    selectedCountryId
-                        ? (countries.find((c) => c.id === selectedCountryId) ?? null)
-                        : null
-                "
-                :results="
-                    selectedCountryId ? (resultsByCountry.get(selectedCountryId) ?? null) : null
-                "
-                :slider-value="sliderValue"
-                :theme-mode="themeMode"
-                @update:slider-value="handleSliderUpdate"
-            />
+            <Transition name="slide">
+                <ContextualSidebar
+                    v-if="selectedCountryId"
+                    class="sidebar-overlay"
+                    :country="countries.find((c) => c.id === selectedCountryId)"
+                    :results="resultsByCountry.get(selectedCountryId)"
+                    :slider-value="sliderValue"
+                    :theme-mode="themeMode"
+                    @update:slider-value="handleSliderUpdate"
+                />
+            </Transition>
         </div>
         <ThemeToggle v-model:model-value="themeMode" />
     </div>
@@ -202,8 +204,26 @@ function handleSliderUpdate(value: number): void {
 }
 
 .app-content {
-    display: flex;
+    position: relative;
     width: 100%;
     height: 100%;
+}
+
+.sidebar-overlay {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    z-index: 10;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: transform 0.3s ease-in-out;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    transform: translateX(100%);
 }
 </style>

@@ -48,7 +48,7 @@ watch(
     { immediate: true },
 );
 
-const flagEmoji = computed(() => isoToFlagEmoji(props.country!.id));
+const flagEmoji = computed(() => (props.country ? isoToFlagEmoji(props.country.id) : ''));
 const countryName = computed(() => props.country?.name ?? '');
 const currentInvestment = computed(() => formatInvestment(props.sliderValue));
 
@@ -93,10 +93,6 @@ const dashOffset = computed(() => {
         <div v-if="error" class="error-state">
             <p class="error-message" role="alert">{{ error }}</p>
             <button class="retry-button" @click="emit('retry')">Retry</button>
-        </div>
-
-        <div v-else-if="!country" class="empty-state">
-            <p>Select a country on the map to begin</p>
         </div>
 
         <div v-else-if="isLoading" class="loading-state">

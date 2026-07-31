@@ -12,6 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
 import { SettingsStorageError } from './shared/errors/SettingsStorageError.ts';
+import ContextualSidebar from './sovereign/infrastructure/ui/components/ContextualSidebar.vue';
 
 const findAllMock = vi.fn<() => Promise<Country[]>>();
 const executeMock =
@@ -76,6 +77,16 @@ describe('App', () => {
         expect(executeMock).not.toHaveBeenCalled();
     });
 
+    it('displays error message when loading countries fails', async () => {
+        findAllMock.mockRejectedValue(new Error('network down'));
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        expect(wrapper.find('p[role="alert"]').exists()).toBe(true);
+        expect(wrapper.find('p[role="alert"]').text()).toContain('network down');
+    });
+
     it('selects a country when the map emits country-select', async () => {
         findAllMock.mockResolvedValue([GERMANY]);
         executeMock.mockResolvedValue(RESULTS);
@@ -90,7 +101,7 @@ describe('App', () => {
         expect(germanPath.attributes('stroke')).toBe(MapColors.SELECTION);
     });
 
-    it('renders ContextualSidebar with empty state when no country is selected', async () => {
+    it('does not render ContextualSidebar when no country is selected', async () => {
         findAllMock.mockResolvedValue([GERMANY]);
         executeMock.mockResolvedValue(RESULTS);
 
@@ -98,9 +109,7 @@ describe('App', () => {
         await flushPromises();
 
         const sidebar = wrapper.find('.contextual-sidebar');
-        expect(sidebar.exists()).toBe(true);
-        expect(sidebar.find('.empty-state').exists()).toBe(true);
-        expect(sidebar.find('.empty-state p').text()).toBe('Select a country on the map to begin');
+        expect(sidebar.exists()).toBe(false);
     });
 
     it('renders ContextualSidebar with country data when a country is selected', async () => {
@@ -156,7 +165,7 @@ describe('App', () => {
         expect(slider.attributes('value')).toBe('750');
     });
 
-    it('resets slider when deselecting a country', async () => {
+    it('hides sidebar when deselecting a country', async () => {
         findAllMock.mockResolvedValue([GERMANY]);
         executeMock.mockResolvedValue(RESULTS);
 
@@ -168,18 +177,14 @@ describe('App', () => {
         await germanPath.trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('input[type="range"]').attributes('value')).toBe(
-            String(GERMANY.baselineInvestment),
-        );
+        expect(wrapper.find('.contextual-sidebar').exists()).toBe(true);
 
         // Click on ocean to deselect
         const oceanRect = wrapper.find('rect');
         await oceanRect.trigger('click');
         await flushPromises();
 
-        // Slider should not exist in empty state
-        expect(wrapper.find('input[type="range"]').exists()).toBe(false);
-        expect(wrapper.find('.empty-state').exists()).toBe(true);
+        expect(wrapper.find('.contextual-sidebar').exists()).toBe(false);
     });
 
     it('defaults to dark theme when no localStorage value exists', async () => {
@@ -404,6 +409,66 @@ describe('App', () => {
 
             expect(wrapper.find('.theme-dark').exists()).toBe(false);
             expect(wrapper.find('.theme-light').exists()).toBe(true);
+        });
+
+        it('passes theme mode to ContextualSidebar', async () => {
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            const wrapper = mount(App, {
+                props: { theme: 'light' },
+            });
+            await flushPromises();
+
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+            await germanPath.trigger('click');
+            await flushPromises();
+
+            const sidebar = wrapper.find('.contextual-sidebar');
+            expect(sidebar.exists()).toBe(true);
+
+            const sidebarComponent = wrapper.findComponent(ContextualSidebar);
+            expect(sidebarComponent.props('themeMode')).toBe('light');
+        });
+
+        it('updates ContextualSidebar theme when theme prop changes', async () => {
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            const wrapper = mount(App, {
+                props: { theme: 'dark' },
+            });
+            await flushPromises();
+
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+            await germanPath.trigger('click');
+            await flushPromises();
+
+            const sidebarComponent = wrapper.findComponent(ContextualSidebar);
+            expect(sidebarComponent.props('themeMode')).toBe('dark');
+
+            await wrapper.setProps({ theme: 'light' });
+            await flushPromises();
+
+            expect(sidebarComponent.props('themeMode')).toBe('light');
+        });
+
+        it('applies theme CSS variables to the app container', async () => {
+            findAllMock.mockResolvedValue([GERMANY]);
+            executeMock.mockResolvedValue(RESULTS);
+
+            const wrapper = mount(App, {
+                props: { theme: 'dark' },
+            });
+            await flushPromises();
+
+            const appDiv = wrapper.find('.app');
+            const style = appDiv.attributes('style');
+
+            expect(style).toContain('--sidebar-bg');
+            expect(style).toContain('--accent');
+            expect(style).toContain('--progress-bg');
+            expect(style).toContain('--error');
         });
     });
 });

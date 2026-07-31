@@ -32,23 +32,6 @@ function flushRaf(timestamp: number): void {
 }
 
 describe('ContextualSidebar', () => {
-    describe('empty state', () => {
-        it('shows empty state message when no country is selected', () => {
-            const wrapper = createWrapper();
-            expect(wrapper.text()).toContain('Select a country on the map to begin');
-        });
-
-        it('does not render the slider when no country is selected', () => {
-            const wrapper = createWrapper();
-            expect(wrapper.find('input[type="range"]').exists()).toBe(false);
-        });
-
-        it('does not render the country header when no country is selected', () => {
-            const wrapper = createWrapper();
-            expect(wrapper.find('.country-header').exists()).toBe(false);
-        });
-    });
-
     describe('loading state', () => {
         it('shows skeleton placeholders when loading', () => {
             const wrapper = createWrapper({ country: GERMANY, isLoading: true });
@@ -89,6 +72,35 @@ describe('ContextualSidebar', () => {
             const wrapper = createWrapper({ country: GERMANY, error: 'Something went wrong' });
             await wrapper.find('.retry-button').trigger('click');
             expect(wrapper.emitted('retry')).toHaveLength(1);
+        });
+
+        it('uses null error when error prop is explicitly undefined', () => {
+            const wrapper = createWrapper({ country: GERMANY, error: undefined });
+            expect(wrapper.find('.error-state').exists()).toBe(false);
+            expect(wrapper.find('.sidebar-content').exists()).toBe(true);
+        });
+    });
+
+    describe('createWrapper fixture', () => {
+        it('applies default values when no options provided', () => {
+            const wrapper = createWrapper();
+            expect(wrapper.props('country')).toBeNull();
+            expect(wrapper.props('results')).toBeNull();
+            expect(wrapper.props('sliderValue')).toBe(0);
+            expect(wrapper.props('themeMode')).toBe('dark');
+            expect(wrapper.props('isLoading')).toBe(false);
+            expect(wrapper.props('error')).toBeNull();
+        });
+
+        it('preserves explicitly provided null values', () => {
+            const wrapper = createWrapper({
+                country: null,
+                results: null,
+                error: null,
+            });
+            expect(wrapper.props('country')).toBeNull();
+            expect(wrapper.props('results')).toBeNull();
+            expect(wrapper.props('error')).toBeNull();
         });
     });
 
