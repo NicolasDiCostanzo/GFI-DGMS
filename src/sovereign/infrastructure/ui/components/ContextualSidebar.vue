@@ -64,7 +64,7 @@ const carsEquivalent = computed(() =>
 );
 
 const co2BarWidth = computed(() =>
-    props.results ? Math.min((props.results.additionalCO2Tonnes / 4600) * 100, 100) : 0,
+    props.results ? Math.min(Math.max((props.results.additionalCO2Tonnes / 4600) * 100, 0), 100) : 0,
 );
 
 const baselineLabel = computed(() =>
