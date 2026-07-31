@@ -90,6 +90,98 @@ describe('App', () => {
         expect(germanPath.attributes('stroke')).toBe(MapColors.SELECTION);
     });
 
+    it('renders ContextualSidebar with empty state when no country is selected', async () => {
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const sidebar = wrapper.find('.contextual-sidebar');
+        expect(sidebar.exists()).toBe(true);
+        expect(sidebar.find('.empty-state').exists()).toBe(true);
+        expect(sidebar.find('.empty-state p').text()).toBe('Select a country on the map to begin');
+    });
+
+    it('renders ContextualSidebar with country data when a country is selected', async () => {
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+        await germanPath.trigger('click');
+        await flushPromises();
+
+        const sidebar = wrapper.find('.contextual-sidebar');
+        expect(sidebar.exists()).toBe(true);
+        expect(sidebar.find('.empty-state').exists()).toBe(false);
+        expect(sidebar.find('.country-header').exists()).toBe(true);
+        expect(sidebar.find('.country-name').text()).toBe('Germany');
+        expect(sidebar.find('.slider-section').exists()).toBe(true);
+    });
+
+    it('initializes slider to baseline investment when country is selected', async () => {
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+        await germanPath.trigger('click');
+        await flushPromises();
+
+        const slider = wrapper.find('input[type="range"]');
+        expect(slider.exists()).toBe(true);
+        expect(Number(slider.attributes('value'))).toBe(GERMANY.baselineInvestment);
+    });
+
+    it('updates slider value when user interacts with the slider', async () => {
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+        await germanPath.trigger('click');
+        await flushPromises();
+
+        const slider = wrapper.find('input[type="range"]');
+        await slider.setValue(750);
+        await flushPromises();
+
+        expect(slider.attributes('value')).toBe('750');
+    });
+
+    it('resets slider when deselecting a country', async () => {
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        // Select Germany
+        const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+        await germanPath.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('input[type="range"]').attributes('value')).toBe(
+            String(GERMANY.baselineInvestment),
+        );
+
+        // Click on ocean to deselect
+        const oceanRect = wrapper.find('rect');
+        await oceanRect.trigger('click');
+        await flushPromises();
+
+        // Slider should not exist in empty state
+        expect(wrapper.find('input[type="range"]').exists()).toBe(false);
+        expect(wrapper.find('.empty-state').exists()).toBe(true);
+    });
+
     it('defaults to dark theme when no localStorage value exists', async () => {
         localStorage.removeItem('gfi-dgms-settings');
         findAllMock.mockResolvedValue([GERMANY]);

@@ -9,6 +9,7 @@ import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { StaticCountryRepository } from '@/sovereign/infrastructure/adapters/StaticCountryRepository';
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
+import ContextualSidebar from '@/sovereign/infrastructure/ui/components/ContextualSidebar.vue';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -29,6 +30,7 @@ const countries = ref<Country[]>([]);
 const resultsByCountry = ref<Map<CountryId, SimulationResults>>(new Map());
 const selectedCountryId = ref<CountryId | null>(null);
 const loadError = ref<CountryLoadError | null>(null);
+const sliderValue = ref<number>(0);
 
 const STORAGE_KEY = 'gfi-dgms-settings';
 
@@ -146,6 +148,19 @@ onMounted(async () => {
 
 function handleCountrySelect(countryId: CountryId | null): void {
     selectedCountryId.value = countryId;
+
+    if (countryId) {
+        const country = countries.value.find((c) => c.id === countryId);
+        if (country) {
+            sliderValue.value = country.baselineInvestment;
+        }
+    } else {
+        sliderValue.value = 0;
+    }
+}
+
+function handleSliderUpdate(value: number): void {
+    sliderValue.value = value;
 }
 </script>
 
@@ -154,14 +169,28 @@ function handleCountrySelect(countryId: CountryId | null): void {
         <p v-if="loadError" role="alert">
             {{ loadError.message }}
         </p>
-        <InteractiveMap
-            v-else
-            :countries="countries"
-            :results-by-country="resultsByCountry"
-            :selected-country-id="selectedCountryId"
-            :theme-mode="themeMode"
-            @country-select="handleCountrySelect"
-        />
+        <div v-else class="app-content">
+            <InteractiveMap
+                :countries="countries"
+                :results-by-country="resultsByCountry"
+                :selected-country-id="selectedCountryId"
+                :theme-mode="themeMode"
+                @country-select="handleCountrySelect"
+            />
+            <ContextualSidebar
+                :country="
+                    selectedCountryId
+                        ? (countries.find((c) => c.id === selectedCountryId) ?? null)
+                        : null
+                "
+                :results="
+                    selectedCountryId ? (resultsByCountry.get(selectedCountryId) ?? null) : null
+                "
+                :slider-value="sliderValue"
+                :theme-mode="themeMode"
+                @update:slider-value="handleSliderUpdate"
+            />
+        </div>
         <ThemeToggle v-model:model-value="themeMode" />
     </div>
 </template>
@@ -170,5 +199,11 @@ function handleCountrySelect(countryId: CountryId | null): void {
 .app {
     width: 100%;
     height: 100vh;
+}
+
+.app-content {
+    display: flex;
+    width: 100%;
+    height: 100%;
 }
 </style>
