@@ -1,5 +1,5 @@
 import { Currency } from '@/shared/types/Currency';
-import { MapColors } from '@/sovereign/domain/constants/MapColors';
+import { MapColors, ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { TargetBudget } from '@/sovereign/domain/TargetBudget';
@@ -24,12 +24,11 @@ export const RESULTS: SimulationResults = {
 };
 
 export const SLIDER_MAX = GERMANY.targetBudget.amount * 2;
-
 export interface WrapperOptions {
     country?: Country | null;
     results?: SimulationResults | null;
     sliderValue?: number;
-    themeMode?: 'light' | 'dark' | 'colorblind-light' | 'colorblind-dark';
+    themeMode?: ThemeMode;
     isLoading?: boolean;
     error?: string | null;
 }
