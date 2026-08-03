@@ -17,7 +17,13 @@ import ContextualSidebar from './sovereign/infrastructure/ui/components/Contextu
 
 const findAllMock = vi.fn<() => Promise<Country[]>>();
 const executeMock =
-    vi.fn<(countryId: string, investmentAmount: number) => Promise<SimulationResults>>();
+    vi.fn<
+        (
+            countryId: string,
+            investmentAmount: number,
+            themeMode: ThemeMode,
+        ) => Promise<SimulationResults>
+    >();
 
 vi.mock('@/sovereign/infrastructure/adapters/StaticCountryRepository', () => ({
     StaticCountryRepository: vi.fn().mockImplementation(function () {
@@ -44,8 +50,8 @@ describe('App', () => {
         const wrapper = mount(App);
         await flushPromises();
 
-        expect(executeMock).toHaveBeenCalledWith(GERMANY.id, GERMANY.baselineInvestment);
-        expect(executeMock).toHaveBeenCalledWith(FRANCE.id, FRANCE.baselineInvestment);
+        expect(executeMock).toHaveBeenCalledWith(GERMANY.id, GERMANY.baselineInvestment, 'dark');
+        expect(executeMock).toHaveBeenCalledWith(FRANCE.id, FRANCE.baselineInvestment, 'dark');
 
         const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
         expect(germanPath.attributes('fill')).toBe(MapColors.ORANGE);
@@ -184,7 +190,7 @@ describe('App', () => {
         await slider.setValue(750);
         await flushPromises();
 
-        expect(executeMock).toHaveBeenCalledWith(GERMANY.id, 750);
+        expect(executeMock).toHaveBeenCalledWith(GERMANY.id, 750, 'dark');
         const sidebarComponent = wrapper.findComponent(ContextualSidebar);
         expect(sidebarComponent.props('results')).toEqual(updatedResults);
     });

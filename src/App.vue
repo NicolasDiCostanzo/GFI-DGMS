@@ -115,6 +115,32 @@ watch(
     },
 );
 
+watch(
+    () => themeMode.value,
+    async (newThemeMode) => {
+        if (countries.value.length === 0) {
+            return;
+        }
+
+        const entries = await Promise.all(
+            countries.value.map(async (country) => {
+                try {
+                    const results = await calculateSimulationYields.execute(
+                        country.id,
+                        country.baselineInvestment,
+                        newThemeMode,
+                    );
+                    return [country.id, results] as const;
+                } catch {
+                    return null;
+                }
+            }),
+        );
+
+        resultsByCountry.value = new Map(entries.filter((entry) => entry !== null));
+    },
+);
+
 const themeStyle = computed(() => {
     const colors = getThemeColors(themeMode.value);
     return {
@@ -146,6 +172,7 @@ onMounted(async () => {
                 const results = await calculateSimulationYields.execute(
                     country.id,
                     country.baselineInvestment,
+                    themeMode.value,
                 );
                 return [country.id, results] as const;
             } catch {
@@ -177,7 +204,7 @@ async function handleSliderUpdate(value: number): Promise<void> {
     }
 
     try {
-        const results = await calculateSimulationYields.execute(countryId, value);
+        const results = await calculateSimulationYields.execute(countryId, value, themeMode.value);
         resultsByCountry.value = new Map(resultsByCountry.value).set(countryId, results);
     } catch {
         sliderValue.value = previousValue;
