@@ -8,7 +8,7 @@ import { TargetBudget } from './TargetBudget';
 describe('Simulation', () => {
     const usd = Currency.USD();
     const targetBudget = new TargetBudget(1000, usd);
-    const country = new Country(CountryId('DEU'), 'Germany', 500, targetBudget, 10, 5);
+    const country = new Country(CountryId('DEU'), 'Germany', 500, targetBudget, 10, 5, 10000, 5000);
 
     describe('constructor', () => {
         it('creates a Simulation with country and investment', async () => {
@@ -41,6 +41,8 @@ describe('Simulation', () => {
                     targetBudget,
                     0.33,
                     0.75,
+                    8000,
+                    4000,
                 );
                 const investment = new InvestmentAmount(501, usd, 2000);
                 const simulation = new Simulation(fractionalCountry, investment);
@@ -61,6 +63,8 @@ describe('Simulation', () => {
                     targetBudget,
                     0.33,
                     0.75,
+                    8000,
+                    4000,
                 );
                 const investment = new InvestmentAmount(1000, usd, 2000);
                 const simulation = new Simulation(fractionalCountry, investment);

@@ -5,5 +5,7 @@ export function co2TonnesToCarsEquivalent(tonnes: number): number {
 }
 
 export function formatCarsEquivalent(cars: number): string {
-    return `${cars.toLocaleString('en-US')} cars off the road`;
+    if (cars === 0) return '';
+    const roadState = cars > 0 ? 'off the road' : 'on the road';
+    return `${Math.abs(cars)} cars ${roadState}`;
 }

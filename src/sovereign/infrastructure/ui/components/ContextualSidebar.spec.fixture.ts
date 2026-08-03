@@ -13,6 +13,8 @@ export const GERMANY = new Country(
     new TargetBudget(1000, Currency.USD()),
     10,
     5,
+    1000,
+    5,
 );
 
 export const RESULTS: SimulationResults = {

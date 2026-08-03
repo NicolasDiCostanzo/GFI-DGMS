@@ -5,7 +5,7 @@ import { TargetBudget } from './TargetBudget';
 
 describe('Country', () => {
     const targetBudget = new TargetBudget(1000, Currency.USD());
-    const country = new Country(CountryId('276'), 'Germany', 500, targetBudget, 10, 5);
+    const country = new Country(CountryId('276'), 'Germany', 500, targetBudget, 10, 5, 10000, 5000);
 
     describe('constructor', () => {
         it('creates a Country with all properties', () => {

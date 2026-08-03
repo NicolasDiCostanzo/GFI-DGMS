@@ -9,7 +9,8 @@ export const TONNES_TO_CARS: readonly [number, number][] = [
 
 export const CARS_FORMAT: readonly [number, string][] = [
     [272, '272 cars off the road'],
-    [1000, '1,000 cars off the road'],
-    [0, '0 cars off the road'],
-    [12500, '12,500 cars off the road'],
+    [1000, '1000 cars off the road'],
+    [0, ''],
+    [12500, '12500 cars off the road'],
+    [-100, '100 cars on the road'],
 ];
