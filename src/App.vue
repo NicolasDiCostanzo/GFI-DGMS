@@ -98,6 +98,13 @@ const themeMode = computed({
     },
 });
 
+const selectedCountry = computed(() => {
+    if (!selectedCountryId.value) {
+        return null;
+    }
+    return countries.value.find((c) => c.id === selectedCountryId.value) || null;
+});
+
 watch(
     () => props.theme,
     (newTheme) => {
@@ -153,11 +160,8 @@ onMounted(async () => {
 function handleCountrySelect(countryId: CountryId | null): void {
     selectedCountryId.value = countryId;
 
-    if (countryId) {
-        const country = countries.value.find((c) => c.id === countryId);
-        if (country) {
-            sliderValue.value = country.baselineInvestment;
-        }
+    if (countryId && selectedCountry.value) {
+        sliderValue.value = selectedCountry.value.baselineInvestment;
     } else {
         sliderValue.value = 0;
     }
@@ -185,7 +189,7 @@ function handleSliderUpdate(value: number): void {
                 <ContextualSidebar
                     v-if="selectedCountryId"
                     class="sidebar-overlay"
-                    :country="countries.find((c) => c.id === selectedCountryId)"
+                    :country="selectedCountry"
                     :results="resultsByCountry.get(selectedCountryId)"
                     :slider-value="sliderValue"
                     :theme-mode="themeMode"
