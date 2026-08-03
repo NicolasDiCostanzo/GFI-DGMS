@@ -72,7 +72,7 @@ function select(value: ThemeMode): void {
 .theme-toggle {
     position: absolute;
     top: 16px;
-    right: 16px;
+    left: 16px;
     z-index: 100;
 }
 
@@ -88,7 +88,6 @@ function select(value: ThemeMode): void {
 .theme-toggle-dropdown {
     position: absolute;
     top: 100%;
-    right: 0;
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid #ccc;
     border-radius: 6px;

@@ -169,6 +169,11 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 - **Location**: `src/**/*.{test,spec}.{ts,js}`
 - **Coverage**: 100% threshold enforced
 
+### Test Style
+
+- Use loops (e.g. `it.each`) over repeated near-identical test cases instead of copy-pasting assertions, to keep tests condensed and readable.
+- Store test data in dedicated `.fixtures` files instead of declaring long literals inline in the test file.
+
 ### E2E Tests
 
 - **Framework**: Playwright
@@ -225,6 +230,16 @@ The GitHub Actions workflow (`.github/workflows/ci.yml`) runs these jobs on ever
 9. `coverage-merge` (needs jobs 5 and 8): downloads both artifacts and runs `npm run test:coverage:merge` — the final, authoritative 100% coverage gate across unit + E2E combined
 
 `axe-playwright` is installed but not yet wired into the pipeline (no accessibility gate). There is no bundle size check.
+
+## Implementation Workflow
+
+Once a plan has been validated, implement it one step at a time, following this loop per step:
+
+1. Write the tests for the step.
+2. Wait for validation.
+3. Write the implementation for the step.
+4. Wait for validation.
+5. Move to the next step and repeat from 1.
 
 ## Notes
 

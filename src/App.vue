@@ -9,6 +9,7 @@ import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { StaticCountryRepository } from '@/sovereign/infrastructure/adapters/StaticCountryRepository';
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
+import ContextualSidebar from '@/sovereign/infrastructure/ui/components/ContextualSidebar.vue';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -29,6 +30,7 @@ const countries = ref<Country[]>([]);
 const resultsByCountry = ref<Map<CountryId, SimulationResults>>(new Map());
 const selectedCountryId = ref<CountryId | null>(null);
 const loadError = ref<CountryLoadError | null>(null);
+const sliderValue = ref<number>(0);
 
 const STORAGE_KEY = 'gfi-dgms-settings';
 
@@ -96,6 +98,13 @@ const themeMode = computed({
     },
 });
 
+const selectedCountry = computed(() => {
+    if (!selectedCountryId.value) {
+        return null;
+    }
+    return countries.value.find((c) => c.id === selectedCountryId.value) || null;
+});
+
 watch(
     () => props.theme,
     (newTheme) => {
@@ -116,6 +125,10 @@ const themeStyle = computed(() => {
         '--tooltip-text': colors.TOOLTIP_TEXT,
         '--legend-bg': colors.LEGEND_BG,
         '--legend-text': colors.LEGEND_TEXT,
+        '--sidebar-bg': colors.SIDEBAR_BG,
+        '--accent': colors.ACCENT,
+        '--progress-bg': colors.PROGRESS_BG,
+        '--error': colors.ERROR,
     } as Record<string, string>;
 });
 
@@ -146,6 +159,29 @@ onMounted(async () => {
 
 function handleCountrySelect(countryId: CountryId | null): void {
     selectedCountryId.value = countryId;
+
+    if (countryId && selectedCountry.value) {
+        sliderValue.value = selectedCountry.value.baselineInvestment;
+    } else {
+        sliderValue.value = 0;
+    }
+}
+
+async function handleSliderUpdate(value: number): Promise<void> {
+    const countryId = selectedCountryId.value;
+    const previousValue = sliderValue.value;
+    sliderValue.value = value;
+
+    if (!countryId) {
+        return;
+    }
+
+    try {
+        const results = await calculateSimulationYields.execute(countryId, value);
+        resultsByCountry.value = new Map(resultsByCountry.value).set(countryId, results);
+    } catch {
+        sliderValue.value = previousValue;
+    }
 }
 </script>
 
@@ -154,14 +190,26 @@ function handleCountrySelect(countryId: CountryId | null): void {
         <p v-if="loadError" role="alert">
             {{ loadError.message }}
         </p>
-        <InteractiveMap
-            v-else
-            :countries="countries"
-            :results-by-country="resultsByCountry"
-            :selected-country-id="selectedCountryId"
-            :theme-mode="themeMode"
-            @country-select="handleCountrySelect"
-        />
+        <div v-else class="app-content">
+            <InteractiveMap
+                :countries="countries"
+                :results-by-country="resultsByCountry"
+                :selected-country-id="selectedCountryId"
+                :theme-mode="themeMode"
+                @country-select="handleCountrySelect"
+            />
+            <Transition name="slide">
+                <ContextualSidebar
+                    v-if="selectedCountryId"
+                    class="sidebar-overlay"
+                    :country="selectedCountry"
+                    :results="resultsByCountry.get(selectedCountryId)"
+                    :slider-value="sliderValue"
+                    :theme-mode="themeMode"
+                    @update:slider-value="handleSliderUpdate"
+                />
+            </Transition>
+        </div>
         <ThemeToggle v-model:model-value="themeMode" />
     </div>
 </template>
@@ -170,5 +218,29 @@ function handleCountrySelect(countryId: CountryId | null): void {
 .app {
     width: 100%;
     height: 100vh;
+}
+
+.app-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar-overlay {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    z-index: 10;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: transform 0.3s ease-in-out;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    transform: translateX(100%);
 }
 </style>
