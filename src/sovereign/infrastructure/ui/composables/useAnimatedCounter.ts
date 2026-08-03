@@ -7,6 +7,7 @@ export function useAnimatedCounter(duration = DEFAULT_DURATION) {
     let rafId: number | null = null;
     let startValue = 0;
     let targetValue = 0;
+    let animationStartTime = 0;
 
     function cancel(): void {
         if (rafId !== null) {
@@ -19,7 +20,8 @@ export function useAnimatedCounter(duration = DEFAULT_DURATION) {
         if (rafId === null) return;
 
         const clampedTarget = Math.max(0, targetValue);
-        const progress = Math.min(timestamp / duration, 1);
+        const elapsed = timestamp - animationStartTime;
+        const progress = Math.min(elapsed / duration, 1);
         const current = startValue + (clampedTarget - startValue) * progress;
         displayValue.value = Math.round(current);
 
@@ -39,6 +41,7 @@ export function useAnimatedCounter(duration = DEFAULT_DURATION) {
             return;
         }
 
+        animationStartTime = performance.now();
         rafId = requestAnimationFrame(step);
     }
 

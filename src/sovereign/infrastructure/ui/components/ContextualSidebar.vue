@@ -76,7 +76,7 @@ const targetLabel = computed(() =>
     props.country ? `Target (${formatInvestment(props.country.targetBudget.amount)})` : '',
 );
 const maxLabel = computed(() =>
-    props.country ? `200% (${formatInvestment(props.country.targetBudget.amount * 2)})` : '',
+    props.country ? `200% (${formatInvestment(sliderMax.value)})` : '',
 );
 
 const CIRCLE_RADIUS = 45;
@@ -349,7 +349,6 @@ input[type='range'] {
     color: var(--legend-text, #888);
 }
 
-.empty-state,
 .error-state,
 .loading-state {
     padding: 20px;

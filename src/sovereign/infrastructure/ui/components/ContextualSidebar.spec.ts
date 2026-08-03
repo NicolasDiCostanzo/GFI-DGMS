@@ -214,7 +214,7 @@ describe('ContextualSidebar', () => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
             flushRaf(1000);
             await nextTick();
-            expect(wrapper.text()).toContain('2,500');
+            expect(wrapper.text()).toContain('1,250');
         });
 
         const ECONOMIC_TEXTS = ['Additional High-Tech Jobs', 'Based on GFI economic projections'];

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { effectScope } from 'vue';
 import { useAnimatedCounter } from './useAnimatedCounter';
+import { CLAMPING_CASES, INTERPOLATION_CASES } from './useAnimatedCounter.spec.fixtures';
 
 describe('useAnimatedCounter', () => {
     let rafCallbacks: ((timestamp: number) => void)[];
@@ -22,6 +23,9 @@ describe('useAnimatedCounter', () => {
                 rafCallbacks = rafCallbacks.filter((_, i) => i !== id - 1);
             }),
         );
+        vi.stubGlobal('performance', {
+            now: () => 50000,
+        });
     });
 
     afterEach(() => {
@@ -41,39 +45,22 @@ describe('useAnimatedCounter', () => {
         expect(displayValue.value).toBe(0);
     });
 
-    // [duration, target, timestamp, expected]
-    const INTERPOLATION_CASES: ReadonlyArray<[number, number, number, number]> = [
-        [1000, 1000, 0, 0],
-        [1000, 1000, 500, 500],
-        [1000, 1000, 1000, 1000],
-        [2000, 1000, 1000, 500],
-        [2000, 1000, 2000, 1000],
-        [1000, 333, 333, 111],
-        [1000, 333, 999, 333],
-    ];
-
     it.each(INTERPOLATION_CASES)(
-        'with duration %s, target %s: at t=%s displays %s',
-        (duration, target, timestamp, expected) => {
+        'with duration %s, target %s: after %sms displays %s',
+        (duration, target, elapsed, expected) => {
             const { displayValue, animateTo } = useAnimatedCounter(duration);
             animateTo(target);
-            flushRaf(timestamp);
+            flushRaf(50000 + elapsed);
             expect(displayValue.value).toBe(expected);
         },
     );
 
-    // [target, timestamp, expected]
-    const CLAMPING_CASES: ReadonlyArray<[number, number, number]> = [
-        [1000, 1500, 1000],
-        [-500, 500, 0],
-    ];
-
     it.each(CLAMPING_CASES)(
-        'clamps to %s when target is %s at t=%s',
-        (target, timestamp, expected) => {
+        'clamps to %s when target is %s after %sms',
+        (target, elapsed, expected) => {
             const { displayValue, animateTo } = useAnimatedCounter(1000);
             animateTo(target);
-            flushRaf(timestamp);
+            flushRaf(50000 + elapsed);
             expect(displayValue.value).toBe(expected);
         },
     );
@@ -83,7 +70,7 @@ describe('useAnimatedCounter', () => {
         animateTo(1000);
 
         const rafCountBefore = rafCallbacks.length;
-        flushRaf(1000);
+        flushRaf(51000);
 
         expect(rafCallbacks.length).toBeLessThanOrEqual(rafCountBefore);
     });
@@ -92,13 +79,13 @@ describe('useAnimatedCounter', () => {
         const { displayValue, animateTo, cancel } = useAnimatedCounter(1000);
 
         animateTo(1000);
-        flushRaf(500);
+        flushRaf(50500);
         expect(displayValue.value).toBe(500);
 
         cancel();
         expect(globalThis.cancelAnimationFrame).toHaveBeenCalled();
 
-        flushRaf(2000);
+        flushRaf(52000);
         expect(displayValue.value).toBe(500);
     });
 
@@ -107,7 +94,7 @@ describe('useAnimatedCounter', () => {
         const { animateTo } = scope.run(() => useAnimatedCounter(1000))!;
 
         animateTo(1000);
-        flushRaf(500);
+        flushRaf(50500);
 
         const cancelSpy = globalThis.cancelAnimationFrame as ReturnType<typeof vi.fn>;
         const callsBefore = cancelSpy.mock.calls.length;
@@ -121,11 +108,11 @@ describe('useAnimatedCounter', () => {
         const { displayValue, animateTo } = useAnimatedCounter(1000);
 
         animateTo(1000);
-        flushRaf(500);
+        flushRaf(50500);
         expect(displayValue.value).toBe(500);
 
         animateTo(2000);
-        flushRaf(1000);
+        flushRaf(51500);
         expect(displayValue.value).toBe(2000);
     });
 
@@ -133,7 +120,7 @@ describe('useAnimatedCounter', () => {
         const { displayValue, animateTo } = useAnimatedCounter(1000);
 
         animateTo(0);
-        flushRaf(500);
+        flushRaf(50500);
 
         expect(displayValue.value).toBe(0);
     });
