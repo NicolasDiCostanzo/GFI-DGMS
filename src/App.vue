@@ -167,8 +167,21 @@ function handleCountrySelect(countryId: CountryId | null): void {
     }
 }
 
-function handleSliderUpdate(value: number): void {
+async function handleSliderUpdate(value: number): Promise<void> {
+    const countryId = selectedCountryId.value;
+    const previousValue = sliderValue.value;
     sliderValue.value = value;
+
+    if (!countryId) {
+        return;
+    }
+
+    try {
+        const results = await calculateSimulationYields.execute(countryId, value);
+        resultsByCountry.value = new Map(resultsByCountry.value).set(countryId, results);
+    } catch {
+        sliderValue.value = previousValue;
+    }
 }
 </script>
 

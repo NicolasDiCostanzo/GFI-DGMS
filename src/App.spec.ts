@@ -3,6 +3,7 @@ import { MapColors } from '@/sovereign/domain/constants/MapColors';
 import { Country } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import {
+    deferred,
     FRANCE,
     GERMANY,
     RESULTS,
@@ -163,6 +164,76 @@ describe('App', () => {
         await flushPromises();
 
         expect(slider.attributes('value')).toBe('750');
+    });
+
+    it('recalculates the simulation for the new slider value', async () => {
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+        await germanPath.trigger('click');
+        await flushPromises();
+
+        const updatedResults: SimulationResults = { ...RESULTS, additionalJobs: 4000 };
+        executeMock.mockResolvedValue(updatedResults);
+
+        const slider = wrapper.find('input[type="range"]');
+        await slider.setValue(750);
+        await flushPromises();
+
+        expect(executeMock).toHaveBeenCalledWith(GERMANY.id, 750);
+        const sidebarComponent = wrapper.findComponent(ContextualSidebar);
+        expect(sidebarComponent.props('results')).toEqual(updatedResults);
+    });
+
+    it('keeps the slider interactive while the recalculation is pending', async () => {
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+        await germanPath.trigger('click');
+        await flushPromises();
+
+        const { promise, resolve } = deferred<SimulationResults>();
+        executeMock.mockReturnValue(promise);
+
+        const slider = wrapper.find('input[type="range"]');
+        await slider.setValue(750);
+        await flushPromises();
+
+        expect(wrapper.find('input[type="range"]').exists()).toBe(true);
+        expect(wrapper.find('input[type="range"]').attributes('value')).toBe('750');
+
+        resolve(RESULTS);
+        await flushPromises();
+
+        expect(wrapper.find('input[type="range"]').attributes('value')).toBe('750');
+    });
+
+    it('reverts the slider to its previous value when recalculation fails', async () => {
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+        await germanPath.trigger('click');
+        await flushPromises();
+
+        executeMock.mockRejectedValueOnce(new Error('investment exceeds max allowed'));
+
+        const slider = wrapper.find('input[type="range"]');
+        await slider.setValue(750);
+        await flushPromises();
+
+        expect(slider.attributes('value')).toBe(String(GERMANY.baselineInvestment));
     });
 
     it('hides sidebar when deselecting a country', async () => {
