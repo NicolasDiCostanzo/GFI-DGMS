@@ -90,7 +90,10 @@ const dashOffset = computed(() => {
 </script>
 
 <template>
-    <aside class="contextual-sidebar">
+    <aside
+        class="contextual-sidebar"
+        :style="{ '--text': themeMode === 'dark' ? '#ffffff' : '#000000' }"
+    >
         <div v-if="error" class="error-state">
             <p class="error-message" role="alert">{{ error }}</p>
             <button class="retry-button" @click="emit('retry')">Retry</button>
@@ -263,6 +266,7 @@ const dashOffset = computed(() => {
     flex-direction: column;
     gap: 16px;
     box-shadow: -8px 0 8px rgba(0, 0, 0, 0.1);
+    color: var(--text);
 }
 
 .country-header {
@@ -299,12 +303,10 @@ const dashOffset = computed(() => {
     display: flex;
     justify-content: space-between;
     font-size: 12px;
-    color: var(--legend-text, #666);
 }
 
 .slider-label {
     font-size: 11px;
-    color: var(--legend-text, #666);
 }
 
 input[type='range'] {
@@ -342,7 +344,6 @@ input[type='range'] {
 
 .progress-label {
     font-size: 11px;
-    color: var(--legend-text, #666);
     font-style: italic;
 }
 
@@ -380,13 +381,11 @@ input[type='range'] {
 
 .co2-equivalent {
     font-size: 13px;
-    color: var(--legend-text, #666);
     margin-bottom: 4px;
 }
 
 .co2-subtitle {
     font-size: 11px;
-    color: var(--legend-text, #888);
 }
 
 .economic-label,
@@ -399,7 +398,6 @@ input[type='range'] {
 .economic-subtitle,
 .climate-subtitle {
     font-size: 11px;
-    color: var(--legend-text, #888);
 }
 
 .economic-delta,

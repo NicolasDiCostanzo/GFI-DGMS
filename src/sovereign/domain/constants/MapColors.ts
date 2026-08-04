@@ -37,6 +37,7 @@ export interface ThemeColors {
     readonly ACCENT: string;
     readonly PROGRESS_BG: string;
     readonly ERROR: string;
+    readonly TEXT: string;
 }
 
 export const LIGHT_THEME_COLORS: ThemeColors = {
@@ -51,6 +52,7 @@ export const LIGHT_THEME_COLORS: ThemeColors = {
     ACCENT: '#2196f3',
     PROGRESS_BG: '#e0e0e0',
     ERROR: '#d32f2f',
+    TEXT: '#000000',
 };
 
 export const DARK_THEME_COLORS: ThemeColors = {
@@ -65,6 +67,7 @@ export const DARK_THEME_COLORS: ThemeColors = {
     ACCENT: '#2196f3',
     PROGRESS_BG: '#404040',
     ERROR: '#f44336',
+    TEXT: '#ffffff',
 };
 
 export function getThemeColors(mode: ThemeMode): ThemeColors {

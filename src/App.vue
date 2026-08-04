@@ -125,9 +125,13 @@ watch(
         const entries = await Promise.all(
             countries.value.map(async (country) => {
                 try {
+                    const investmentAmount =
+                        country.id === selectedCountryId.value
+                            ? sliderValue.value
+                            : country.baselineInvestment;
                     const results = await calculateSimulationYields.execute(
                         country.id,
-                        country.baselineInvestment,
+                        investmentAmount,
                         newThemeMode,
                     );
                     return [country.id, results] as const;
@@ -155,6 +159,7 @@ const themeStyle = computed(() => {
         '--accent': colors.ACCENT,
         '--progress-bg': colors.PROGRESS_BG,
         '--error': colors.ERROR,
+        '--text': colors.TEXT,
     } as Record<string, string>;
 });
 
