@@ -15,6 +15,8 @@ describe('Country', () => {
             expect(country.targetBudget).toBe(targetBudget);
             expect(country.jobMultiplier).toBe(10);
             expect(country.co2Multiplier).toBe(5);
+            expect(country.currentNumberOfJobs).toBe(10000);
+            expect(country.currentCO2Saved).toBe(5000);
         });
     });
 });
