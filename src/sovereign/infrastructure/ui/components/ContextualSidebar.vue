@@ -59,7 +59,7 @@ const co2Tonnes = computed(() => props.results?.additionalCO2Tonnes ?? 0);
 const totalCO2 = computed(() =>
     props.country ? props.country.currentCO2Saved + co2Tonnes.value : 0,
 );
-const co2Delta = computed(() =>
+const co2SavedDelta = computed(() =>
     props.country?.baselineInvestment !== props.sliderValue
         ? `${co2Tonnes.value > 0 ? '+' : ''}${co2Tonnes.value}`
         : '',
@@ -217,7 +217,7 @@ const dashOffset = computed(() => {
                             employed
                         </span>
                     </div>
-                    <div v-if="jobsDelta" class="economic-delta">{{ jobsDelta }}</div>
+                    <div class="economic-delta">{{ jobsDelta ? `${jobsDelta} jobs` : '' }}</div>
                     <div class="economic-subtitle">Based on GFI economic projections</div>
                 </div>
 
@@ -244,7 +244,9 @@ const dashOffset = computed(() => {
                         {{ carsEquivalent }}
                     </div>
                     <div class="co2-subtitle">Based on CE Delft LCA data</div>
-                    <div v-if="co2Delta" class="climate-delta">{{ co2Delta }}</div>
+                    <div class="climate-delta">
+                        {{ co2SavedDelta ? `${co2SavedDelta} CO₂ saved` : '' }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -406,6 +408,7 @@ input[type='range'] {
     font-weight: 600;
     margin-top: 4px;
     color: var(--accent, #2196f3);
+    min-height: 20px;
 }
 
 .error-state,
