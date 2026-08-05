@@ -3,8 +3,7 @@ import { toPercentage } from '@/shared/utils/toPercentage';
 import { getColorForFundingProgress, type ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import type { Country } from '@/sovereign/domain/Country';
 import type { SimulationResults } from '@/sovereign/domain/SimulationResults';
-import { computed, watch } from 'vue';
-import { useAnimatedCounter } from '../composables/useAnimatedCounter';
+import { computed } from 'vue';
 import { co2TonnesToCarsEquivalent, formatCarsEquivalent } from '../utils/co2Equivalent';
 import { formatInvestment } from '../utils/formatInvestment';
 import { isoToFlagEmoji } from '../utils/isoToFlagEmoji';
@@ -36,16 +35,14 @@ const emit = defineEmits<{
 const sliderMax = computed(() => (props.country ? props.country.targetBudget.amount * 2 : 0));
 const sliderMin = 0;
 
-const { displayValue: animatedJobs, animateTo: animateJobs } = useAnimatedCounter();
-
 const jobsTarget = computed(() => props.results?.additionalJobs ?? 0);
-
-watch(
-    jobsTarget,
-    (target) => {
-        animateJobs(target);
-    },
-    { immediate: true },
+const totalJobs = computed(() =>
+    props.country ? props.country.currentNumberOfJobs + jobsTarget.value : 0,
+);
+const jobsDelta = computed(() =>
+    props.country?.baselineInvestment !== props.sliderValue
+        ? `${jobsTarget.value > 0 ? '+' : ''}${jobsTarget.value}`
+        : '',
 );
 
 const flagEmoji = computed(() => (props.country ? isoToFlagEmoji(props.country.id) : ''));
@@ -59,14 +56,16 @@ const progressColor = computed(() =>
 );
 
 const co2Tonnes = computed(() => props.results?.additionalCO2Tonnes ?? 0);
+const totalCO2 = computed(() =>
+    props.country ? props.country.currentCO2Saved + co2Tonnes.value : 0,
+);
+const co2SavedDelta = computed(() =>
+    props.country?.baselineInvestment !== props.sliderValue
+        ? `${co2Tonnes.value > 0 ? '+' : ''}${co2Tonnes.value}`
+        : '',
+);
 const carsEquivalent = computed(() =>
     formatCarsEquivalent(co2TonnesToCarsEquivalent(props.results?.additionalCO2Tonnes ?? 0)),
-);
-
-const co2BarWidth = computed(() =>
-    props.results
-        ? Math.min(Math.max((props.results.additionalCO2Tonnes / 4600) * 100, 0), 100)
-        : 0,
 );
 
 const baselineLabel = computed(() =>
@@ -91,7 +90,10 @@ const dashOffset = computed(() => {
 </script>
 
 <template>
-    <aside class="contextual-sidebar">
+    <aside
+        class="contextual-sidebar"
+        :style="{ '--text': themeMode === 'dark' ? '#ffffff' : '#000000' }"
+    >
         <div v-if="error" class="error-state">
             <p class="error-message" role="alert">{{ error }}</p>
             <button class="retry-button" @click="emit('retry')">Retry</button>
@@ -110,7 +112,6 @@ const dashOffset = computed(() => {
             <header class="country-header">
                 <span class="country-flag">{{ flagEmoji }}</span>
                 <span class="country-name">{{ countryName }}</span>
-                <span class="current-investment">{{ currentInvestment }}</span>
             </header>
 
             <div class="slider-section">
@@ -133,10 +134,32 @@ const dashOffset = computed(() => {
                     "
                 />
                 <div class="slider-labels">
-                    <span class="slider-label">$0</span>
-                    <span class="slider-label">{{ baselineLabel }}</span>
-                    <span class="slider-label">{{ targetLabel }}</span>
-                    <span class="slider-label">{{ maxLabel }}</span>
+                    <button class="slider-label" @click="emit('update:sliderValue', 0)">$0</button>
+                    <button
+                        class="slider-label"
+                        :disabled="!props.country"
+                        @click="
+                            if (props.country) {
+                                emit('update:sliderValue', props.country.baselineInvestment);
+                            }
+                        "
+                    >
+                        {{ baselineLabel }}
+                    </button>
+                    <button
+                        class="slider-label"
+                        :disabled="!props.country"
+                        @click="
+                            if (props.country) {
+                                emit('update:sliderValue', props.country.targetBudget.amount);
+                            }
+                        "
+                    >
+                        {{ targetLabel }}
+                    </button>
+                    <button class="slider-label" @click="emit('update:sliderValue', sliderMax)">
+                        {{ maxLabel }}
+                    </button>
                 </div>
             </div>
 
@@ -169,30 +192,61 @@ const dashOffset = computed(() => {
                             :transform="`rotate(-90 ${CIRCLE_CENTER} ${CIRCLE_CENTER})`"
                         />
                     </svg>
-                    <div class="progress-text">
-                        <span class="progress-percent">{{ fundingProgressPercent }}%</span>
-                        <span class="progress-label">of Fair-Share Target</span>
+                    <div class="progress-wrapper">
+                        <div class="progress-text">{{ fundingProgressPercent }}%</div>
+                        <div class="progress-label">of targeted funding</div>
                     </div>
                 </div>
 
                 <div class="economic-indicator">
                     <div class="economic-value">
-                        <span class="jobs-sign">+</span>
-                        <span class="jobs-count">{{ animatedJobs.toLocaleString('en-US') }}</span>
+                        <span class="jobs-count">{{
+                            props.country?.baselineInvestment !== sliderValue
+                                ? totalJobs
+                                : props.country?.currentNumberOfJobs
+                        }}</span>
                     </div>
-                    <div class="economic-label">Additional High-Tech Jobs</div>
+                    <div class="economic-label">
+                        <span
+                            >people
+                            {{
+                                props.country?.baselineInvestment === sliderValue
+                                    ? 'are currently'
+                                    : 'would be'
+                            }}
+                            employed
+                        </span>
+                    </div>
+                    <div class="economic-delta">{{ jobsDelta ? `${jobsDelta} jobs` : '' }}</div>
                     <div class="economic-subtitle">Based on GFI economic projections</div>
                 </div>
 
                 <div class="climate-indicator">
-                    <div class="co2-bar-container">
-                        <div class="co2-bar" :style="{ width: `${co2BarWidth}%` }" />
+                    <div class="climate-value">
+                        <span class="co2-count">{{
+                            props.country?.baselineInvestment !== sliderValue
+                                ? totalCO2
+                                : props.country?.currentCO2Saved
+                        }}</span>
                     </div>
-                    <div class="co2-value">
-                        {{ co2Tonnes.toLocaleString('en-US') }} Metric Tonnes CO₂ Saved Annually
+                    <div class="climate-label">
+                        <span
+                            >tonnes of CO₂
+                            {{
+                                props.country?.baselineInvestment === sliderValue
+                                    ? 'are currently'
+                                    : 'would be'
+                            }}
+                            saved</span
+                        >
                     </div>
-                    <div class="co2-equivalent">{{ carsEquivalent }}</div>
+                    <div v-if="carsEquivalent" class="co2-equivalent">
+                        {{ carsEquivalent }}
+                    </div>
                     <div class="co2-subtitle">Based on CE Delft LCA data</div>
+                    <div class="climate-delta">
+                        {{ co2SavedDelta ? `${co2SavedDelta} CO₂ saved` : '' }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -200,15 +254,21 @@ const dashOffset = computed(() => {
 </template>
 
 <style scoped>
+.sidebar-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 .contextual-sidebar {
     width: 380px;
     background: var(--sidebar-bg, rgba(255, 255, 255, 0.95));
-    border-left: 1px solid var(--border, #000000);
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    box-shadow: -8px 0 8px rgba(0, 0, 0, 0.1);
+    color: var(--text);
 }
 
 .country-header {
@@ -238,19 +298,17 @@ const dashOffset = computed(() => {
 .slider-value-display {
     font-weight: 600;
     text-align: center;
-    font-size: 14px;
+    font-size: 20px;
 }
 
 .slider-labels {
     display: flex;
     justify-content: space-between;
     font-size: 12px;
-    color: var(--legend-text, #666);
 }
 
 .slider-label {
     font-size: 11px;
-    color: var(--legend-text, #666);
 }
 
 input[type='range'] {
@@ -265,12 +323,20 @@ input[type='range'] {
     margin: 0 auto;
 }
 
-.progress-text {
+.progress-wrapper {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.progress-text {
+    font-size: 20px;
+    font-weight: 700;
 }
 
 .progress-percent {
@@ -279,8 +345,8 @@ input[type='range'] {
 }
 
 .progress-label {
-    font-size: 12px;
-    color: var(--legend-text, #666);
+    font-size: 11px;
+    font-style: italic;
 }
 
 .economic-indicator,
@@ -288,7 +354,8 @@ input[type='range'] {
     text-align: center;
 }
 
-.economic-value {
+.economic-value,
+.climate-value {
     display: flex;
     align-items: baseline;
     justify-content: center;
@@ -297,21 +364,8 @@ input[type='range'] {
     font-weight: 700;
 }
 
-.jobs-sign {
-    font-size: 20px;
-}
-
 .climate-indicator {
     margin-top: 16px;
-}
-
-.co2-bar-container {
-    width: 100%;
-    height: 12px;
-    background: var(--progress-bg, #e0e0e0);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 8px;
 }
 
 .co2-bar {
@@ -329,24 +383,32 @@ input[type='range'] {
 
 .co2-equivalent {
     font-size: 13px;
-    color: var(--legend-text, #666);
     margin-bottom: 4px;
 }
 
 .co2-subtitle {
     font-size: 11px;
-    color: var(--legend-text, #888);
 }
 
-.economic-label {
+.economic-label,
+.climate-label {
     font-size: 14px;
     font-weight: 600;
     margin-top: 4px;
 }
 
-.economic-subtitle {
+.economic-subtitle,
+.climate-subtitle {
     font-size: 11px;
-    color: var(--legend-text, #888);
+}
+
+.economic-delta,
+.climate-delta {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 4px;
+    color: var(--accent, #2196f3);
+    min-height: 20px;
 }
 
 .error-state,

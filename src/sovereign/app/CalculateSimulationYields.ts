@@ -1,4 +1,5 @@
 import { MAX_FUNDING_PROGRESS_RATIO } from '../domain/constants/FundingConstants';
+import { type ThemeMode } from '../domain/constants/MapColors';
 import { CountryId } from '../domain/Country';
 import { InvestmentExceedsMaxAllowedException } from '../domain/errors/InvestmentExceedsMaxAllowedException';
 import { InvestmentAmount } from '../domain/InvestmentAmount';
@@ -11,7 +12,11 @@ import { InvalidInvestmentError } from './errors/InvalidInvestmentError';
 export class CalculateSimulationYields {
     constructor(private readonly countryRepository: CountryRepository) {}
 
-    async execute(countryId: string, investmentAmount: number): Promise<SimulationResults> {
+    async execute(
+        countryId: string,
+        investmentAmount: number,
+        themeMode: ThemeMode = 'dark',
+    ): Promise<SimulationResults> {
         const country = await this.countryRepository.findById(CountryId(countryId));
 
         if (country === null) {
@@ -27,7 +32,7 @@ export class CalculateSimulationYields {
                 maxAllowed,
             );
 
-            const simulation = new Simulation(country, investment);
+            const simulation = new Simulation(country, investment, themeMode);
 
             return simulation.getResults();
         } catch (error) {

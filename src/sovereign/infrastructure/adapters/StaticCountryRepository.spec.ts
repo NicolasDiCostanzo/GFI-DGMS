@@ -36,6 +36,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as CountryRecord[];
 
@@ -54,6 +56,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as unknown as CountryRecord[];
 
@@ -72,6 +76,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as CountryRecord[];
 
@@ -90,6 +96,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as unknown as CountryRecord[];
 
@@ -108,6 +116,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as unknown as CountryRecord[];
 
@@ -126,6 +136,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as CountryRecord[];
 
@@ -142,6 +154,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as CountryRecord[];
 
@@ -160,6 +174,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as CountryRecord[];
 
@@ -178,6 +194,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as unknown as CountryRecord[];
 
@@ -196,6 +214,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as CountryRecord[];
 
@@ -212,6 +232,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'GBP',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as unknown as CountryRecord[];
 
@@ -230,6 +252,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 'invalid',
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as unknown as CountryRecord[];
 
@@ -248,6 +272,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: Infinity,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as CountryRecord[];
 
@@ -264,6 +290,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 'invalid',
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as unknown as CountryRecord[];
 
@@ -282,10 +310,124 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: NaN,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as CountryRecord[];
 
             expect(() => new StaticCountryRepository(invalidData)).toThrow(InvalidNumberException);
+        });
+
+        it('throws CountryDataValidationError when currentNumberOfJobs is not a number', () => {
+            const invalidData = [
+                {
+                    id: 'TST',
+                    name: 'Test Country',
+                    baselineInvestment: 100,
+                    targetBudget: 200,
+                    currency: 'USD',
+                    jobMultiplier: 5,
+                    co2Multiplier: 3,
+                    currentNumberOfJobs: 'invalid',
+                    currentCO2Saved: 100,
+                },
+            ] as unknown as CountryRecord[];
+
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(
+                CountryDataValidationError,
+            );
+        });
+
+        it('throws InvalidNumberException when currentNumberOfJobs is NaN', () => {
+            const invalidData = [
+                {
+                    id: 'TST',
+                    name: 'Test Country',
+                    baselineInvestment: 100,
+                    targetBudget: 200,
+                    currency: 'USD',
+                    jobMultiplier: 5,
+                    co2Multiplier: 3,
+                    currentNumberOfJobs: NaN,
+                    currentCO2Saved: 100,
+                },
+            ] as CountryRecord[];
+
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(InvalidNumberException);
+        });
+
+        it('throws InfiniteNumberException when currentNumberOfJobs is Infinity', () => {
+            const invalidData = [
+                {
+                    id: 'TST',
+                    name: 'Test Country',
+                    baselineInvestment: 100,
+                    targetBudget: 200,
+                    currency: 'USD',
+                    jobMultiplier: 5,
+                    co2Multiplier: 3,
+                    currentNumberOfJobs: Infinity,
+                    currentCO2Saved: 100,
+                },
+            ] as CountryRecord[];
+
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(InfiniteNumberException);
+        });
+
+        it('throws CountryDataValidationError when currentCO2Saved is not a number', () => {
+            const invalidData = [
+                {
+                    id: 'TST',
+                    name: 'Test Country',
+                    baselineInvestment: 100,
+                    targetBudget: 200,
+                    currency: 'USD',
+                    jobMultiplier: 5,
+                    co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 'invalid',
+                },
+            ] as unknown as CountryRecord[];
+
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(
+                CountryDataValidationError,
+            );
+        });
+
+        it('throws InvalidNumberException when currentCO2Saved is NaN', () => {
+            const invalidData = [
+                {
+                    id: 'TST',
+                    name: 'Test Country',
+                    baselineInvestment: 100,
+                    targetBudget: 200,
+                    currency: 'USD',
+                    jobMultiplier: 5,
+                    co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: NaN,
+                },
+            ] as CountryRecord[];
+
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(InvalidNumberException);
+        });
+
+        it('throws InfiniteNumberException when currentCO2Saved is Infinity', () => {
+            const invalidData = [
+                {
+                    id: 'TST',
+                    name: 'Test Country',
+                    baselineInvestment: 100,
+                    targetBudget: 200,
+                    currency: 'USD',
+                    jobMultiplier: 5,
+                    co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: Infinity,
+                },
+            ] as CountryRecord[];
+
+            expect(() => new StaticCountryRepository(invalidData)).toThrow(InfiniteNumberException);
         });
 
         it('identifies the invalid record index in error message', () => {
@@ -298,6 +440,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
                 {
                     id: '',
@@ -307,6 +451,8 @@ describe('StaticCountryRepository', () => {
                     currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
+                    currentNumberOfJobs: 100,
+                    currentCO2Saved: 50,
                 },
             ] as CountryRecord[];
 

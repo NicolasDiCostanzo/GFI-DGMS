@@ -1,4 +1,4 @@
-import { getColorForFundingProgress } from './constants/MapColors';
+import { getColorForFundingProgress, type ThemeMode } from './constants/MapColors';
 import { Country } from './Country';
 import { InvestmentAmount } from './InvestmentAmount';
 import { SimulationResults } from './SimulationResults';
@@ -8,6 +8,7 @@ export class Simulation {
     constructor(
         readonly country: Country,
         readonly investment: InvestmentAmount,
+        private readonly themeMode: ThemeMode = 'dark',
     ) {}
 
     getResults(): SimulationResults {
@@ -29,7 +30,7 @@ export class Simulation {
                 this.country.co2Multiplier,
             ),
             isOverTarget: fundingProgress > 1.0,
-            colorHex: getColorForFundingProgress(fundingProgress),
+            colorHex: getColorForFundingProgress(fundingProgress, this.themeMode),
         };
     }
 }

@@ -115,6 +115,36 @@ watch(
     },
 );
 
+watch(
+    () => themeMode.value,
+    async (newThemeMode) => {
+        if (countries.value.length === 0) {
+            return;
+        }
+
+        const entries = await Promise.all(
+            countries.value.map(async (country) => {
+                try {
+                    const investmentAmount =
+                        country.id === selectedCountryId.value
+                            ? sliderValue.value
+                            : country.baselineInvestment;
+                    const results = await calculateSimulationYields.execute(
+                        country.id,
+                        investmentAmount,
+                        newThemeMode,
+                    );
+                    return [country.id, results] as const;
+                } catch {
+                    return null;
+                }
+            }),
+        );
+
+        resultsByCountry.value = new Map(entries.filter((entry) => entry !== null));
+    },
+);
+
 const themeStyle = computed(() => {
     const colors = getThemeColors(themeMode.value);
     return {
@@ -129,6 +159,7 @@ const themeStyle = computed(() => {
         '--accent': colors.ACCENT,
         '--progress-bg': colors.PROGRESS_BG,
         '--error': colors.ERROR,
+        '--text': colors.TEXT,
     } as Record<string, string>;
 });
 
@@ -146,6 +177,7 @@ onMounted(async () => {
                 const results = await calculateSimulationYields.execute(
                     country.id,
                     country.baselineInvestment,
+                    themeMode.value,
                 );
                 return [country.id, results] as const;
             } catch {
@@ -177,7 +209,7 @@ async function handleSliderUpdate(value: number): Promise<void> {
     }
 
     try {
-        const results = await calculateSimulationYields.execute(countryId, value);
+        const results = await calculateSimulationYields.execute(countryId, value, themeMode.value);
         resultsByCountry.value = new Map(resultsByCountry.value).set(countryId, results);
     } catch {
         sliderValue.value = previousValue;

@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
 import { createWrapper, GERMANY, RESULTS, SLIDER_MAX } from './ContextualSidebar.spec.fixture';
 
 let rafCallbacks = new Map<number, FrameRequestCallback>();
@@ -22,14 +21,6 @@ beforeEach(() => {
         }),
     );
 });
-
-function flushRaf(timestamp: number): void {
-    const callbacks = [...rafCallbacks.values()];
-    rafCallbacks.clear();
-    for (const cb of callbacks) {
-        cb(timestamp);
-    }
-}
 
 describe('ContextualSidebar', () => {
     describe('loading state', () => {
@@ -105,14 +96,9 @@ describe('ContextualSidebar', () => {
     });
 
     describe('country header', () => {
-        it('displays the country flag emoji', () => {
+        it('displays the country flag and name', () => {
             const wrapper = createWrapper({ country: GERMANY });
-            expect(wrapper.text()).toContain('🇩🇪');
-        });
-
-        it('displays the country name', () => {
-            const wrapper = createWrapper({ country: GERMANY });
-            expect(wrapper.text()).toContain('Germany');
+            expect(wrapper.text()).toContain('🇩🇪Germany');
         });
 
         const INVESTMENT_FORMATS: ReadonlyArray<[number, string]> = [
@@ -183,9 +169,9 @@ describe('ContextualSidebar', () => {
             expect(wrapper.text()).toContain('75%');
         });
 
-        it('displays "of Fair-Share Target" text', () => {
+        it('displays "of targeted funding" text', () => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
-            expect(wrapper.text()).toContain('of Fair-Share Target');
+            expect(wrapper.text()).toContain('of targeted funding');
         });
 
         const CIRCLE_ATTRS: ReadonlyArray<[string, string]> = [['stroke', RESULTS.colorHex]];
@@ -210,14 +196,12 @@ describe('ContextualSidebar', () => {
     });
 
     describe('economic indicator', () => {
-        it('displays the animated jobs count once the animation frame resolves', async () => {
-            const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
-            flushRaf(1000);
-            await nextTick();
-            expect(wrapper.text()).toContain('1,250');
-        });
-
-        const ECONOMIC_TEXTS = ['Additional High-Tech Jobs', 'Based on GFI economic projections'];
+        const ECONOMIC_TEXTS = [
+            '3500',
+            'people would be employed',
+            '+2500',
+            'Based on GFI economic projections',
+        ];
 
         it.each(ECONOMIC_TEXTS)('displays "%s"', (text) => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
@@ -227,20 +211,15 @@ describe('ContextualSidebar', () => {
 
     describe('climate indicator', () => {
         const CLIMATE_TEXTS = [
-            '1,250',
-            'Metric Tonnes CO₂ Saved Annually',
-            'cars off the road',
+            '1255',
+            'tonnes of CO₂ would be saved',
+            '+1250',
             'Based on CE Delft LCA data',
         ];
 
         it.each(CLIMATE_TEXTS)('displays "%s"', (text) => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
             expect(wrapper.text()).toContain(text);
-        });
-
-        it('renders a horizontal bar element', () => {
-            const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
-            expect(wrapper.find('.co2-bar').exists()).toBe(true);
         });
     });
 
