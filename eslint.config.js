@@ -15,6 +15,7 @@ export default [
             'vitest.config.ts',
             'playwright.config.ts',
             'eslint.config.js',
+            'scripts/**',
         ],
     },
     {

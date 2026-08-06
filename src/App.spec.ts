@@ -352,7 +352,7 @@ describe('App', () => {
             }
         });
 
-        it('propagates SettingsStorageError when localStorage.setItem fails', async () => {
+        it('swallows SettingsStorageError on write and stops persisting afterwards', async () => {
             const fakeStorage: Record<string, string> = {};
             const mockLocalStorage = {
                 getItem: vi.fn((key: string) => fakeStorage[key] ?? null),
@@ -394,12 +394,14 @@ describe('App', () => {
                 await options[2].trigger('click');
                 await flushPromises();
 
-                expect(capturedErrors.length).toBeGreaterThan(0);
-                const settingsStorageError = capturedErrors.find(
-                    (e) => e instanceof SettingsStorageError,
-                );
-                expect(settingsStorageError).toBeInstanceOf(SettingsStorageError);
-                expect(mockLocalStorage.setItem).toHaveBeenCalled();
+                // The write failure is swallowed so the widget keeps working.
+                expect(capturedErrors.length).toBe(0);
+                expect(mockLocalStorage.setItem).toHaveBeenCalledTimes(1);
+
+                // A second theme change no longer attempts to write.
+                await options[3].trigger('click');
+                await flushPromises();
+                expect(mockLocalStorage.setItem).toHaveBeenCalledTimes(1);
             } finally {
                 vi.unstubAllGlobals();
             }

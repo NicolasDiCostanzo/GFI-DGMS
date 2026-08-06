@@ -295,16 +295,5 @@
         "co2Multiplier": 0.5,
         "currentNumberOfJobs": 250,
         "currentCO2Saved": 125
-    },
-    {
-        "id": "470",
-        "name": "Malta",
-        "baselineInvestment": 10,
-        "targetBudget": 25,
-        "currency": "EUR",
-        "jobMultiplier": 1,
-        "co2Multiplier": 0.5,
-        "currentNumberOfJobs": 200,
-        "currentCO2Saved": 100
     }
 ]
