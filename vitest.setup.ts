@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 // Minimal DOM stubs for Node environment (used by custom element specs)
 if (typeof globalThis.HTMLElement === 'undefined') {
-    globalThis.HTMLElement = class HTMLElement {};
+    globalThis.HTMLElement = class HTMLElement {} as unknown as typeof HTMLElement;
 }
 
 if (typeof globalThis.customElements === 'undefined') {
@@ -35,7 +35,7 @@ if (typeof globalThis.customElements === 'undefined') {
                 pendingWhenDefined.set(name, waiters);
             });
         },
-    };
+    } as unknown as CustomElementRegistry;
 }
 
 afterAll(() => {
