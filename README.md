@@ -8,6 +8,18 @@ The widget is built as a single self-contained file (`dist/gfi-dgms-widget.umd.j
 
 ### 1. Load the script
 
+The UMD bundle is self-contained (Vue is bundled in), but it references `process.env.NODE_ENV` at runtime. Add a tiny polyfill before the script tag so the widget works in any browser:
+
+```html
+<!-- Polyfill `process.env` for the UMD bundle (Vue references it at runtime). -->
+<script>
+    window.process ??= { env: {} };
+    window.process.env ??= {};
+</script>
+
+<!-- Load the self-contained UMD bundle from the CDN. -->
+<script src="https://cdn.jsdelivr.net/gh/NicolasDiCostanzo/GFI-DGMS@latest/dist/gfi-dgms-widget.umd.js"></script>
+```
 
 ### 2. Place the element
 

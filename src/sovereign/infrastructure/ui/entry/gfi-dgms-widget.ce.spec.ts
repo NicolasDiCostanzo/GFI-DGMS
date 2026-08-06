@@ -50,28 +50,44 @@ describe('polyfillProcessEnv', () => {
         }
     });
 
-    it('creates a default process.env when process is undefined', () => {
+    it('creates a default process.env with NODE_ENV production when process is undefined', () => {
         delete g.process;
 
         polyfillProcessEnv();
 
-        expect(g.process).toEqual({ env: {} });
+        expect(g.process).toEqual({ env: { NODE_ENV: 'production' } });
     });
 
-    it('creates an empty env when process.env is undefined', () => {
+    it('creates an env with NODE_ENV production when process.env is undefined', () => {
         g.process = { env: undefined };
 
         polyfillProcessEnv();
 
-        expect(g.process.env).toEqual({});
+        expect(g.process.env).toEqual({ NODE_ENV: 'production' });
     });
 
-    it('does not overwrite an existing process and env', () => {
+    it('sets NODE_ENV to production when env exists but lacks NODE_ENV', () => {
+        g.process = { env: { foo: 'bar' } };
+
+        polyfillProcessEnv();
+
+        expect(g.process.env).toEqual({ foo: 'bar', NODE_ENV: 'production' });
+    });
+
+    it('does not overwrite an existing process, env, and NODE_ENV', () => {
         g.process = { env: { NODE_ENV: 'production' } };
 
         polyfillProcessEnv();
 
         expect(g.process).toEqual({ env: { NODE_ENV: 'production' } });
+    });
+
+    it('does not overwrite an existing NODE_ENV even if set to a different value', () => {
+        g.process = { env: { NODE_ENV: 'development' } };
+
+        polyfillProcessEnv();
+
+        expect(g.process.env.NODE_ENV).toBe('development');
     });
     /* eslint-enable @typescript-eslint/no-explicit-any */
 });
