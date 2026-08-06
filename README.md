@@ -29,7 +29,7 @@ The UMD bundle is self-contained (Vue is bundled in), but it references `process
 
 ### 3. Size it
 
-The widget fills its host element. Give it an explicit size:
+The widget always renders at `height: 100%` and `width: 100%` of its host element, regardless of any attributes. Size the host element with CSS:
 
 ```html
 <style>
@@ -43,10 +43,10 @@ The widget fills its host element. Give it an explicit size:
 
 ### Attributes
 
-| Attribute      | Type   | Description                                                    |
-| -------------- | ------ | -------------------------------------------------------------- |
-| `theme`        | string | One of `light`, `dark`, `colorblind-light`, `colorblind-dark`. |
-| `api-endpoint` | string | Reserved for future dynamic data loading.                      |
+| Attribute      | Type   | Description                                                         |
+| -------------- | ------ | ------------------------------------------------------------------- |
+| `theme`        | string | One of `light`, `dark`, `colorblind-light`, `colorblind-dark`.      |
+| `api-endpoint` | string | Reserved for future dynamic data loading; does not affect widget size. |
 
 Example with all attributes:
 

@@ -193,7 +193,7 @@ const themeStyle = computed(() => {
 
 const appStyle = computed(() => ({
     ...themeStyle.value,
-    height: props.apiEndpoint ? '480px' : '100%',
+    height: '100%',
 }));
 
 onMounted(async () => {
