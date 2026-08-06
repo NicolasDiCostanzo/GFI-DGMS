@@ -66,13 +66,15 @@ function writeStoredValue(value: string): void {
     }
 }
 
+const storageAvailable = ref(true);
+
 function loadSettings(): Settings {
     let stored: string | null;
     try {
         stored = readStoredValue();
-    } catch (cause) {
+    } catch {
         storageAvailable.value = false;
-        throw cause;
+        return { themeMode: 'dark' };
     }
     if (stored) {
         try {
@@ -97,8 +99,6 @@ function loadSettings(): Settings {
 function saveSettings(settings: Settings): void {
     writeStoredValue(JSON.stringify(settings));
 }
-
-const storageAvailable = ref(true);
 
 function persistSettings(persistedSettings: Settings): void {
     if (!storageAvailable.value) {

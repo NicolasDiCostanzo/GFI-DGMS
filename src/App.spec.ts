@@ -12,7 +12,6 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
-import { SettingsStorageError } from './shared/errors/SettingsStorageError.ts';
 import ContextualSidebar from './sovereign/infrastructure/ui/components/ContextualSidebar.vue';
 
 const findAllMock = vi.fn<() => Promise<Country[]>>();
@@ -327,7 +326,7 @@ describe('App', () => {
             expect(() => mount(App)).toThrow(SettingsParseError);
         });
 
-        it('throws SettingsStorageError when localStorage.getItem fails', async () => {
+        it('falls back to default settings when localStorage.getItem fails', async () => {
             const mockLocalStorage = {
                 getItem: vi.fn(() => {
                     throw new Error('storage access denied');
@@ -345,7 +344,10 @@ describe('App', () => {
                 findAllMock.mockResolvedValue([GERMANY]);
                 executeMock.mockResolvedValue(RESULTS);
 
-                expect(() => mount(App)).toThrow(SettingsStorageError);
+                const wrapper = mount(App);
+                await flushPromises();
+
+                expect(wrapper.find('.theme-dark').exists()).toBe(true);
                 expect(mockLocalStorage.getItem).toHaveBeenCalledWith('gfi-dgms-settings');
             } finally {
                 vi.unstubAllGlobals();
