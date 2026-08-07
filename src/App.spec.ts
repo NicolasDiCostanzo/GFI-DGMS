@@ -282,16 +282,34 @@ describe('App', () => {
         const wrapper = mount(App);
         await flushPromises();
 
-        // Select Germany
         const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
         await germanPath.trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.contextual-sidebar').exists()).toBe(true);
 
-        // Click on ocean to deselect
         const oceanRect = wrapper.find('rect');
         await oceanRect.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.contextual-sidebar').exists()).toBe(false);
+    });
+
+    it('hides sidebar when close button is clicked', async () => {
+        findAllMock.mockResolvedValue([GERMANY]);
+        executeMock.mockResolvedValue(RESULTS);
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+        await germanPath.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.contextual-sidebar').exists()).toBe(true);
+
+        const closeButton = wrapper.find('.close-button');
+        await closeButton.trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.contextual-sidebar').exists()).toBe(false);

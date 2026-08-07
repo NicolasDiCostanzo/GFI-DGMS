@@ -248,6 +248,11 @@ async function handleSliderUpdate(value: number): Promise<void> {
         sliderValue.value = previousValue;
     }
 }
+
+function handleSidebarClosing(): void {
+    selectedCountryId.value = null;
+    sliderValue.value = 0;
+}
 </script>
 
 <template>
@@ -272,6 +277,7 @@ async function handleSliderUpdate(value: number): Promise<void> {
                     :slider-value="sliderValue"
                     :theme-mode="themeMode"
                     @update:slider-value="handleSliderUpdate"
+                    @close="handleSidebarClosing"
                 />
             </Transition>
         </div>

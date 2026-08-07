@@ -30,6 +30,7 @@ const props = withDefaults(
 const emit = defineEmits<{
     'update:sliderValue': [value: number];
     retry: [];
+    close: [];
 }>();
 
 const sliderMax = computed(() => (props.country ? props.country.targetBudget.amount * 2 : 0));
@@ -125,6 +126,22 @@ const dashOffset = computed(() => {
         class="contextual-sidebar"
         :style="{ '--text': themeMode === 'dark' ? '#ffffff' : '#000000' }"
     >
+        <button class="close-button" aria-label="Close sidebar" @click="emit('close')">
+            <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    d="M2 2L14 14M2 14L14 2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                />
+            </svg>
+        </button>
         <div v-if="error" class="error-state">
             <p class="error-message" role="alert">{{ error }}</p>
             <button class="retry-button" @click="emit('retry')">Retry</button>
@@ -283,6 +300,29 @@ const dashOffset = computed(() => {
     gap: 16px;
     box-shadow: -8px 0 8px rgba(0, 0, 0, 0.1);
     color: var(--text);
+    position: relative;
+}
+
+.close-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+    background: rgba(128, 128, 128, 0.2);
 }
 
 .country-header {

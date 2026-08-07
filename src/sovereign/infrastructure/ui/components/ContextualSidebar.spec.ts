@@ -231,9 +231,22 @@ describe('ContextualSidebar', () => {
 
         it('progress ring has role="img" and aria-label', () => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
-            const svg = wrapper.find('svg');
+            const svg = wrapper.find('.progress-ring-section').find('svg');
             expect(svg.attributes('role')).toBe('img');
             expect(svg.attributes('aria-label')).toContain('funding progress');
+        });
+
+        it('close button has aria-label for accessibility', () => {
+            const wrapper = createWrapper({ country: GERMANY });
+            const closeButton = wrapper.find('.close-button');
+            expect(closeButton.exists()).toBe(true);
+            expect(closeButton.attributes('aria-label')).toBe('Close sidebar');
+        });
+
+        it('emits close event when close button is clicked', async () => {
+            const wrapper = createWrapper({ country: GERMANY });
+            await wrapper.find('.close-button').trigger('click');
+            expect(wrapper.emitted('close')).toHaveLength(1);
         });
     });
 });
