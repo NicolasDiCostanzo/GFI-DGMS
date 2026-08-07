@@ -71,12 +71,12 @@ Use the "Embed HTML" app, paste the `<script>` tag and the `<gfi-dgms-widget>` e
 
 ```bash
 npm install
-npm run dev        # start Vite dev server (index.html)
+npm run dev        # start Vite dev server on http://localhost:5173
 npm run build      # build the library (dist/gfi-dgms-widget.js + .umd.js)
 npm run check:size # verify gzip size stays under the configured limit
 ```
 
-Open `dev-ce.html` in the dev server for a focused custom-element demo.
+Open http://localhost:5173/embed-test.html to test the widget embedded in a host page.
 
 ## Bundle Size
 

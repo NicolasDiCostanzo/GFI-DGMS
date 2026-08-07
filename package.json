@@ -26,6 +26,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "rm -rf .nyc_output coverage && VITE_COVERAGE=true vitest run && nyc merge .nyc_output coverage/coverage-final.json && nyc report --temp-dir coverage --report-dir coverage/report --extension .ts --extension .vue --reporter=text --reporter=lcov --reporter=html --check-coverage --lines 100 --functions 100 --branches 100 --statements 100",
+    "pretest:e2e": "VITE_COVERAGE=true npm run build",
     "test:e2e": "playwright test",
     "clean:coverage": "rm -rf coverage .nyc_output",
     "pretest:coverage:merge": "mkdir -p .nyc_output coverage/merged",

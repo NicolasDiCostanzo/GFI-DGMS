@@ -194,7 +194,7 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 
 - **Custom Element**: `gfi-dgms-widget` (defined in `src/sovereign/infrastructure/ui/entry/gfi-dgms-widget.ce.ts`)
 - **Output Formats**: ES module (`gfi-dgms-widget.js`) and UMD (`gfi-dgms-widget.umd.js`)
-- **Development**: Standalone SPA via `index.html`; focused custom-element demo via `dev-ce.html`
+- **Development**: Standalone SPA via `index.html`; embed test via `embed-test.html`
 - **Self-contained**: Vue is bundled into the output so the widget can be embedded on any host page (WordPress, Wix, etc.) without loading a separate Vue runtime
 - **Bundle size**: `npm run check:size` enforces a gzip limit (default 120 kB, configurable via `MAX_GZIP_KB`); the 110m world topology is used to keep the bundle small, with Malta (ISO 470) added as a point feature
 

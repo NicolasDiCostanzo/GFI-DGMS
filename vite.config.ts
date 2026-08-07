@@ -3,11 +3,19 @@ import vue from '@vitejs/plugin-vue';
 import istanbul from 'vite-plugin-istanbul';
 import { fileURLToPath, URL } from 'node:url';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     plugins: [
-        vue({ customElement: true }),
+        // Only compile Vue SFCs in custom-element style mode (styles extracted for
+        // shadow-root injection) during the production library build. In dev/test,
+        // styles inject normally into the document head, which the standalone SPA
+        // entry (createApp + #app, no shadow root) needs to render correctly.
+        vue({ customElement: command === 'build' }),
         istanbul({
             include: 'src/**/*',
+            // vite-plugin-istanbul only instruments `serve` builds by default; the embed
+            // e2e test loads the built dist bundle directly (see gfi-dgms-widget.ce.playwright.spec.ts),
+            // so coverage instrumentation must also run during `build` when coverage is requested.
+            forceBuildInstrument: process.env.VITE_COVERAGE === 'true',
             exclude: [
                 'node_modules',
                 'test',
@@ -60,4 +68,4 @@ export default defineConfig({
             'process.env.NODE_ENV': JSON.stringify('production'),
         },
     },
-});
+}));
