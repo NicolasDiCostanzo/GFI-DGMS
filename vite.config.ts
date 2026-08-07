@@ -12,10 +12,6 @@ export default defineConfig(({ command }) => ({
         vue({ customElement: command === 'build' }),
         istanbul({
             include: 'src/**/*',
-            // vite-plugin-istanbul only instruments `serve` builds by default; the embed
-            // e2e test loads the built dist bundle directly (see gfi-dgms-widget.ce.playwright.spec.ts),
-            // so coverage instrumentation must also run during `build` when coverage is requested.
-            forceBuildInstrument: process.env.VITE_COVERAGE === 'true',
             exclude: [
                 'node_modules',
                 'test',
