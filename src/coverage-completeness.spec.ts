@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 const modules = import.meta.glob(
-    ['/src/**/*.{ts,vue}', '!/src/**/*.{test,spec}.ts', '!/src/main.ts', '!/src/vite-env.d.ts'],
+    [
+        '/src/**/*.{ts,vue}',
+        '!/src/**/*.{test,spec}.ts',
+        '!/src/main.ts',
+        '!/src/sovereign/infrastructure/ui/entry/main.ts',
+        '!/src/vite-env.d.ts',
+    ],
     { eager: true },
 );
 
