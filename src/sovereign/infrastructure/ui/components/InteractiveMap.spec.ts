@@ -57,7 +57,7 @@ describe('InteractiveMap', () => {
         it('renders country path elements with country-path class', async () => {
             const wrapper = await createWrapper();
             const paths = wrapper.findAll('path.country-path');
-            expect(paths.length).toBeGreaterThan(200);
+            expect(paths.length).toBe(177);
         });
 
         it('each country path has a d attribute', async () => {

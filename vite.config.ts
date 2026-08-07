@@ -20,6 +20,7 @@ export default defineConfig({
                 // vite-plugin-istanbul upgrade addresses SFC branch mapping.
                 '**/ContextualSidebar.vue',
                 'src/App.vue',
+                '**/InteractiveMap.vue',
             ],
             extension: ['.vue', '.ts'],
             requireEnv: true,
@@ -38,18 +39,25 @@ export default defineConfig({
     build: {
         sourcemap: true,
         lib: {
-            entry: fileURLToPath(new URL('./src/main.ts', import.meta.url)),
+            entry: fileURLToPath(
+                new URL('./src/sovereign/infrastructure/ui/entry/gfi-dgms-widget.ce.ts', import.meta.url),
+            ),
             name: 'GFIDGMS',
             formats: ['es', 'umd'],
-            fileName: (format) => `gfi-dgms.${format}.js`,
+            fileName: (format) => (format === 'es' ? 'gfi-dgms-widget.js' : 'gfi-dgms-widget.umd.js'),
         },
+        // Vue is intentionally bundled so the widget is fully self-contained for
+        // third-party embedding (WordPress, Wix, etc.) — no separate Vue runtime
+        // needs to be loaded by the host page.
         rollupOptions: {
-            external: ['vue'],
             output: {
-                globals: {
-                    vue: 'Vue',
-                },
+                exports: 'named',
             },
+        },
+        // Vue's esm-bundler build references `process.env.NODE_ENV`; provide a safe
+        // browser global so the UMD bundle works when loaded via a plain <script>.
+        define: {
+            'process.env.NODE_ENV': JSON.stringify('production'),
         },
     },
 });

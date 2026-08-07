@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const PORT = 5174;
+
 export default defineConfig({
     testDir: '.',
     fullyParallel: true,
@@ -9,12 +11,12 @@ export default defineConfig({
     workers: process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
-        baseURL: 'http://127.0.0.1:5173',
+        baseURL: `http://127.0.0.1:${PORT}`,
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npm run dev -- --host 127.0.0.1 --port 5173 --strictPort',
-        url: 'http://127.0.0.1:5173',
+        command: `npm run dev -- --host 127.0.0.1 --port ${PORT} --strictPort`,
+        url: `http://127.0.0.1:${PORT}`,
         reuseExistingServer: false,
         cwd: '.',
         timeout: 120_000,

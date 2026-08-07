@@ -22,7 +22,39 @@ test.describe('InteractiveMap', () => {
 
     test('renders all country path elements', async ({ page }) => {
         const paths = page.locator('path.country-path');
-        await expect(paths).toHaveCount(241);
+        await expect(paths).toHaveCount(177);
+    });
+
+    test('renders the widget as a custom element with an encapsulated shadow root', async ({
+        page,
+    }) => {
+        const widget = page.locator('gfi-dgms-widget');
+        await expect(widget).toBeVisible();
+
+        const shadowInfo = await page.evaluate(() => {
+            const el = document.querySelector('gfi-dgms-widget');
+            if (!el || !el.shadowRoot) {
+                return null;
+            }
+            const mapContainer = el.shadowRoot.querySelector('.map-container');
+            const containerStyle = mapContainer ? getComputedStyle(mapContainer) : null;
+            const hostRect = el.getBoundingClientRect();
+            return {
+                hasShadowRoot: true,
+                hasMap: mapContainer !== null,
+                containerWidth: containerStyle ? parseFloat(containerStyle.width) : 0,
+                containerHeight: containerStyle ? parseFloat(containerStyle.height) : 0,
+                hostWidth: hostRect.width,
+                hostHeight: hostRect.height,
+            };
+        });
+
+        expect(shadowInfo).not.toBeNull();
+        if (!shadowInfo) return;
+        expect(shadowInfo.hasShadowRoot).toBe(true);
+        expect(shadowInfo.hasMap).toBe(true);
+        expect(shadowInfo.containerWidth).toBeCloseTo(shadowInfo.hostWidth, 0);
+        expect(shadowInfo.containerHeight).toBeCloseTo(shadowInfo.hostHeight, 0);
     });
 
     test('ocean background has correct color', async ({ page }) => {

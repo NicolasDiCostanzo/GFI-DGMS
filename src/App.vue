@@ -17,9 +17,11 @@ import { computed, onMounted, ref, watch } from 'vue';
 const props = withDefaults(
     defineProps<{
         theme?: ThemeMode;
+        apiEndpoint?: string;
     }>(),
     {
         theme: undefined,
+        apiEndpoint: undefined,
     },
 );
 
@@ -44,14 +46,35 @@ function isThemeMode(value: unknown): value is ThemeMode {
     return typeof value === 'string' && themeModes.has(value as ThemeMode);
 }
 
-function loadSettings(): Settings {
-    let stored: string | null;
+function readStoredValue(): string | null {
     try {
-        stored = localStorage.getItem(STORAGE_KEY);
+        return localStorage.getItem(STORAGE_KEY);
     } catch (cause) {
         throw new SettingsStorageError(
             `Failed to read settings from localStorage: ${getErrorMessage(cause)}`,
         );
+    }
+}
+
+function writeStoredValue(value: string): void {
+    try {
+        localStorage.setItem(STORAGE_KEY, value);
+    } catch (cause) {
+        throw new SettingsStorageError(
+            `Failed to save settings to localStorage: ${getErrorMessage(cause)}`,
+        );
+    }
+}
+
+const storageAvailable = ref(true);
+
+function loadSettings(): Settings {
+    let stored: string | null;
+    try {
+        stored = readStoredValue();
+    } catch {
+        storageAvailable.value = false;
+        return { themeMode: 'dark' };
     }
     if (stored) {
         try {
@@ -74,12 +97,17 @@ function loadSettings(): Settings {
 }
 
 function saveSettings(settings: Settings): void {
+    writeStoredValue(JSON.stringify(settings));
+}
+
+function persistSettings(persistedSettings: Settings): void {
+    if (!storageAvailable.value) {
+        return;
+    }
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch (cause) {
-        throw new SettingsStorageError(
-            `Failed to save settings to localStorage: ${getErrorMessage(cause)}`,
-        );
+        saveSettings(persistedSettings);
+    } catch {
+        storageAvailable.value = false;
     }
 }
 
@@ -87,14 +115,14 @@ const settings = ref<Settings>(loadSettings());
 
 if (props.theme && isThemeMode(props.theme)) {
     settings.value.themeMode = props.theme;
-    saveSettings(settings.value);
+    persistSettings(settings.value);
 }
 
 const themeMode = computed({
     get: () => (isThemeMode(props.theme) ? props.theme : settings.value.themeMode),
     set: (value: ThemeMode) => {
         settings.value.themeMode = value;
-        saveSettings(settings.value);
+        persistSettings(settings.value);
     },
 });
 
@@ -110,7 +138,7 @@ watch(
     (newTheme) => {
         if (newTheme && isThemeMode(newTheme)) {
             settings.value.themeMode = newTheme;
-            saveSettings(settings.value);
+            persistSettings(settings.value);
         }
     },
 );
@@ -162,6 +190,11 @@ const themeStyle = computed(() => {
         '--text': colors.TEXT,
     } as Record<string, string>;
 });
+
+const appStyle = computed(() => ({
+    ...themeStyle.value,
+    height: '100%',
+}));
 
 onMounted(async () => {
     try {
@@ -218,7 +251,7 @@ async function handleSliderUpdate(value: number): Promise<void> {
 </script>
 
 <template>
-    <div class="app" :class="`theme-${themeMode}`" :style="themeStyle">
+    <div class="app" :class="`theme-${themeMode}`" :style="appStyle">
         <p v-if="loadError" role="alert">
             {{ loadError.message }}
         </p>
@@ -249,7 +282,7 @@ async function handleSliderUpdate(value: number): Promise<void> {
 <style scoped>
 .app {
     width: 100%;
-    height: 100vh;
+    height: 100%;
 }
 
 .app-content {

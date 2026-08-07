@@ -516,9 +516,9 @@ describe('StaticCountryRepository', () => {
             it('returns all countries', async () => {
                 const countries = await repository.findAll();
 
-                expect(countries).toHaveLength(28);
+                expect(countries).toHaveLength(27);
                 expect(countries[0].id).toBe('276');
-                expect(countries[countries.length - 1].id).toBe('470');
+                expect(countries[countries.length - 1].id).toBe('196');
             });
 
             it('returns Country instances', async () => {
