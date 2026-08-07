@@ -75,7 +75,7 @@ export default {
                 path: '^src/[^/]+/domain/',
             },
             to: {
-                path: '^vue$',
+                path: '^node_modules/(?:vue|`@vue`)/',
             },
         },
         {
@@ -99,7 +99,6 @@ export default {
         exclude: {
             path: '\\.(spec|test)\\.ts$',
         },
-        includeOnly: '^src',
         tsPreCompilationDeps: true,
         tsConfig: {
             fileName: 'tsconfig.json',

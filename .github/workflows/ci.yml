@@ -83,6 +83,8 @@ jobs:
 
       - run: npm run depcruise
 
+      - run: npm run test:architecture
+
   unit-tests:
     runs-on: ubuntu-latest
 
