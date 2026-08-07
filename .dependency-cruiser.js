@@ -75,7 +75,7 @@ export default {
                 path: '^src/[^/]+/domain/',
             },
             to: {
-                path: '^node_modules/vue/',
+                path: '^node_modules/(?:vue|`@vue`)/',
             },
         },
         {
