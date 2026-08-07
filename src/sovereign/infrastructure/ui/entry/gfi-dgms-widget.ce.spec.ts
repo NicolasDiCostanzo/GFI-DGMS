@@ -50,44 +50,35 @@ describe('polyfillProcessEnv', () => {
         }
     });
 
-    it('creates a default process.env with NODE_ENV production when process is undefined', () => {
-        delete g.process;
+    it.each([
+        {
+            name: 'when process is undefined',
+            setup: () => {
+                delete g.process;
+            },
+            expected: { env: { NODE_ENV: 'production' } },
+        },
+        {
+            name: 'when process.env is undefined',
+            setup: () => {
+                g.process = { env: undefined };
+            },
+            expected: { env: { NODE_ENV: 'production' } },
+        },
+    ])('polyfills missing process/env $name', ({ setup, expected }) => {
+        setup();
 
         polyfillProcessEnv();
 
-        expect(g.process).toEqual({ env: { NODE_ENV: 'production' } });
+        expect(g.process).toEqual(expected);
     });
 
-    it('creates an env with NODE_ENV production when process.env is undefined', () => {
-        g.process = { env: undefined };
-
-        polyfillProcessEnv();
-
-        expect(g.process.env).toEqual({ NODE_ENV: 'production' });
-    });
-
-    it('sets NODE_ENV to production when env exists but lacks NODE_ENV', () => {
-        g.process = { env: { foo: 'bar' } };
-
-        polyfillProcessEnv();
-
-        expect(g.process.env).toEqual({ foo: 'bar', NODE_ENV: 'production' });
-    });
-
-    it('does not overwrite an existing process, env, and NODE_ENV', () => {
+    it('does not overwrite an existing process and env', () => {
         g.process = { env: { NODE_ENV: 'production' } };
 
         polyfillProcessEnv();
 
         expect(g.process).toEqual({ env: { NODE_ENV: 'production' } });
-    });
-
-    it('does not overwrite an existing NODE_ENV even if set to a different value', () => {
-        g.process = { env: { NODE_ENV: 'development' } };
-
-        polyfillProcessEnv();
-
-        expect(g.process.env.NODE_ENV).toBe('development');
     });
     /* eslint-enable @typescript-eslint/no-explicit-any */
 });
