@@ -4,7 +4,7 @@ import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import { computed, toRef, useTemplateRef } from 'vue';
-import worldAtlas from 'world-atlas/countries-50m.json';
+import worldAtlas from 'world-atlas/countries-110m.json';
 import type { Country, CountryId } from '../../../domain/Country';
 import type { SimulationResults } from '../../../domain/SimulationResults';
 import { MapColors, getThemeColors, type ThemeMode } from '../../../domain/constants/MapColors';

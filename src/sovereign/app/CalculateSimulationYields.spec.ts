@@ -1,7 +1,7 @@
 import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
 import { GERMANY } from '@/sovereign/infrastructure/ui/components/InteractiveMap.spec.fixture';
 import { describe, expect, it } from 'vitest';
-import { MapColors } from '../domain/constants/MapColors';
+import { COLORBLIND_FUNDING_PROGRESS_COLORS, MapColors } from '../domain/constants/MapColors';
 import { Country, CountryId } from '../domain/Country';
 import { CountryRepository } from '../domain/repository/CountryRepository';
 import { CalculateSimulationYields } from './CalculateSimulationYields';
@@ -101,6 +101,49 @@ describe('CalculateSimulationYields', () => {
             expect(results.fundingProgress).toBe(2.0);
             expect(results.isOverTarget).toBe(true);
             expect(results.colorHex).toBe(MapColors.NEON_GREEN);
+        });
+
+        describe('theme-aware coloring', () => {
+            it('uses colorblind colors when themeMode is colorblind-light', async () => {
+                const repository = new MockCountryRepository(germany);
+                const useCase = new CalculateSimulationYields(repository);
+
+                const results = await useCase.execute('276', 750, 'colorblind-light');
+
+                expect(results.fundingProgress).toBe(0.75);
+                expect(results.colorHex).toBe(COLORBLIND_FUNDING_PROGRESS_COLORS[1]);
+            });
+
+            it('uses colorblind colors when themeMode is colorblind-dark', async () => {
+                const repository = new MockCountryRepository(germany);
+                const useCase = new CalculateSimulationYields(repository);
+
+                const results = await useCase.execute('276', 1500, 'colorblind-dark');
+
+                expect(results.fundingProgress).toBe(1.5);
+                expect(results.isOverTarget).toBe(true);
+                expect(results.colorHex).toBe(COLORBLIND_FUNDING_PROGRESS_COLORS[4]);
+            });
+
+            it.each([
+                { mode: 'light' as const, expectedColor: MapColors.ORANGE },
+                { mode: 'dark' as const, expectedColor: MapColors.ORANGE },
+                {
+                    mode: 'colorblind-light' as const,
+                    expectedColor: COLORBLIND_FUNDING_PROGRESS_COLORS[1],
+                },
+                {
+                    mode: 'colorblind-dark' as const,
+                    expectedColor: COLORBLIND_FUNDING_PROGRESS_COLORS[1],
+                },
+            ])('uses correct colors for $mode theme', async ({ mode, expectedColor }) => {
+                const repository = new MockCountryRepository(germany);
+                const useCase = new CalculateSimulationYields(repository);
+
+                const results = await useCase.execute('276', 750, mode);
+
+                expect(results.colorHex).toBe(expectedColor);
+            });
         });
 
         it('re-throws errors from InvestmentAmount other than exceeding maxAllowed', async () => {

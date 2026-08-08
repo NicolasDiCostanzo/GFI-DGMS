@@ -1,4 +1,4 @@
-import { MapColors } from '@/sovereign/domain/constants/MapColors';
+import { DARK_THEME_COLORS, MapColors } from '@/sovereign/domain/constants/MapColors';
 import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { mount } from '@vue/test-utils';
@@ -57,7 +57,7 @@ describe('InteractiveMap', () => {
         it('renders country path elements with country-path class', async () => {
             const wrapper = await createWrapper();
             const paths = wrapper.findAll('path.country-path');
-            expect(paths.length).toBeGreaterThan(200);
+            expect(paths.length).toBe(177);
         });
 
         it('each country path has a d attribute', async () => {
@@ -71,7 +71,7 @@ describe('InteractiveMap', () => {
         it('renders ocean background rectangle', async () => {
             const wrapper = await createWrapper();
             const rects = wrapper.findAll('rect');
-            const oceanRect = rects.find((r) => r.attributes('fill') === '#1a2634');
+            const oceanRect = rects.find((r) => r.attributes('fill') === DARK_THEME_COLORS.OCEAN);
             expect(oceanRect).toBeDefined();
         });
     });

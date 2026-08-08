@@ -1,10 +1,10 @@
 import { Currency } from '@/shared/types/Currency';
 import { validateNumeric } from '@/shared/utils/validateNumeric';
-import { CountryDataValidationError } from '../errors/CountryDataValidationError';
 import { Country, CountryId } from '../../domain/Country';
 import { CountryRepository } from '../../domain/repository/CountryRepository';
 import { TargetBudget } from '../../domain/TargetBudget';
 import countriesData from '../data/countries.json';
+import { CountryDataValidationError } from '../errors/CountryDataValidationError';
 
 export interface CountryRecord {
     id: string;
@@ -14,6 +14,8 @@ export interface CountryRecord {
     currency: 'USD' | 'EUR';
     jobMultiplier: number;
     co2Multiplier: number;
+    currentNumberOfJobs: number;
+    currentCO2Saved: number;
 }
 
 export class StaticCountryRepository implements CountryRepository {
@@ -39,6 +41,8 @@ export class StaticCountryRepository implements CountryRepository {
                     targetBudget,
                     record.jobMultiplier,
                     record.co2Multiplier,
+                    record.currentNumberOfJobs,
+                    record.currentCO2Saved,
                 );
                 return [country.id, country] as const;
             }),
@@ -48,7 +52,13 @@ export class StaticCountryRepository implements CountryRepository {
     private validateNumericField(
         record: CountryRecord,
         index: number,
-        fieldName: 'baselineInvestment' | 'targetBudget' | 'jobMultiplier' | 'co2Multiplier',
+        fieldName:
+            | 'baselineInvestment'
+            | 'targetBudget'
+            | 'jobMultiplier'
+            | 'co2Multiplier'
+            | 'currentNumberOfJobs'
+            | 'currentCO2Saved',
         value: unknown,
     ): void {
         if (typeof value !== 'number') {
@@ -98,6 +108,15 @@ export class StaticCountryRepository implements CountryRepository {
             this.validateNumericField(record, index, 'jobMultiplier', record.jobMultiplier);
 
             this.validateNumericField(record, index, 'co2Multiplier', record.co2Multiplier);
+
+            this.validateNumericField(
+                record,
+                index,
+                'currentNumberOfJobs',
+                record.currentNumberOfJobs,
+            );
+
+            this.validateNumericField(record, index, 'currentCO2Saved', record.currentCO2Saved);
         }
     }
 

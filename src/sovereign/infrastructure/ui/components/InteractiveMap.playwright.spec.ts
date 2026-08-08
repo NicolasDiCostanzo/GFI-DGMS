@@ -22,7 +22,17 @@ test.describe('InteractiveMap', () => {
 
     test('renders all country path elements', async ({ page }) => {
         const paths = page.locator('path.country-path');
-        await expect(paths).toHaveCount(241);
+        await expect(paths).toHaveCount(177);
+    });
+
+    test('mounts as a standalone app with no shadow-DOM encapsulation', async ({ page }) => {
+        const hasWidget = await page.evaluate(
+            () => document.querySelector('gfi-dgms-widget') !== null,
+        );
+        expect(hasWidget).toBe(false);
+
+        const appRoot = page.locator('#app');
+        await expect(appRoot).toBeVisible();
     });
 
     test('ocean background has correct color', async ({ page }) => {
@@ -173,8 +183,8 @@ test.describe('InteractiveMap', () => {
         expect(match).not.toBeNull();
         const translateX = parseFloat(match![1]);
         const translateY = parseFloat(match![2]);
-        expect(translateX).toBeCloseTo(113.9, 1);
-        expect(translateY).toBeCloseTo(75.9, 1);
+        expect(translateX).toBeCloseTo(112.5, 1);
+        expect(translateY).toBeCloseTo(75, 1);
 
         await expect(germanyPath).toHaveCSS('stroke', toRGB(SELECTION_COLOR));
         await expect(germanyPath).toHaveCSS('stroke-opacity', '1');

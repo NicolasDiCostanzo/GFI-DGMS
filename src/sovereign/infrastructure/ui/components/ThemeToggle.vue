@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { type ThemeMode } from '../utils/fundingProgressLegend';
+import {
+    COLORBLIND_FUNDING_PROGRESS_COLORS,
+    getThemeColors,
+    type ThemeMode,
+} from '../../../domain/constants/MapColors';
 
 const props = defineProps<{
     modelValue: ThemeMode;
@@ -22,6 +26,14 @@ const options: { value: ThemeMode; label: string }[] = [
 const currentLabel = computed(() => {
     return options.find((opt) => opt.value === props.modelValue)?.label ?? 'Dark';
 });
+
+function getSwatchColor(value: ThemeMode): string {
+    if (value.includes('colorblind')) {
+        return COLORBLIND_FUNDING_PROGRESS_COLORS[0];
+    }
+    const colors = getThemeColors(value);
+    return colors.OCEAN;
+}
 
 function select(value: ThemeMode): void {
     emit('update:modelValue', value);
@@ -45,13 +57,7 @@ function select(value: ThemeMode): void {
             >
                 <span
                     class="theme-toggle-swatch"
-                    :style="{
-                        backgroundColor: option.value.includes('colorblind')
-                            ? '#0072B2'
-                            : option.value === 'light'
-                              ? '#e8f4f8'
-                              : '#1a2634',
-                    }"
+                    :style="{ backgroundColor: getSwatchColor(option.value) }"
                 />
                 {{ option.label }}
             </button>
@@ -63,15 +69,16 @@ function select(value: ThemeMode): void {
 .theme-toggle {
     position: absolute;
     top: 16px;
-    right: 16px;
+    left: 16px;
     z-index: 100;
 }
 
 .theme-toggle-button {
     padding: 8px 12px;
     border-radius: 6px;
-    border: 1px solid #ccc;
-    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border);
+    background: var(--sidebar-bg);
+    color: var(--text);
     cursor: pointer;
     font-size: 13px;
 }
@@ -79,9 +86,8 @@ function select(value: ThemeMode): void {
 .theme-toggle-dropdown {
     position: absolute;
     top: 100%;
-    right: 0;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid #ccc;
+    background: var(--sidebar-bg);
+    border: 1px solid var(--border);
     border-radius: 6px;
     padding: 4px;
     min-width: 160px;
@@ -102,7 +108,8 @@ function select(value: ThemeMode): void {
 }
 
 .theme-toggle-option.is-selected {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--inactive);
+    opacity: 0.3;
 }
 
 .theme-toggle-swatch {
@@ -110,6 +117,6 @@ function select(value: ThemeMode): void {
     width: 14px;
     height: 14px;
     border-radius: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--inactive);
 }
 </style>

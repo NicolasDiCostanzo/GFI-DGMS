@@ -169,6 +169,11 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 - **Location**: `src/**/*.{test,spec}.{ts,js}`
 - **Coverage**: 100% threshold enforced
 
+### Test Style
+
+- Use loops (e.g. `it.each`) over repeated near-identical test cases instead of copy-pasting assertions, to keep tests condensed and readable.
+- Store test data in dedicated `.fixtures` files instead of declaring long literals inline in the test file.
+
 ### E2E Tests
 
 - **Framework**: Playwright
@@ -187,9 +192,11 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 
 ## Build Targets
 
-- **Custom Element**: `gfi-dgms-widget` (defined in `src/main.ts`)
-- **Output Formats**: ES module (`gfi-dgms.es.js`) and UMD (`gfi-dgms.umd.js`)
-- **Development**: Standalone SPA via `index.html`
+- **Custom Element**: `gfi-dgms-widget` (defined in `src/sovereign/infrastructure/ui/entry/gfi-dgms-widget.ce.ts`)
+- **Output Formats**: ES module (`gfi-dgms-widget.js`) and UMD (`gfi-dgms-widget.umd.js`)
+- **Development**: Standalone SPA via `index.html`; embed test via `embed-test.html`
+- **Self-contained**: Vue is bundled into the output so the widget can be embedded on any host page (WordPress, Wix, etc.) without loading a separate Vue runtime
+- **Bundle size**: `npm run check:size` enforces a gzip limit (default 120 kB, configurable via `MAX_GZIP_KB`); the 110m world topology is used to keep the bundle small, with Malta (ISO 470) added as a point feature
 
 ## Common Commands
 
@@ -210,6 +217,7 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 | `npm run test:e2e` | Run Playwright E2E tests |
 | `npm run test:coverage:merge` | Merge Vitest + Playwright coverage and enforce the 100% threshold on the union (requires `test:coverage` and `test:e2e` to have run first) |
 | `npm run test:coverage:all` | Full local chain: clean → `test:coverage` → `test:e2e` → `test:coverage:merge` |
+| `npm run check:size` | Verify the built ES bundle stays under the gzip size limit (default 120 kB) |
 
 ## CI/CD Pipeline
 
@@ -224,7 +232,17 @@ The GitHub Actions workflow (`.github/workflows/ci.yml`) runs these jobs on ever
 8. E2E tests (`npm run test:e2e`, Chromium only), uploads `.nyc_output/` as an artifact
 9. `coverage-merge` (needs jobs 5 and 8): downloads both artifacts and runs `npm run test:coverage:merge` — the final, authoritative 100% coverage gate across unit + E2E combined
 
-`axe-playwright` is installed but not yet wired into the pipeline (no accessibility gate). There is no bundle size check.
+`axe-playwright` is installed but not yet wired into the pipeline (no accessibility gate). The `build` job also runs `npm run check:size` to enforce the gzip bundle-size limit.
+
+## Implementation Workflow
+
+Once a plan has been validated, implement it one step at a time, following this loop per step:
+
+1. Write the tests for the step.
+2. Wait for validation.
+3. Write the implementation for the step.
+4. Wait for validation.
+5. Move to the next step and repeat from 1.
 
 ## Notes
 

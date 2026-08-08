@@ -11,5 +11,7 @@ export class Country {
         readonly targetBudget: TargetBudget,
         readonly jobMultiplier: number,
         readonly co2Multiplier: number,
+        readonly currentNumberOfJobs: number,
+        readonly currentCO2Saved: number,
     ) {}
 }

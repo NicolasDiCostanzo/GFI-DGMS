@@ -33,6 +33,11 @@ export interface ThemeColors {
     readonly TOOLTIP_TEXT: string;
     readonly LEGEND_BG: string;
     readonly LEGEND_TEXT: string;
+    readonly SIDEBAR_BG: string;
+    readonly ACCENT: string;
+    readonly PROGRESS_BG: string;
+    readonly ERROR: string;
+    readonly TEXT: string;
 }
 
 export const LIGHT_THEME_COLORS: ThemeColors = {
@@ -43,6 +48,11 @@ export const LIGHT_THEME_COLORS: ThemeColors = {
     TOOLTIP_TEXT: '#ffffff',
     LEGEND_BG: 'rgba(255, 255, 255, 0.9)',
     LEGEND_TEXT: '#333333',
+    SIDEBAR_BG: 'rgba(255, 255, 255, 0.95)',
+    ACCENT: '#2196f3',
+    PROGRESS_BG: '#e0e0e0',
+    ERROR: '#d32f2f',
+    TEXT: '#000000',
 };
 
 export const DARK_THEME_COLORS: ThemeColors = {
@@ -53,6 +63,11 @@ export const DARK_THEME_COLORS: ThemeColors = {
     TOOLTIP_TEXT: '#ffffff',
     LEGEND_BG: 'rgba(30, 30, 30, 0.95)',
     LEGEND_TEXT: '#e0e0e0',
+    SIDEBAR_BG: 'rgba(30, 30, 30, 0.95)',
+    ACCENT: '#2196f3',
+    PROGRESS_BG: '#404040',
+    ERROR: '#f44336',
+    TEXT: '#ffffff',
 };
 
 export function getThemeColors(mode: ThemeMode): ThemeColors {

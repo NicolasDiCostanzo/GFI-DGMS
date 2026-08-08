@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "description": "GFI-DGMS Web Component",
-  "main": "./dist/gfi-dgms.es.js",
-  "module": "./dist/gfi-dgms.es.js",
+  "main": "./dist/gfi-dgms-widget.umd.js",
+  "module": "./dist/gfi-dgms-widget.js",
   "exports": {
     ".": {
-      "import": "./dist/gfi-dgms.es.js",
-      "require": "./dist/gfi-dgms.umd.js"
+      "import": "./dist/gfi-dgms-widget.js",
+      "require": "./dist/gfi-dgms-widget.umd.js"
     }
   },
   "scripts": {
@@ -21,16 +21,19 @@
     "lint": "eslint . --ext .vue,.ts",
     "format": "prettier --write \"src/**/*.{vue,ts}\"",
     "format:check": "prettier --check \"src/**/*.{vue,ts}\"",
-    "depcruise": "depcruise --ts-config tsconfig.json --include-only \"^src\" src",
-    "check": "npm run lint && npm run format:check && npm run typecheck && npm run depcruise",
+    "depcruise": "depcruise --ts-config tsconfig.json src",
+    "test:architecture": "vitest run src/architecture.spec.ts",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test:architecture  && npm run depcruise",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "rm -rf .nyc_output coverage && VITE_COVERAGE=true vitest run && nyc merge .nyc_output coverage/coverage-final.json && nyc report --temp-dir coverage --report-dir coverage/report --extension .ts --extension .vue --reporter=text --reporter=lcov --reporter=html --check-coverage --lines 100 --functions 100 --branches 100 --statements 100",
+    "pretest:e2e": "npm run build",
     "test:e2e": "playwright test",
     "clean:coverage": "rm -rf coverage .nyc_output",
     "pretest:coverage:merge": "mkdir -p .nyc_output coverage/merged",
     "test:coverage:merge": "nyc merge .nyc_output coverage/merged/coverage-final.json && nyc report --temp-dir coverage/merged --report-dir coverage/merged-report --extension .ts --extension .vue --reporter=text --reporter=lcov --reporter=html --check-coverage --lines 100 --functions 100 --branches 100 --statements 100",
     "test:coverage:all": "npm run clean:coverage && npm run test:coverage && npm run test:e2e && npm run test:coverage:merge",
+    "check:size": "node scripts/check-bundle-size.mjs",
     "clean": "npm run lint -- --fix && npm run format && npm run check && npm run test:coverage"
   },
   "author": "",
@@ -49,9 +52,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.62.0",
+    "@playwright/test": "^1.62.1",
     "@types/d3-geo": "^3.1.0",
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.1.2",
     "@types/topojson-client": "^3.1.5",
     "@typescript-eslint/eslint-plugin": "^8.65.0",
     "@typescript-eslint/parser": "^8.64.0",
@@ -67,7 +70,7 @@
     "nyc": "^18.0.0",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
-    "vite": "^8.1.5",
+    "vite": "^8.2.0",
     "vite-plugin-istanbul": "^9.0.1",
     "vitest": "^4.1.10",
     "vue-eslint-parser": "^10.4.1",

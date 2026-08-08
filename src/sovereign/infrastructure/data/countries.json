@@ -6,7 +6,9 @@
         "targetBudget": 1000,
         "currency": "USD",
         "jobMultiplier": 10,
-        "co2Multiplier": 5
+        "co2Multiplier": 5,
+        "currentNumberOfJobs": 10000,
+        "currentCO2Saved": 5000
     },
     {
         "id": "250",
@@ -15,7 +17,9 @@
         "targetBudget": 800,
         "currency": "EUR",
         "jobMultiplier": 8,
-        "co2Multiplier": 4
+        "co2Multiplier": 4,
+        "currentNumberOfJobs": 8000,
+        "currentCO2Saved": 4000
     },
     {
         "id": "826",
@@ -24,7 +28,9 @@
         "targetBudget": 900,
         "currency": "USD",
         "jobMultiplier": 9,
-        "co2Multiplier": 4.5
+        "co2Multiplier": 4.5,
+        "currentNumberOfJobs": 9000,
+        "currentCO2Saved": 4500
     },
     {
         "id": "380",
@@ -33,7 +39,9 @@
         "targetBudget": 600,
         "currency": "EUR",
         "jobMultiplier": 7,
-        "co2Multiplier": 3.5
+        "co2Multiplier": 3.5,
+        "currentNumberOfJobs": 5000,
+        "currentCO2Saved": 2500
     },
     {
         "id": "724",
@@ -42,7 +50,9 @@
         "targetBudget": 500,
         "currency": "EUR",
         "jobMultiplier": 6,
-        "co2Multiplier": 3
+        "co2Multiplier": 3,
+        "currentNumberOfJobs": 6000,
+        "currentCO2Saved": 3000
     },
     {
         "id": "528",
@@ -51,7 +61,9 @@
         "targetBudget": 450,
         "currency": "EUR",
         "jobMultiplier": 7,
-        "co2Multiplier": 3.5
+        "co2Multiplier": 3.5,
+        "currentNumberOfJobs": 4500,
+        "currentCO2Saved": 2250
     },
     {
         "id": "616",
@@ -60,7 +72,9 @@
         "targetBudget": 400,
         "currency": "EUR",
         "jobMultiplier": 5,
-        "co2Multiplier": 2.5
+        "co2Multiplier": 2.5,
+        "currentNumberOfJobs": 3000,
+        "currentCO2Saved": 1500
     },
     {
         "id": "056",
@@ -69,7 +83,9 @@
         "targetBudget": 300,
         "currency": "EUR",
         "jobMultiplier": 6,
-        "co2Multiplier": 3
+        "co2Multiplier": 3,
+        "currentNumberOfJobs": 3000,
+        "currentCO2Saved": 1500
     },
     {
         "id": "752",
@@ -78,7 +94,9 @@
         "targetBudget": 350,
         "currency": "USD",
         "jobMultiplier": 7,
-        "co2Multiplier": 3.5
+        "co2Multiplier": 3.5,
+        "currentNumberOfJobs": 3500,
+        "currentCO2Saved": 1750
     },
     {
         "id": "040",
@@ -87,7 +105,9 @@
         "targetBudget": 250,
         "currency": "EUR",
         "jobMultiplier": 5,
-        "co2Multiplier": 2.5
+        "co2Multiplier": 2.5,
+        "currentNumberOfJobs": 2000,
+        "currentCO2Saved": 1000
     },
     {
         "id": "372",
@@ -96,7 +116,9 @@
         "targetBudget": 220,
         "currency": "EUR",
         "jobMultiplier": 5,
-        "co2Multiplier": 2.5
+        "co2Multiplier": 2.5,
+        "currentNumberOfJobs": 2000,
+        "currentCO2Saved": 1000
     },
     {
         "id": "208",
@@ -105,7 +127,9 @@
         "targetBudget": 280,
         "currency": "USD",
         "jobMultiplier": 6,
-        "co2Multiplier": 3
+        "co2Multiplier": 3,
+        "currentNumberOfJobs": 2500,
+        "currentCO2Saved": 1250
     },
     {
         "id": "246",
@@ -114,7 +138,9 @@
         "targetBudget": 200,
         "currency": "USD",
         "jobMultiplier": 4,
-        "co2Multiplier": 2
+        "co2Multiplier": 2,
+        "currentNumberOfJobs": 1800,
+        "currentCO2Saved": 900
     },
     {
         "id": "620",
@@ -123,7 +149,9 @@
         "targetBudget": 180,
         "currency": "EUR",
         "jobMultiplier": 4,
-        "co2Multiplier": 2
+        "co2Multiplier": 2,
+        "currentNumberOfJobs": 1500,
+        "currentCO2Saved": 750
     },
     {
         "id": "300",
@@ -132,7 +160,9 @@
         "targetBudget": 150,
         "currency": "EUR",
         "jobMultiplier": 3,
-        "co2Multiplier": 1.5
+        "co2Multiplier": 1.5,
+        "currentNumberOfJobs": 1200,
+        "currentCO2Saved": 600
     },
     {
         "id": "203",
@@ -141,7 +171,9 @@
         "targetBudget": 200,
         "currency": "EUR",
         "jobMultiplier": 4,
-        "co2Multiplier": 2
+        "co2Multiplier": 2,
+        "currentNumberOfJobs": 1800,
+        "currentCO2Saved": 900
     },
     {
         "id": "642",
@@ -150,7 +182,9 @@
         "targetBudget": 120,
         "currency": "EUR",
         "jobMultiplier": 3,
-        "co2Multiplier": 1.5
+        "co2Multiplier": 1.5,
+        "currentNumberOfJobs": 1000,
+        "currentCO2Saved": 500
     },
     {
         "id": "348",
@@ -159,7 +193,9 @@
         "targetBudget": 130,
         "currency": "EUR",
         "jobMultiplier": 3,
-        "co2Multiplier": 1.5
+        "co2Multiplier": 1.5,
+        "currentNumberOfJobs": 1100,
+        "currentCO2Saved": 550
     },
     {
         "id": "703",
@@ -168,7 +204,9 @@
         "targetBudget": 100,
         "currency": "EUR",
         "jobMultiplier": 2,
-        "co2Multiplier": 1
+        "co2Multiplier": 1,
+        "currentNumberOfJobs": 800,
+        "currentCO2Saved": 400
     },
     {
         "id": "100",
@@ -177,7 +215,9 @@
         "targetBudget": 90,
         "currency": "EUR",
         "jobMultiplier": 2,
-        "co2Multiplier": 1
+        "co2Multiplier": 1,
+        "currentNumberOfJobs": 700,
+        "currentCO2Saved": 350
     },
     {
         "id": "191",
@@ -186,7 +226,9 @@
         "targetBudget": 75,
         "currency": "EUR",
         "jobMultiplier": 2,
-        "co2Multiplier": 1
+        "co2Multiplier": 1,
+        "currentNumberOfJobs": 600,
+        "currentCO2Saved": 300
     },
     {
         "id": "705",
@@ -195,7 +237,9 @@
         "targetBudget": 60,
         "currency": "EUR",
         "jobMultiplier": 1,
-        "co2Multiplier": 0.5
+        "co2Multiplier": 0.5,
+        "currentNumberOfJobs": 500,
+        "currentCO2Saved": 250
     },
     {
         "id": "440",
@@ -204,7 +248,9 @@
         "targetBudget": 70,
         "currency": "EUR",
         "jobMultiplier": 1,
-        "co2Multiplier": 0.5
+        "co2Multiplier": 0.5,
+        "currentNumberOfJobs": 550,
+        "currentCO2Saved": 275
     },
     {
         "id": "428",
@@ -213,7 +259,9 @@
         "targetBudget": 55,
         "currency": "EUR",
         "jobMultiplier": 1,
-        "co2Multiplier": 0.5
+        "co2Multiplier": 0.5,
+        "currentNumberOfJobs": 450,
+        "currentCO2Saved": 225
     },
     {
         "id": "233",
@@ -222,7 +270,9 @@
         "targetBudget": 50,
         "currency": "EUR",
         "jobMultiplier": 1,
-        "co2Multiplier": 0.5
+        "co2Multiplier": 0.5,
+        "currentNumberOfJobs": 400,
+        "currentCO2Saved": 200
     },
     {
         "id": "442",
@@ -231,7 +281,9 @@
         "targetBudget": 40,
         "currency": "EUR",
         "jobMultiplier": 1,
-        "co2Multiplier": 0.5
+        "co2Multiplier": 0.5,
+        "currentNumberOfJobs": 300,
+        "currentCO2Saved": 150
     },
     {
         "id": "196",
@@ -240,15 +292,8 @@
         "targetBudget": 30,
         "currency": "EUR",
         "jobMultiplier": 1,
-        "co2Multiplier": 0.5
-    },
-    {
-        "id": "470",
-        "name": "Malta",
-        "baselineInvestment": 10,
-        "targetBudget": 25,
-        "currency": "EUR",
-        "jobMultiplier": 1,
-        "co2Multiplier": 0.5
+        "co2Multiplier": 0.5,
+        "currentNumberOfJobs": 250,
+        "currentCO2Saved": 125
     }
 ]

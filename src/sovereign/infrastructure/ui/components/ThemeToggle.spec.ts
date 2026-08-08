@@ -1,3 +1,8 @@
+import {
+    COLORBLIND_FUNDING_PROGRESS_COLORS,
+    DARK_THEME_COLORS,
+    LIGHT_THEME_COLORS,
+} from '@/sovereign/domain/constants/MapColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { type ThemeMode } from '../utils/fundingProgressLegend';
@@ -104,10 +109,10 @@ describe('ThemeToggle', () => {
         const options = wrapper.findAll('.theme-toggle-option');
         const swatches = options.map((opt) => opt.find('.theme-toggle-swatch').attributes('style'));
 
-        expect(swatches[0]).toContain('background-color: #e8f4f8');
-        expect(swatches[1]).toContain('background-color: #1a2634');
-        expect(swatches[2]).toContain('background-color: #0072B2');
-        expect(swatches[3]).toContain('background-color: #0072B2');
+        expect(swatches[0]).toContain(`background-color: ${LIGHT_THEME_COLORS.OCEAN}`);
+        expect(swatches[1]).toContain(`background-color: ${DARK_THEME_COLORS.OCEAN}`);
+        expect(swatches[2]).toContain(`background-color: ${COLORBLIND_FUNDING_PROGRESS_COLORS[0]}`);
+        expect(swatches[3]).toContain(`background-color: ${COLORBLIND_FUNDING_PROGRESS_COLORS[0]}`);
     });
 
     it('renders all four theme options in the dropdown', async () => {
@@ -129,7 +134,7 @@ describe('ThemeToggle', () => {
         const options = wrapper.findAll('.theme-toggle-option');
         const swatches = options.map((opt) => opt.find('.theme-toggle-swatch').attributes('style'));
 
-        expect(swatches[0]).toContain('background-color: #e8f4f8');
-        expect(swatches[1]).toContain('background-color: #1a2634');
+        expect(swatches[0]).toContain(`background-color: ${LIGHT_THEME_COLORS.OCEAN}`);
+        expect(swatches[1]).toContain(`background-color: ${DARK_THEME_COLORS.OCEAN}`);
     });
 });

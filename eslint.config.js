@@ -15,6 +15,7 @@ export default [
             'vitest.config.ts',
             'playwright.config.ts',
             'eslint.config.js',
+            'scripts/**',
         ],
     },
     {
@@ -29,6 +30,8 @@ export default [
                 afterAll: 'readonly',
                 process: 'readonly',
                 globalThis: 'readonly',
+                HTMLElement: 'readonly',
+                CustomElementRegistry: 'readonly',
             },
         },
     },
@@ -55,10 +58,7 @@ export default [
             },
         },
         rules: {
-            '@typescript-eslint/no-unused-vars': [
-                'warn',
-                { argsIgnorePattern: '^_' },
-            ],
+            '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
             'no-undef': 'off',
         },
     },

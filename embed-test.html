@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GFI-DGMS Embed Test</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 24px;
+            background: #f5f5f5;
+        }
+
+        gfi-dgms-widget {
+            display: block;
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>GFI-DGMS Embed Test</h1>
+    <p>
+        This page tests the built widget as a standalone embedded custom element.
+        No Vue runtime or other dependencies are loaded separately.
+    </p>
+
+    <gfi-dgms-widget id="widget"></gfi-dgms-widget>
+
+    <!-- Polyfill `process` before loading the UMD bundle. -->
+    <script>
+        window.process ??= { env: {} };
+        window.process.env ??= {};
+    </script>
+
+    <!-- Load the UMD bundle so this works as a plain script tag embed. -->
+    <script src="./dist/gfi-dgms-widget.umd.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const widget = document.getElementById('widget');
+            console.log('widget tag:', widget.tagName);
+            console.log('shadowRoot:', !!widget.shadowRoot);
+            if (widget.shadowRoot) {
+                console.log('innerHTML length:', widget.shadowRoot.innerHTML.length);
+                console.log('svg exists:', !!widget.shadowRoot.querySelector('svg'));
+            }
+        });
+    </script>
+</body>
+
+</html>
