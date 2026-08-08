@@ -78,6 +78,37 @@ const maxLabel = computed(() =>
     props.country ? `200% (${formatInvestment(sliderMax.value)})` : '',
 );
 
+const sliderMarks = computed(() => {
+    const marks = [
+        {
+            key: 'zero',
+            value: 0,
+            label: '$0',
+            disabled: false,
+        },
+        {
+            key: 'baseline',
+            value: props.country?.baselineInvestment ?? 0,
+            label: baselineLabel.value,
+            disabled: !props.country,
+        },
+        {
+            key: 'target',
+            value: props.country?.targetBudget.amount ?? 0,
+            label: targetLabel.value,
+            disabled: !props.country,
+        },
+        {
+            key: 'max',
+            value: sliderMax.value,
+            label: maxLabel.value,
+            disabled: !props.country,
+        },
+    ];
+
+    return marks.slice().sort((a, b) => a.value - b.value || a.key.localeCompare(b.key));
+});
+
 const CIRCLE_RADIUS = 45;
 const CIRCLE_CENTER = 60;
 const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
@@ -134,31 +165,14 @@ const dashOffset = computed(() => {
                     "
                 />
                 <div class="slider-labels">
-                    <button class="slider-label" @click="emit('update:sliderValue', 0)">$0</button>
                     <button
+                        v-for="mark in sliderMarks"
+                        :key="mark.key"
                         class="slider-label"
-                        :disabled="!props.country"
-                        @click="
-                            if (props.country) {
-                                emit('update:sliderValue', props.country.baselineInvestment);
-                            }
-                        "
+                        :disabled="mark.disabled"
+                        @click="emit('update:sliderValue', mark.value)"
                     >
-                        {{ baselineLabel }}
-                    </button>
-                    <button
-                        class="slider-label"
-                        :disabled="!props.country"
-                        @click="
-                            if (props.country) {
-                                emit('update:sliderValue', props.country.targetBudget.amount);
-                            }
-                        "
-                    >
-                        {{ targetLabel }}
-                    </button>
-                    <button class="slider-label" @click="emit('update:sliderValue', sliderMax)">
-                        {{ maxLabel }}
+                        {{ mark.label }}
                     </button>
                 </div>
             </div>
