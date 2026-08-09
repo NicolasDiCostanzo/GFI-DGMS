@@ -51,9 +51,14 @@ export function useCountryDisplay(
         return `${name} — no data`;
     }
 
+    function hasCountryData(isoNumeric: string): boolean {
+        return resultsByCountry.value.has(isoNumeric as CountryId);
+    }
+
     return {
         getCountryFill,
         getCountryAriaLabel,
         getTooltipText,
+        hasCountryData,
     };
 }

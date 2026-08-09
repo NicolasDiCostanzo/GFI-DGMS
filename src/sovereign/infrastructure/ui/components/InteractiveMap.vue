@@ -52,7 +52,7 @@ const svgRef = useTemplateRef<SVGSVGElement>('svgRef');
 
 const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
 const { zoomState, mapTransform, isAnimated, zoomAtPoint, panTo } = useMapZoom();
-const { getCountryFill, getCountryAriaLabel, getTooltipText } = useCountryDisplay(
+const { getCountryFill, getCountryAriaLabel, getTooltipText, hasCountryData } = useCountryDisplay(
     toRef(props, 'countries'),
     toRef(props, 'resultsByCountry'),
     geoJsonCountries,
@@ -75,6 +75,9 @@ function getCountryPath(countryFeature: Feature<Geometry, NamedFeatureProperties
 function handlePathClick(isoNumeric: string): void {
     if (didDragOccur()) {
         resetDidDrag();
+        return;
+    }
+    if (!hasCountryData(isoNumeric)) {
         return;
     }
     emit('country-select', isoNumeric as CountryId);
@@ -142,9 +145,12 @@ function handleWheel(event: WheelEvent): void {
                         "
                         :stroke-opacity="String(countryFeature.id) === selectedCountryId ? 1 : 0.35"
                         :stroke-width="String(countryFeature.id) === selectedCountryId ? 0.5 : 0.1"
-                        role="button"
-                        tabindex="0"
-                        class="country-path clickable"
+                        :role="hasCountryData(String(countryFeature.id)) ? 'button' : undefined"
+                        :tabindex="hasCountryData(String(countryFeature.id)) ? 0 : undefined"
+                        :class="{
+                            'country-path': true,
+                            clickable: hasCountryData(String(countryFeature.id)),
+                        }"
                         @click="handlePathClick(String(countryFeature.id))"
                         @keydown.enter="handlePathClick(String(countryFeature.id))"
                         @keydown.space.prevent="handlePathClick(String(countryFeature.id))"

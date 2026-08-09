@@ -74,6 +74,25 @@ describe('App', () => {
         expect(frenchPath.attributes('fill')).toBe(MapColors.INACTIVE);
     });
 
+    it('does not select a country whose simulation computation failed', async () => {
+        findAllMock.mockResolvedValue([GERMANY, FRANCE]);
+        executeMock.mockImplementation(async (countryId) => {
+            if (countryId === FRANCE.id) {
+                throw new Error('investment exceeds max allowed');
+            }
+            return RESULTS;
+        });
+
+        const wrapper = mount(App);
+        await flushPromises();
+
+        const frenchPath = wrapper.find('path.country-path[data-country-id="250"]');
+        await frenchPath.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.contextual-sidebar').exists()).toBe(false);
+    });
+
     it('stops before computing results when loading countries fails', async () => {
         findAllMock.mockRejectedValue(new Error('network down'));
 

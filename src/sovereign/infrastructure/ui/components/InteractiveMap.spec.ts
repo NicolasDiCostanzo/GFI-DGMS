@@ -101,6 +101,20 @@ describe('InteractiveMap', () => {
             expect(wrapper.emitted('country-select')).toHaveLength(1);
             expect(wrapper.emitted('country-select')![0]).toEqual(['276']);
         });
+
+        it.each([
+            { trigger: 'click' as const, description: 'click' },
+            { trigger: 'keydown.enter' as const, description: 'Enter keydown' },
+            { trigger: 'keydown.space' as const, description: 'Space keydown' },
+        ])(
+            'does not emit country-select on $description for a country without data',
+            async ({ trigger }) => {
+                const wrapper = await createWrapper();
+                const frenchPath = wrapper.find('path.country-path[data-country-id="250"]');
+                await frenchPath.trigger(trigger);
+                expect(wrapper.emitted('country-select')).toBeUndefined();
+            },
+        );
     });
 
     describe('ocean click', () => {
@@ -128,6 +142,20 @@ describe('InteractiveMap', () => {
             await germanPath.trigger('keydown.space');
             expect(wrapper.emitted('country-select')).toHaveLength(1);
             expect(wrapper.emitted('country-select')![0]).toEqual(['276']);
+        });
+
+        it('sets role="button" and tabindex="0" on countries with data', async () => {
+            const wrapper = await createWrapper();
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+            expect(germanPath.attributes('role')).toBe('button');
+            expect(germanPath.attributes('tabindex')).toBe('0');
+        });
+
+        it('does not set role="button" or tabindex on countries without data', async () => {
+            const wrapper = await createWrapper();
+            const frenchPath = wrapper.find('path.country-path[data-country-id="250"]');
+            expect(frenchPath.attributes('role')).toBeUndefined();
+            expect(frenchPath.attributes('tabindex')).toBeUndefined();
         });
 
         it('shows tooltip div on focus', async () => {
@@ -212,6 +240,12 @@ describe('InteractiveMap', () => {
             const wrapper = await createWrapper();
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
             expect(germanPath.classes()).toContain('clickable');
+        });
+
+        it('country path without data does not have clickable cursor', async () => {
+            const wrapper = await createWrapper();
+            const frenchPath = wrapper.find('path.country-path[data-country-id="250"]');
+            expect(frenchPath.classes()).not.toContain('clickable');
         });
     });
 

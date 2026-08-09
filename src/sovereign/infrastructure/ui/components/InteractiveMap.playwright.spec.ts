@@ -96,6 +96,27 @@ test.describe('InteractiveMap', () => {
         await expect(usaPath).toHaveAttribute('fill', INACTIVE_COLOR);
     });
 
+    test('country without simulation data is not selectable', async ({ page }) => {
+        const usaPath = page.locator(`path.country-path[data-country-id="${USA_ID}"]`);
+        await expect(usaPath).not.toHaveAttribute('role');
+        await expect(usaPath).not.toHaveAttribute('tabindex');
+        await usaPath.click({ force: true });
+
+        const sidebar = page.locator('.contextual-sidebar');
+        await expect(sidebar).not.toBeVisible();
+    });
+
+    test('country with simulation data remains selectable', async ({ page }) => {
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
+        await expect(germanyPath).toHaveAttribute('role', 'button');
+        await expect(germanyPath).toHaveAttribute('tabindex', '0');
+
+        await germanyPath.click();
+
+        const sidebar = page.locator('.contextual-sidebar');
+        await expect(sidebar).toBeVisible();
+    });
+
     test('country path has aria-label with country name', async ({ page }) => {
         const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
         await expect(germanyPath).toHaveAttribute('aria-label', new RegExp(GERMANY.name));
