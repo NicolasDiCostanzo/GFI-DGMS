@@ -47,8 +47,8 @@ test.describe('InteractiveMap', () => {
     });
 
     test('country paths have color transition on fill', async ({ page }) => {
-        const firstPath = page.locator('path.country-path').first();
-        await expect(firstPath).toHaveCSS('transition', /fill 0\.3s/);
+        const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
+        await expect(germanyPath).toHaveCSS('transition', /fill 0\.3s/);
     });
 
     test('tooltip appears on hover and shows country name', async ({ page }) => {
