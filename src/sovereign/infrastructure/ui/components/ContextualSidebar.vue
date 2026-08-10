@@ -14,22 +14,17 @@ const props = withDefaults(
         results?: SimulationResults | null;
         sliderValue?: number;
         themeMode?: ThemeMode;
-        isLoading?: boolean;
-        error?: string | null;
     }>(),
     {
         country: null,
         results: null,
         sliderValue: 0,
         themeMode: 'dark',
-        isLoading: false,
-        error: null,
     },
 );
 
 const emit = defineEmits<{
     'update:sliderValue': [value: number];
-    retry: [];
     close: [];
 }>();
 
@@ -142,21 +137,7 @@ const dashOffset = computed(() => {
                 />
             </svg>
         </button>
-        <div v-if="error" class="error-state">
-            <p class="error-message" role="alert">{{ error }}</p>
-            <button class="retry-button" @click="emit('retry')">Retry</button>
-        </div>
-
-        <div v-else-if="isLoading" class="loading-state">
-            <p class="sr-only" aria-live="polite">Loading country data</p>
-            <div class="skeleton country-header-skeleton" aria-hidden="true" />
-            <div class="skeleton slider-skeleton" aria-hidden="true" />
-            <div class="skeleton progress-ring-skeleton" aria-hidden="true" />
-            <div class="skeleton economic-skeleton" aria-hidden="true" />
-            <div class="skeleton climate-skeleton" aria-hidden="true" />
-        </div>
-
-        <div v-else class="sidebar-content">
+        <div class="sidebar-content">
             <header class="country-header">
                 <span class="country-flag">{{ flagEmoji }}</span>
                 <span class="country-name">{{ countryName }}</span>
@@ -463,88 +444,5 @@ input[type='range'] {
     margin-top: 4px;
     color: var(--accent, #2196f3);
     min-height: 20px;
-}
-
-.error-state,
-.loading-state {
-    padding: 20px;
-    text-align: center;
-}
-
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-.skeleton {
-    background: var(--progress-bg, #e0e0e0);
-    border-radius: 4px;
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%,
-    100% {
-        opacity: 0.6;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-
-.country-header-skeleton {
-    height: 24px;
-    width: 60%;
-    margin-bottom: 12px;
-}
-
-.slider-skeleton {
-    height: 40px;
-    width: 100%;
-    margin-bottom: 12px;
-}
-
-.progress-ring-skeleton {
-    height: 120px;
-    width: 120px;
-    margin: 0 auto 12px;
-    border-radius: 50%;
-}
-
-.economic-skeleton {
-    height: 28px;
-    width: 80%;
-    margin: 0 auto 8px;
-}
-
-.climate-skeleton {
-    height: 60px;
-    width: 100%;
-}
-
-.error-message {
-    color: var(--error, #d32f2f);
-    margin-bottom: 12px;
-}
-
-.retry-button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    background: var(--accent, #2196f3);
-    color: white;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.retry-button:hover {
-    opacity: 0.9;
 }
 </style>

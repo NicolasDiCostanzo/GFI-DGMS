@@ -30,8 +30,6 @@ export interface WrapperOptions {
     results?: SimulationResults | null;
     sliderValue?: number;
     themeMode?: ThemeMode;
-    isLoading?: boolean;
-    error?: string | null;
 }
 
 export function createWrapper(options: WrapperOptions = {}) {
@@ -40,8 +38,6 @@ export function createWrapper(options: WrapperOptions = {}) {
         results: options.results ?? null,
         sliderValue: options.sliderValue ?? 0,
         themeMode: options.themeMode ?? 'dark',
-        isLoading: options.isLoading ?? false,
-        error: options.error ?? null,
     };
 
     return mount(ContextualSidebar, {
