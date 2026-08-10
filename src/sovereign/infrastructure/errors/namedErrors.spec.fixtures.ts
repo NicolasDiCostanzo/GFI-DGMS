@@ -1,9 +1,11 @@
-import { InvestmentExceedsMaxAllowedException } from '@/sovereign/domain/errors/InvestmentExceedsMaxAllowedException';
 import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
 import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
 import { SettingsParseError } from '@/shared/errors/SettingsParseError';
 import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
+import { InvalidInvestmentError } from '@/sovereign/app/errors/InvalidInvestmentError';
+import { InvestmentExceedsMaxAllowedException } from '@/sovereign/domain/errors/InvestmentExceedsMaxAllowedException';
+import { CountryDataValidationError } from './CountryDataValidationError';
 import { CountryLoadError } from './CountryLoadError';
 
 export const NAMED_ERROR_CASES: ReadonlyArray<[string, new (message: string) => Error, string]> = [
@@ -22,4 +24,14 @@ export const NAMED_ERROR_CASES: ReadonlyArray<[string, new (message: string) => 
         'InvestmentAmount value must not exceed maxAllowed',
     ],
     ['CountryLoadError', CountryLoadError, 'network down'],
+    [
+        'CountryDataValidationError',
+        CountryDataValidationError,
+        "Invalid country record at index 1: 'id' must be a non-empty string",
+    ],
+    [
+        'InvalidInvestmentError',
+        InvalidInvestmentError,
+        'Investment 100 exceeds maximum allowed 500 for country US',
+    ],
 ];
