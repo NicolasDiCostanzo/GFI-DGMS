@@ -34,14 +34,14 @@ const sliderMax = computed(() =>
 );
 const sliderMin = 0;
 
+const isAtBaseline = computed(() => props.country?.baselineInvestment === props.sliderValue);
+
 const jobsTarget = computed(() => props.results?.additionalJobs ?? 0);
 const totalJobs = computed(() =>
     props.country ? props.country.currentNumberOfJobs + jobsTarget.value : 0,
 );
 const jobsDelta = computed(() =>
-    props.country?.baselineInvestment !== props.sliderValue
-        ? `${jobsTarget.value > 0 ? '+' : ''}${jobsTarget.value}`
-        : '',
+    !isAtBaseline.value ? `${jobsTarget.value > 0 ? '+' : ''}${jobsTarget.value}` : '',
 );
 
 const flagEmoji = computed(() => (props.country ? isoToFlagEmoji(props.country.id) : ''));
@@ -59,9 +59,7 @@ const totalCO2 = computed(() =>
     props.country ? props.country.currentCO2Saved + co2Tonnes.value : 0,
 );
 const co2SavedDelta = computed(() =>
-    props.country?.baselineInvestment !== props.sliderValue
-        ? `${co2Tonnes.value > 0 ? '+' : ''}${co2Tonnes.value}`
-        : '',
+    !isAtBaseline.value ? `${co2Tonnes.value > 0 ? '+' : ''}${co2Tonnes.value}` : '',
 );
 const carsEquivalent = computed(() =>
     formatCarsEquivalent(co2TonnesToCarsEquivalent(props.results?.additionalCO2Tonnes ?? 0)),
@@ -218,19 +216,13 @@ const dashOffset = computed(() => {
                 <div class="economic-indicator">
                     <div class="economic-value">
                         <span class="jobs-count">{{
-                            props.country?.baselineInvestment !== sliderValue
-                                ? totalJobs
-                                : props.country?.currentNumberOfJobs
+                            !isAtBaseline ? totalJobs : props.country?.currentNumberOfJobs
                         }}</span>
                     </div>
                     <div class="economic-label">
                         <span
                             >people
-                            {{
-                                props.country?.baselineInvestment === sliderValue
-                                    ? 'are currently'
-                                    : 'would be'
-                            }}
+                            {{ isAtBaseline ? 'are currently' : 'would be' }}
                             employed
                         </span>
                     </div>
@@ -241,19 +233,13 @@ const dashOffset = computed(() => {
                 <div class="climate-indicator">
                     <div class="climate-value">
                         <span class="co2-count">{{
-                            props.country?.baselineInvestment !== sliderValue
-                                ? totalCO2
-                                : props.country?.currentCO2Saved
+                            !isAtBaseline ? totalCO2 : props.country?.currentCO2Saved
                         }}</span>
                     </div>
                     <div class="climate-label">
                         <span
                             >tonnes of CO₂
-                            {{
-                                props.country?.baselineInvestment === sliderValue
-                                    ? 'are currently'
-                                    : 'would be'
-                            }}
+                            {{ isAtBaseline ? 'are currently' : 'would be' }}
                             saved</span
                         >
                     </div>
@@ -323,12 +309,6 @@ const dashOffset = computed(() => {
     font-size: 24px;
 }
 
-.current-investment {
-    margin-left: auto;
-    font-weight: 700;
-    color: var(--accent, #2196f3);
-}
-
 .slider-section {
     display: flex;
     flex-direction: column;
@@ -379,11 +359,6 @@ input[type='range'] {
     font-weight: 700;
 }
 
-.progress-percent {
-    font-size: 20px;
-    font-weight: 700;
-}
-
 .progress-label {
     font-size: 11px;
     font-style: italic;
@@ -408,19 +383,6 @@ input[type='range'] {
     margin-top: 16px;
 }
 
-.co2-bar {
-    height: 100%;
-    background: var(--accent, #4caf50);
-    border-radius: 6px;
-    transition: width 0.3s ease;
-}
-
-.co2-value {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
 .co2-equivalent {
     font-size: 13px;
     margin-bottom: 4px;
@@ -437,8 +399,7 @@ input[type='range'] {
     margin-top: 4px;
 }
 
-.economic-subtitle,
-.climate-subtitle {
+.economic-subtitle {
     font-size: 11px;
 }
 

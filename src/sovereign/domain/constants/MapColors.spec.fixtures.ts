@@ -1,11 +1,6 @@
-import {
-    COLORBLIND_FUNDING_PROGRESS_COLORS,
-    MapColors,
-    type MapColor,
-    type ThemeMode,
-} from './MapColors';
+import { COLORBLIND_FUNDING_PROGRESS_COLORS, MapColors, type ThemeMode } from './MapColors';
 
-const STANDARD_PALETTE: readonly MapColor[] = [
+const STANDARD_PALETTE: readonly string[] = [
     MapColors.RED,
     MapColors.ORANGE,
     MapColors.YELLOW_AMBER,
@@ -14,7 +9,7 @@ const STANDARD_PALETTE: readonly MapColor[] = [
 ];
 
 export const FUNDING_PROGRESS_COLOR_CASES: ReadonlyArray<
-    [title: string, fundingProgress: number, expected: MapColor]
+    [title: string, fundingProgress: number, expected: string]
 > = [
     ['returns RED when fundingProgress is 0', 0, MapColors.RED],
     ['returns RED when fundingProgress is 0.25', 0.25, MapColors.RED],
@@ -36,7 +31,7 @@ export const FUNDING_PROGRESS_COLOR_CASES: ReadonlyArray<
     ['returns NEON_GREEN when fundingProgress exceeds 1.2 (e.g. 2.0)', 2.0, MapColors.NEON_GREEN],
 ];
 
-export const TO_RGB_CASES: ReadonlyArray<[hex: MapColor, expectedRgb: string]> = [
+export const TO_RGB_CASES: ReadonlyArray<[hex: string, expectedRgb: string]> = [
     [MapColors.RED, 'rgb(211, 47, 47)'],
     [MapColors.ORANGE, 'rgb(245, 124, 0)'],
     [MapColors.YELLOW_AMBER, 'rgb(253, 216, 53)'],
@@ -49,7 +44,7 @@ export const TO_RGB_CASES: ReadonlyArray<[hex: MapColor, expectedRgb: string]> =
 ];
 
 export const FUNDING_PROGRESS_COLORS_CASES: ReadonlyArray<
-    [mode: ThemeMode, expected: readonly MapColor[]]
+    [mode: ThemeMode, expected: readonly string[]]
 > = [
     ['light', STANDARD_PALETTE],
     ['dark', STANDARD_PALETTE],
@@ -57,7 +52,7 @@ export const FUNDING_PROGRESS_COLORS_CASES: ReadonlyArray<
     ['colorblind-dark', COLORBLIND_FUNDING_PROGRESS_COLORS],
 ];
 
-export const FUNDING_PROGRESS_MODE_CASES: ReadonlyArray<[mode: ThemeMode, expected: MapColor]> = [
+export const FUNDING_PROGRESS_MODE_CASES: ReadonlyArray<[mode: ThemeMode, expected: string]> = [
     ['light', MapColors.ORANGE],
     ['dark', MapColors.ORANGE],
     ['colorblind-light', COLORBLIND_FUNDING_PROGRESS_COLORS[1]],

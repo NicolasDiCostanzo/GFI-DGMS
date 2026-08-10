@@ -33,7 +33,6 @@ describe('CalculateSimulationYields', () => {
             expect(results.fundingProgress).toBe(0.75);
             expect(results.additionalJobs).toBe(2500);
             expect(results.additionalCO2Tonnes).toBe(1250);
-            expect(results.isOverTarget).toBe(false);
             expect(results.colorHex).toBe(MapColors.ORANGE);
         });
 
@@ -81,14 +80,13 @@ describe('CalculateSimulationYields', () => {
             }
         });
 
-        it('returns isOverTarget true when investment exceeds target', async () => {
+        it('returns NEON_GREEN colorHex when fundingProgress exceeds 1.2', async () => {
             const repository = new MockCountryRepository(germany);
             const useCase = new CalculateSimulationYields(repository);
 
             const results = await useCase.execute('276', 1500);
 
             expect(results.fundingProgress).toBe(1.5);
-            expect(results.isOverTarget).toBe(true);
             expect(results.colorHex).toBe(MapColors.NEON_GREEN);
         });
 
@@ -99,7 +97,6 @@ describe('CalculateSimulationYields', () => {
             const results = await useCase.execute('276', 2000);
 
             expect(results.fundingProgress).toBe(2.0);
-            expect(results.isOverTarget).toBe(true);
             expect(results.colorHex).toBe(MapColors.NEON_GREEN);
         });
 
@@ -121,7 +118,6 @@ describe('CalculateSimulationYields', () => {
                 const results = await useCase.execute('276', 1500, 'colorblind-dark');
 
                 expect(results.fundingProgress).toBe(1.5);
-                expect(results.isOverTarget).toBe(true);
                 expect(results.colorHex).toBe(COLORBLIND_FUNDING_PROGRESS_COLORS[4]);
             });
 
