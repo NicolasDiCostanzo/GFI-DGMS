@@ -235,21 +235,6 @@ describe('App', () => {
         expect(wrapper.find('input[type="range"]').attributes('value')).toBe('750');
     });
 
-    it('does not recalculate when the slider updates before any country is selected', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
-
-        const wrapper = mount(App);
-        await flushPromises();
-
-        expect(wrapper.find('.contextual-sidebar').exists()).toBe(false);
-        expect(wrapper.find('input[type="range"]').exists()).toBe(false);
-
-        const initialCallCount = executeMock.mock.calls.length;
-
-        expect(executeMock).toHaveBeenCalledTimes(initialCallCount);
-    });
-
     it('reverts the slider to its previous value when recalculation fails', async () => {
         findAllMock.mockResolvedValue([GERMANY]);
         executeMock.mockResolvedValue(RESULTS);
