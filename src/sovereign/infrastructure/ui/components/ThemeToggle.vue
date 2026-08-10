@@ -43,12 +43,18 @@ function getSwatchColor(value: ThemeMode): string {
 
 function select(value: ThemeMode): void {
     emit('update:modelValue', value);
+    isOpen.value = false;
 }
 </script>
 
 <template>
     <div class="theme-toggle" @mouseenter="isOpen = true" @mouseleave="isOpen = false">
-        <button class="theme-toggle-button" aria-haspopup="listbox" :aria-expanded="isOpen">
+        <button
+            class="theme-toggle-button"
+            aria-haspopup="listbox"
+            :aria-expanded="isOpen"
+            @click="isOpen = !isOpen"
+        >
             <span class="theme-toggle-icon">
                 <ThemeIcon :name="currentIcon" />
             </span>
