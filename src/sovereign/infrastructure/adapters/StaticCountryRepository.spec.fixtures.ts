@@ -15,6 +15,12 @@ export const VALID_RECORD: CountryRecord = {
     currentCO2Saved: 50,
 };
 
+/**
+ * Builds a country record fixture by applying property overrides to the valid record.
+ *
+ * @param overrides - Properties to replace in the valid record
+ * @returns An array containing the resulting country record
+ */
 export function buildInvalidData(overrides: Record<string, unknown>): CountryRecord[] {
     return [{ ...VALID_RECORD, ...overrides }] as unknown as CountryRecord[];
 }

@@ -23,6 +23,12 @@ export interface WrapperOptions {
     themeMode?: ThemeMode;
 }
 
+/**
+ * Creates a mounted `ContextualSidebar` wrapper with configurable fixture props.
+ *
+ * @param options - Optional prop overrides for the mounted component
+ * @returns The mounted `ContextualSidebar` wrapper
+ */
 export function createWrapper(options: WrapperOptions = {}) {
     const props = {
         country: options.country ?? null,

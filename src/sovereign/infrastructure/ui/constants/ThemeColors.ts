@@ -45,6 +45,12 @@ export const DARK_THEME_COLORS: ThemeColors = {
     TEXT: '#ffffff',
 };
 
+/**
+ * Selects the theme colors for the specified display mode.
+ *
+ * @param mode - The theme mode to resolve
+ * @returns Dark theme colors for dark modes, or light theme colors for other modes
+ */
 export function getThemeColors(mode: ThemeMode): ThemeColors {
     const isDark = mode === 'dark' || mode === 'colorblind-dark';
     return isDark ? DARK_THEME_COLORS : LIGHT_THEME_COLORS;

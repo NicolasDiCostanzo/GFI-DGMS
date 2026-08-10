@@ -23,6 +23,12 @@ export const COLORBLIND_FUNDING_PROGRESS_COLORS: readonly string[] = [
     '#D55E00',
 ];
 
+/**
+ * Selects the funding progress color palette for a theme mode.
+ *
+ * @param mode - The theme mode used to choose the palette
+ * @returns The colorblind-safe palette for colorblind modes; otherwise, the standard palette
+ */
 export function getFundingProgressColors(mode: ThemeMode): readonly string[] {
     if (mode === 'colorblind-light' || mode === 'colorblind-dark') {
         return COLORBLIND_FUNDING_PROGRESS_COLORS;
@@ -36,6 +42,13 @@ export function getFundingProgressColors(mode: ThemeMode): readonly string[] {
     ];
 }
 
+/**
+ * Selects the color representing a funding progress value for the specified theme.
+ *
+ * @param fundingProgress - The funding progress value to classify.
+ * @param mode - The theme mode used to select the color palette.
+ * @returns The color corresponding to the first threshold greater than the funding progress, or the final palette color when all thresholds are met.
+ */
 export function getColorForFundingProgress(
     fundingProgress: number,
     mode: ThemeMode = 'dark',
@@ -45,6 +58,12 @@ export function getColorForFundingProgress(
     return index === -1 ? colors[colors.length - 1] : colors[index];
 }
 
+/**
+ * Converts a seven-character hexadecimal color string to an RGB color string.
+ *
+ * @param hexColor - The hexadecimal color string to convert
+ * @returns The color formatted as `rgb(r, g, b)`
+ */
 export function toRGB(hexColor: string): string {
     const r = parseInt(hexColor.slice(1, 3), 16);
     const g = parseInt(hexColor.slice(3, 5), 16);
