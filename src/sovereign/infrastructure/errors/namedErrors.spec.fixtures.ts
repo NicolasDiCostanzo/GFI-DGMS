@@ -1,10 +1,10 @@
 import { InvestmentExceedsMaxAllowedException } from '@/sovereign/domain/errors/InvestmentExceedsMaxAllowedException';
-import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
-import { InfiniteNumberException } from './InfiniteNumberException';
-import { InvalidNumberException } from './InvalidNumberException';
-import { NonPositiveNumberException } from './NonPositiveNumberException';
-import { SettingsParseError } from './SettingsParseError';
-import { SettingsStorageError } from './SettingsStorageError';
+import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
+import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
+import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
+import { SettingsParseError } from '@/shared/errors/SettingsParseError';
+import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
+import { CountryLoadError } from './CountryLoadError';
 
 export const NAMED_ERROR_CASES: ReadonlyArray<[string, new (message: string) => Error, string]> = [
     ['InfiniteNumberException', InfiniteNumberException, 'TargetBudget amount must be finite'],
