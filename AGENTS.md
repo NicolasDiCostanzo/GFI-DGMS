@@ -108,7 +108,7 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 | Build | Vite | ^8.1.5 |
 | Visualization | d3-geo | ^3.1.1 |
 | Data | topojson-client, world-atlas | ^3.1.0, ^2.0.2 |
-| Testing | Vitest, @vitest/coverage-istanbul | ^4.1.10 |
+| Testing | Vitest, vite-plugin-istanbul | ^4.1.10 |
 | E2E | Playwright | ^1.61.1 |
 | Coverage | nyc | ^18.0.0 |
 | Linting | ESLint | ^10.7.0 |
@@ -122,7 +122,7 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 - **Purpose**: Pure business logic, no external dependencies
 - **Contents**:
   - Domain entities (e.g., `Country`)
-  - Value objects (e.g., `TargetBudget`, `Currency`)
+  - Value objects (e.g., `TargetBudget`, `InvestmentAmount`)
   - Domain errors (e.g., `DomainError`)
 - **Rules**: No Vue, no infrastructure imports, no side effects
 
@@ -159,6 +159,7 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 - **Type Safety**: Strict TypeScript with `noUnusedLocals` and `noUnusedParameters`
 - **Formatting**: Prettier with 4-space indentation, single quotes, trailing commas
 - **Test Coverage**: 100% required for lines, functions, branches, and statements
+- **Comments**: Default to none. Code must be self-explanatory through naming and structure. Only add a comment when there is no alternative to make the code clearer — e.g. a non-obvious constraint, a workaround for a specific bug, or a ceiling/limitation that isn't visible from the code itself.
 
 ## Testing Requirements
 
@@ -232,7 +233,7 @@ The GitHub Actions workflow (`.github/workflows/ci.yml`) runs these jobs on ever
 8. E2E tests (`npm run test:e2e`, Chromium only), uploads `.nyc_output/` as an artifact
 9. `coverage-merge` (needs jobs 5 and 8): downloads both artifacts and runs `npm run test:coverage:merge` — the final, authoritative 100% coverage gate across unit + E2E combined
 
-`axe-playwright` is installed but not yet wired into the pipeline (no accessibility gate). The `build` job also runs `npm run check:size` to enforce the gzip bundle-size limit.
+`axe-playwright` is wired into `InteractiveMap.playwright.spec.ts` (`injectAxe`/`checkA11y` on initial load) as a blocking accessibility gate, run as part of job 8 (`npm run test:e2e`). The `build` job also runs `npm run check:size` to enforce the gzip bundle-size limit.
 
 ## Implementation Workflow
 
