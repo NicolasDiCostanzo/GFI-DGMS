@@ -18,10 +18,14 @@ test.describe('ThemeToggle', () => {
         await page.keyboard.press('Tab');
         const firstOption = page.locator('.theme-toggle-option').first();
         await expect(firstOption).toBeFocused();
+        const firstOptionLabel = await firstOption
+            .locator('.theme-toggle-option-label')
+            .innerText();
 
         await page.keyboard.press('Enter');
 
         await expect(dropdown).not.toBeVisible();
         await expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
+        await expect(toggleButton.locator('.theme-toggle-label')).toHaveText(firstOptionLabel);
     });
 });
