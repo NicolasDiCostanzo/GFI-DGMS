@@ -133,6 +133,32 @@ describe('ContextualSidebar', () => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
             expect(wrapper.text()).toContain(text);
         });
+
+        describe('at baseline', () => {
+            const BASELINE_ECONOMIC_TEXTS = [
+                '10000',
+                'people are currently employed',
+                'Based on GFI economic projections',
+            ];
+
+            it.each(BASELINE_ECONOMIC_TEXTS)('displays "%s"', (text) => {
+                const wrapper = createWrapper({
+                    country: GERMANY,
+                    results: RESULTS,
+                    sliderValue: GERMANY.baselineInvestment,
+                });
+                expect(wrapper.text()).toContain(text);
+            });
+
+            it('hides the jobs delta', () => {
+                const wrapper = createWrapper({
+                    country: GERMANY,
+                    results: RESULTS,
+                    sliderValue: GERMANY.baselineInvestment,
+                });
+                expect(wrapper.find('.economic-delta').text()).toBe('');
+            });
+        });
     });
 
     describe('climate indicator', () => {
@@ -146,6 +172,32 @@ describe('ContextualSidebar', () => {
         it.each(CLIMATE_TEXTS)('displays "%s"', (text) => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
             expect(wrapper.text()).toContain(text);
+        });
+
+        describe('at baseline', () => {
+            const BASELINE_CLIMATE_TEXTS = [
+                '5000',
+                'tonnes of CO₂ are currently saved',
+                'Based on CE Delft LCA data',
+            ];
+
+            it.each(BASELINE_CLIMATE_TEXTS)('displays "%s"', (text) => {
+                const wrapper = createWrapper({
+                    country: GERMANY,
+                    results: RESULTS,
+                    sliderValue: GERMANY.baselineInvestment,
+                });
+                expect(wrapper.text()).toContain(text);
+            });
+
+            it('hides the CO₂ delta', () => {
+                const wrapper = createWrapper({
+                    country: GERMANY,
+                    results: RESULTS,
+                    sliderValue: GERMANY.baselineInvestment,
+                });
+                expect(wrapper.find('.climate-delta').text()).toBe('');
+            });
         });
     });
 
