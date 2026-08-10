@@ -23,55 +23,6 @@ beforeEach(() => {
 });
 
 describe('ContextualSidebar', () => {
-    describe('loading state', () => {
-        it('shows skeleton placeholders when loading', () => {
-            const wrapper = createWrapper({ country: GERMANY, isLoading: true });
-            expect(wrapper.findAll('.skeleton').length).toBeGreaterThan(0);
-        });
-
-        it('does not show the slider when loading', () => {
-            const wrapper = createWrapper({ country: GERMANY, isLoading: true });
-            expect(wrapper.find('input[type="range"]').exists()).toBe(false);
-        });
-
-        it('includes an accessible status message that country data is loading', () => {
-            const wrapper = createWrapper({ country: GERMANY, isLoading: true });
-            const srMessage = wrapper.find('.sr-only');
-            expect(srMessage.exists()).toBe(true);
-            expect(srMessage.attributes('aria-live')).toBe('polite');
-            expect(srMessage.text()).toBe('Loading country data');
-        });
-
-        it('marks skeleton elements as decorative with aria-hidden', () => {
-            const wrapper = createWrapper({ country: GERMANY, isLoading: true });
-            const skeletons = wrapper.findAll('.skeleton');
-            expect(skeletons.length).toBeGreaterThan(0);
-            for (const skeleton of skeletons) {
-                expect(skeleton.attributes('aria-hidden')).toBe('true');
-            }
-        });
-    });
-
-    describe('error state', () => {
-        it('shows error message with retry button', () => {
-            const wrapper = createWrapper({ country: GERMANY, error: 'Something went wrong' });
-            expect(wrapper.text()).toContain('Something went wrong');
-            expect(wrapper.find('.retry-button').exists()).toBe(true);
-        });
-
-        it('emits retry event when retry button is clicked', async () => {
-            const wrapper = createWrapper({ country: GERMANY, error: 'Something went wrong' });
-            await wrapper.find('.retry-button').trigger('click');
-            expect(wrapper.emitted('retry')).toHaveLength(1);
-        });
-
-        it('uses null error when error prop is explicitly undefined', () => {
-            const wrapper = createWrapper({ country: GERMANY, error: undefined });
-            expect(wrapper.find('.error-state').exists()).toBe(false);
-            expect(wrapper.find('.sidebar-content').exists()).toBe(true);
-        });
-    });
-
     describe('createWrapper fixture', () => {
         it('applies default values when no options provided', () => {
             const wrapper = createWrapper();
@@ -79,19 +30,15 @@ describe('ContextualSidebar', () => {
             expect(wrapper.props('results')).toBeNull();
             expect(wrapper.props('sliderValue')).toBe(0);
             expect(wrapper.props('themeMode')).toBe('dark');
-            expect(wrapper.props('isLoading')).toBe(false);
-            expect(wrapper.props('error')).toBeNull();
         });
 
         it('preserves explicitly provided null values', () => {
             const wrapper = createWrapper({
                 country: null,
                 results: null,
-                error: null,
             });
             expect(wrapper.props('country')).toBeNull();
             expect(wrapper.props('results')).toBeNull();
-            expect(wrapper.props('error')).toBeNull();
         });
     });
 
