@@ -1,9 +1,10 @@
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { Country } from '@/sovereign/domain/Country';
+import { FRANCE, GERMANY } from '@/sovereign/domain/Country.spec.fixtures';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMockLocalStorage, deferred, FRANCE, GERMANY, RESULTS } from './App.spec.fixture.ts';
+import { createMockLocalStorage, deferred, RESULTS } from './App.spec.fixtures.ts';
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
 import ContextualSidebar from './sovereign/infrastructure/ui/components/ContextualSidebar.vue';

@@ -1,8 +1,8 @@
 import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
-import { GERMANY } from '@/sovereign/infrastructure/ui/components/InteractiveMap.spec.fixture';
 import { describe, expect, it } from 'vitest';
 import { COLORBLIND_FUNDING_PROGRESS_COLORS, MapColors } from '../domain/constants/MapColors';
 import { Country, CountryId } from '../domain/Country';
+import { GERMANY } from '../domain/Country.spec.fixtures';
 import { CountryRepository } from '../domain/repository/CountryRepository';
 import { CalculateSimulationYields } from './CalculateSimulationYields';
 import { CountryNotFoundError } from './errors/CountryNotFoundError';

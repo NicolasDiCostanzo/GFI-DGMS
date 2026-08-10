@@ -5,7 +5,7 @@ import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/Theme
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { createWrapperDefaults } from './InteractiveMap.spec.fixture';
+import { createWrapperDefaults } from './InteractiveMap.spec.fixtures';
 import InteractiveMap from './InteractiveMap.vue';
 
 function dispatchWheel(
