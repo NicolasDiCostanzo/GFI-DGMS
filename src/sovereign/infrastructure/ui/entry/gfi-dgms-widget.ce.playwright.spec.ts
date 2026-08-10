@@ -22,6 +22,8 @@ test.describe('gfi-dgms-widget custom element (embed-test.html)', () => {
                 return null;
             }
             const mapContainer = el.shadowRoot.querySelector('.map-container');
+            const themeToggle = el.shadowRoot.querySelector('.theme-toggle');
+            const themeIcon = el.shadowRoot.querySelector('.theme-toggle-icon svg');
             return {
                 hasShadowRoot: true,
                 hasMap: mapContainer !== null,
@@ -29,6 +31,8 @@ test.describe('gfi-dgms-widget custom element (embed-test.html)', () => {
                 // this confirms the widget's CSS is actually applied inside the shadow root,
                 // not just that the element exists.
                 mapContainerPosition: mapContainer ? getComputedStyle(mapContainer).position : null,
+                hasThemeToggle: themeToggle !== null,
+                hasThemeIcon: themeIcon !== null,
             };
         });
 
@@ -36,6 +40,8 @@ test.describe('gfi-dgms-widget custom element (embed-test.html)', () => {
             hasShadowRoot: true,
             hasMap: true,
             mapContainerPosition: 'relative',
+            hasThemeToggle: true,
+            hasThemeIcon: true,
         });
     });
 });

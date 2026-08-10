@@ -19,7 +19,8 @@ describe('ThemeToggle', () => {
         expect(button.attributes('class')).toBe('theme-toggle-button');
         expect(button.attributes('aria-haspopup')).toBe('listbox');
         expect(button.attributes('aria-expanded')).toBe('false');
-        expect(button.text()).toBe('Dark');
+        expect(button.find('.theme-toggle-icon').exists()).toBe(true);
+        expect(button.find('.theme-toggle-label').text()).toBe('Dark');
         expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(false);
     });
 
@@ -28,7 +29,7 @@ describe('ThemeToggle', () => {
             props: { modelValue: 'invalid' as ThemeMode },
         });
         const button = wrapper.find('button');
-        expect(button.text()).toBe('Dark');
+        expect(button.find('.theme-toggle-label').text()).toBe('Dark');
     });
 
     it('does not render dropdown when closed with colorblind theme', () => {
@@ -100,6 +101,30 @@ describe('ThemeToggle', () => {
         expect(options[2].classes()).toContain('is-selected');
     });
 
+    it('displays correct icon for each theme in the button', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'light' },
+        });
+
+        const buttonIcon = wrapper.find('.theme-toggle-icon');
+        expect(buttonIcon.html()).toContain('svg');
+        expect(buttonIcon.html()).toContain('circle');
+    });
+
+    it('displays correct icon for each theme option in dropdown', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        await wrapper.trigger('mouseenter');
+        const options = wrapper.findAll('.theme-toggle-option');
+
+        expect(options[0].find('.theme-toggle-option-icon').html()).toContain('svg');
+        expect(options[1].find('.theme-toggle-option-icon').html()).toContain('svg');
+        expect(options[2].find('.theme-toggle-option-icon').html()).toContain('svg');
+        expect(options[3].find('.theme-toggle-option-icon').html()).toContain('svg');
+    });
+
     it('applies correct swatch color for each theme option', async () => {
         const wrapper = mount(ThemeToggle, {
             props: { modelValue: 'light' },
@@ -113,6 +138,45 @@ describe('ThemeToggle', () => {
         expect(swatches[1]).toContain(`background-color: ${DARK_THEME_COLORS.OCEAN}`);
         expect(swatches[2]).toContain(`background-color: ${COLORBLIND_FUNDING_PROGRESS_COLORS[0]}`);
         expect(swatches[3]).toContain(`background-color: ${COLORBLIND_FUNDING_PROGRESS_COLORS[0]}`);
+    });
+
+    it('renders sun icon for light theme', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'light' },
+        });
+
+        const buttonIcon = wrapper.find('.theme-toggle-icon');
+        expect(buttonIcon.html()).toContain('circle');
+        expect(buttonIcon.html()).toContain('line');
+    });
+
+    it('renders moon icon for dark theme', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        const buttonIcon = wrapper.find('.theme-toggle-icon');
+        expect(buttonIcon.html()).toContain('path');
+    });
+
+    it('renders eye icon for colorblind-light theme', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'colorblind-light' },
+        });
+
+        const buttonIcon = wrapper.find('.theme-toggle-icon');
+        expect(buttonIcon.html()).toContain('path');
+        expect(buttonIcon.html()).toContain('circle');
+    });
+
+    it('renders eye-off icon for colorblind-dark theme', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'colorblind-dark' },
+        });
+
+        const buttonIcon = wrapper.find('.theme-toggle-icon');
+        expect(buttonIcon.html()).toContain('path');
+        expect(buttonIcon.html()).toContain('line');
     });
 
     it('renders all four theme options in the dropdown', async () => {
