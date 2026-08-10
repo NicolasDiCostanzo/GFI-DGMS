@@ -2,9 +2,9 @@
 import { computed, ref } from 'vue';
 import {
     COLORBLIND_FUNDING_PROGRESS_COLORS,
-    getThemeColors,
     type ThemeMode,
 } from '../../../domain/constants/MapColors';
+import { getThemeColors } from '../constants/ThemeColors';
 import type { ThemeIconName } from '../utils/themeIcons';
 import ThemeIcon from './ThemeIcon.vue';
 

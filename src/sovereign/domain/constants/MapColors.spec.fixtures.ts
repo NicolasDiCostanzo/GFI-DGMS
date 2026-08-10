@@ -5,13 +5,6 @@ import {
     type ThemeMode,
 } from './MapColors';
 
-export const THEME_MODES: readonly ThemeMode[] = [
-    'light',
-    'dark',
-    'colorblind-light',
-    'colorblind-dark',
-];
-
 const STANDARD_PALETTE: readonly MapColor[] = [
     MapColors.RED,
     MapColors.ORANGE,
