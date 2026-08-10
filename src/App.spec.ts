@@ -2,15 +2,10 @@ import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { MapColors } from '@/sovereign/domain/constants/MapColors';
 import { Country } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
-import {
-    deferred,
-    FRANCE,
-    GERMANY,
-    RESULTS,
-} from '@/sovereign/infrastructure/ui/composables/useSimulationController.spec.helper';
 import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App.vue';
+import { deferred, FRANCE, GERMANY, RESULTS } from './App.spec.fixture.ts';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
 import ContextualSidebar from './sovereign/infrastructure/ui/components/ContextualSidebar.vue';
 
