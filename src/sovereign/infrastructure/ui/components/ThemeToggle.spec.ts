@@ -66,6 +66,45 @@ describe('ThemeToggle', () => {
         expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(false);
     });
 
+    it('opens the dropdown when the button is clicked', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        const button = wrapper.find('button');
+        await button.trigger('click');
+
+        expect(button.attributes('aria-expanded')).toBe('true');
+        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(true);
+    });
+
+    it('closes the dropdown on a second button click', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        const button = wrapper.find('button');
+        await button.trigger('click');
+        await button.trigger('click');
+
+        expect(button.attributes('aria-expanded')).toBe('false');
+        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(false);
+    });
+
+    it('closes the dropdown after selecting an option', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        const button = wrapper.find('button');
+        await button.trigger('click');
+        const options = wrapper.findAll('.theme-toggle-option');
+        await options[0].trigger('click');
+
+        expect(button.attributes('aria-expanded')).toBe('false');
+        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(false);
+    });
+
     it('emits update:modelValue when selecting a new theme', async () => {
         const wrapper = mount(ThemeToggle, {
             props: { modelValue: 'dark' },
