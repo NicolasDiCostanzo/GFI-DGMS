@@ -125,6 +125,25 @@ describe('InteractiveMap', () => {
             expect(wrapper.emitted('country-select')).toHaveLength(1);
             expect(wrapper.emitted('country-select')![0]).toEqual([null]);
         });
+
+        it('suppresses country-select when the click followed an ocean drag', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            dispatchMouse(oceanRect, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
+            dispatchMouse(window, 'mousemove', { clientX: 150, clientY: 130, button: 0 });
+            dispatchMouse(window, 'mousemove', { clientX: 160, clientY: 140, button: 0 });
+            dispatchMouse(window, 'mouseup', { clientX: 160, clientY: 140, button: 0 });
+            dispatchMouse(oceanRect, 'click', { clientX: 160, clientY: 140, button: 0 });
+            await nextTick();
+
+            expect(wrapper.emitted('country-select')).toBeUndefined();
+
+            dispatchMouse(oceanRect, 'click', { clientX: 100, clientY: 100, button: 0 });
+            await nextTick();
+
+            expect(wrapper.emitted('country-select')).toHaveLength(1);
+            expect(wrapper.emitted('country-select')![0]).toEqual([null]);
+        });
     });
 
     describe('keyboard accessibility', () => {

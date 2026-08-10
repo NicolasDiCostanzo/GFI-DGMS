@@ -83,6 +83,14 @@ function handlePathClick(isoNumeric: string): void {
     emit('country-select', isoNumeric as CountryId);
 }
 
+function handleBackgroundClick(): void {
+    if (didDragOccur()) {
+        resetDidDrag();
+        return;
+    }
+    emit('country-select', null);
+}
+
 function handlePathMouseEnter(isoNumeric: string, event: MouseEvent | FocusEvent): void {
     const target = event.currentTarget as SVGGraphicsElement;
     const box = target.getBoundingClientRect();
@@ -124,7 +132,7 @@ function handleWheel(event: WheelEvent): void {
                 :width="SVG_WIDTH"
                 :height="SVG_HEIGHT"
                 :fill="themeColors.OCEAN"
-                @click="emit('country-select', null)"
+                @click="handleBackgroundClick"
             />
             <g
                 ref="mapGroupRef"
