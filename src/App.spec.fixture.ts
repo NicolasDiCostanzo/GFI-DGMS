@@ -42,3 +42,13 @@ export function deferred<T>() {
     });
     return { promise, resolve, reject };
 }
+
+// Only getItem gets a real (always-empty) default: it's the only member every
+// caller relies on without overriding. App.vue never calls removeItem/clear/key,
+// and setItem has no shared default since every current caller overrides it.
+export function createMockLocalStorage(overrides: Partial<Storage>): Storage {
+    return {
+        getItem: () => null,
+        ...overrides,
+    } as Storage;
+}
