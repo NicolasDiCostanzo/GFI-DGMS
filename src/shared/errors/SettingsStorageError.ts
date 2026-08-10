@@ -1,6 +1,7 @@
-export class SettingsStorageError extends Error {
+import { NamedError } from './NamedError';
+
+export class SettingsStorageError extends NamedError {
     constructor(message: string) {
-        super(message);
-        this.name = 'SettingsStorageError';
+        super('SettingsStorageError', message);
     }
 }

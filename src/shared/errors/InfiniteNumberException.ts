@@ -1,6 +1,7 @@
-export class InfiniteNumberException extends Error {
+import { NamedError } from './NamedError';
+
+export class InfiniteNumberException extends NamedError {
     constructor(message: string) {
-        super(message);
-        this.name = 'InfiniteNumberException';
+        super('InfiniteNumberException', message);
     }
 }

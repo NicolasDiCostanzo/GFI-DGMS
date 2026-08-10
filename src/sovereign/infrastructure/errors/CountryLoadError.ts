@@ -1,6 +1,7 @@
-export class CountryLoadError extends Error {
+import { NamedError } from '@/shared/errors/NamedError';
+
+export class CountryLoadError extends NamedError {
     constructor(message: string) {
-        super(message);
-        this.name = 'CountryLoadError';
+        super('CountryLoadError', message);
     }
 }
