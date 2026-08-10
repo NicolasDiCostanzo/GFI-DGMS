@@ -1,7 +1,6 @@
 import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
 import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
-import { Currency } from '@/shared/types/Currency';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { Country, CountryId } from '../../domain/Country';
 import countriesData from '../data/countries.json';
@@ -33,7 +32,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -53,7 +51,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -73,7 +70,6 @@ describe('StaticCountryRepository', () => {
                     name: '',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -93,7 +89,6 @@ describe('StaticCountryRepository', () => {
                     name: 456,
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -113,7 +108,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 'invalid',
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -133,7 +127,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: Infinity,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -151,7 +144,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: -50,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -171,7 +163,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 0,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -191,7 +182,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 'invalid',
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -211,7 +201,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: NaN,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -222,26 +211,6 @@ describe('StaticCountryRepository', () => {
             expect(() => new StaticCountryRepository(invalidData)).toThrow(InvalidNumberException);
         });
 
-        it('throws CountryDataValidationError when currency is invalid', () => {
-            const invalidData = [
-                {
-                    id: 'TST',
-                    name: 'Test Country',
-                    baselineInvestment: 100,
-                    targetBudget: 200,
-                    currency: 'GBP',
-                    jobMultiplier: 5,
-                    co2Multiplier: 3,
-                    currentNumberOfJobs: 100,
-                    currentCO2Saved: 50,
-                },
-            ] as unknown as CountryRecord[];
-
-            expect(() => new StaticCountryRepository(invalidData)).toThrow(
-                CountryDataValidationError,
-            );
-        });
-
         it('throws CountryDataValidationError when jobMultiplier is not a number', () => {
             const invalidData = [
                 {
@@ -249,7 +218,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 'invalid',
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -269,7 +237,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: Infinity,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -287,7 +254,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 'invalid',
                     currentNumberOfJobs: 100,
@@ -307,7 +273,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: NaN,
                     currentNumberOfJobs: 100,
@@ -325,7 +290,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 'invalid',
@@ -345,7 +309,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: NaN,
@@ -363,7 +326,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: Infinity,
@@ -381,7 +343,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -401,7 +362,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -419,7 +379,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -437,7 +396,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country 1',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -448,7 +406,6 @@ describe('StaticCountryRepository', () => {
                     name: 'Test Country 2',
                     baselineInvestment: 100,
                     targetBudget: 200,
-                    currency: 'USD',
                     jobMultiplier: 5,
                     co2Multiplier: 3,
                     currentNumberOfJobs: 100,
@@ -491,7 +448,6 @@ describe('StaticCountryRepository', () => {
                 expect(country.name).toBe('Germany');
                 expect(country.baselineInvestment).toBe(900);
                 expect(country.targetBudget.amount).toBe(1000);
-                expect(country.targetBudget.currency).toEqual(Currency.USD());
                 expect(country.jobMultiplier).toBe(10);
                 expect(country.co2Multiplier).toBe(5);
             });

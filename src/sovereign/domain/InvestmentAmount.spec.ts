@@ -1,31 +1,27 @@
 import { InfiniteNumberException } from '@/shared/errors/InfiniteNumberException';
 import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
-import { Currency } from '@/shared/types/Currency';
 import { describe, expect, it } from 'vitest';
 import { InvestmentExceedsMaxAllowedException } from './errors/InvestmentExceedsMaxAllowedException';
 import { InvestmentAmount } from './InvestmentAmount';
 
 describe('InvestmentAmount', () => {
-    const usd = Currency.USD();
-
     describe('constructor', () => {
-        it('creates an InvestmentAmount with value, currency, and maxAllowed', () => {
-            const investment = new InvestmentAmount(500, usd, 2000);
+        it('creates an InvestmentAmount with value and maxAllowed', () => {
+            const investment = new InvestmentAmount(500, 2000);
 
             expect(investment.value).toBe(500);
-            expect(investment.currency).toBe(usd);
             expect(investment.maxAllowed).toBe(2000);
         });
 
         it('allows a value of zero', () => {
-            const investment = new InvestmentAmount(0, usd, 2000);
+            const investment = new InvestmentAmount(0, 2000);
 
             expect(investment.value).toBe(0);
         });
 
         it('allows value equal to maxAllowed', () => {
-            const investment = new InvestmentAmount(2000, usd, 2000);
+            const investment = new InvestmentAmount(2000, 2000);
 
             expect(investment.value).toBe(2000);
             expect(investment.maxAllowed).toBe(2000);
@@ -33,14 +29,14 @@ describe('InvestmentAmount', () => {
 
         describe('value validation', () => {
             it('throws InvalidNumberException when value is NaN', () => {
-                expect(() => new InvestmentAmount(NaN, usd, 2000)).toThrow(InvalidNumberException);
+                expect(() => new InvestmentAmount(NaN, 2000)).toThrow(InvalidNumberException);
             });
 
             it('throws InvalidNumberException with a descriptive message for NaN value', () => {
                 expect.assertions(2);
 
                 try {
-                    new InvestmentAmount(NaN, usd, 2000);
+                    new InvestmentAmount(NaN, 2000);
                 } catch (error) {
                     expect(error).toBeInstanceOf(InvalidNumberException);
                     expect((error as InvalidNumberException).message).toContain(
@@ -50,26 +46,24 @@ describe('InvestmentAmount', () => {
             });
 
             it('throws InfiniteNumberException when value is Infinity', () => {
-                expect(() => new InvestmentAmount(Infinity, usd, 2000)).toThrow(
-                    InfiniteNumberException,
-                );
+                expect(() => new InvestmentAmount(Infinity, 2000)).toThrow(InfiniteNumberException);
             });
 
             it('throws InfiniteNumberException when value is -Infinity', () => {
-                expect(() => new InvestmentAmount(-Infinity, usd, 2000)).toThrow(
+                expect(() => new InvestmentAmount(-Infinity, 2000)).toThrow(
                     InfiniteNumberException,
                 );
             });
 
             it('throws InvalidNumberException when value is negative', () => {
-                expect(() => new InvestmentAmount(-1, usd, 2000)).toThrow(InvalidNumberException);
+                expect(() => new InvestmentAmount(-1, 2000)).toThrow(InvalidNumberException);
             });
 
             it('throws InvalidNumberException with a descriptive message for negative value', () => {
                 expect.assertions(2);
 
                 try {
-                    new InvestmentAmount(-1, usd, 2000);
+                    new InvestmentAmount(-1, 2000);
                 } catch (error) {
                     expect(error).toBeInstanceOf(InvalidNumberException);
                     expect((error as InvalidNumberException).message).toContain(
@@ -79,7 +73,7 @@ describe('InvestmentAmount', () => {
             });
 
             it('throws InvestmentExceedsMaxAllowedException when value exceeds maxAllowed', () => {
-                expect(() => new InvestmentAmount(2500, usd, 2000)).toThrow(
+                expect(() => new InvestmentAmount(2500, 2000)).toThrow(
                     InvestmentExceedsMaxAllowedException,
                 );
             });
@@ -88,7 +82,7 @@ describe('InvestmentAmount', () => {
                 expect.assertions(2);
 
                 try {
-                    new InvestmentAmount(2500, usd, 2000);
+                    new InvestmentAmount(2500, 2000);
                 } catch (error) {
                     expect(error).toBeInstanceOf(InvestmentExceedsMaxAllowedException);
                     expect((error as InvestmentExceedsMaxAllowedException).message).toContain(
@@ -100,14 +94,14 @@ describe('InvestmentAmount', () => {
 
         describe('maxAllowed validation', () => {
             it('throws InvalidNumberException when maxAllowed is NaN', () => {
-                expect(() => new InvestmentAmount(500, usd, NaN)).toThrow(InvalidNumberException);
+                expect(() => new InvestmentAmount(500, NaN)).toThrow(InvalidNumberException);
             });
 
             it('throws InvalidNumberException with a descriptive message for NaN maxAllowed', () => {
                 expect.assertions(2);
 
                 try {
-                    new InvestmentAmount(500, usd, NaN);
+                    new InvestmentAmount(500, NaN);
                 } catch (error) {
                     expect(error).toBeInstanceOf(InvalidNumberException);
                     expect((error as InvalidNumberException).message).toContain(
@@ -117,32 +111,26 @@ describe('InvestmentAmount', () => {
             });
 
             it('throws InfiniteNumberException when maxAllowed is Infinity', () => {
-                expect(() => new InvestmentAmount(500, usd, Infinity)).toThrow(
-                    InfiniteNumberException,
-                );
+                expect(() => new InvestmentAmount(500, Infinity)).toThrow(InfiniteNumberException);
             });
 
             it('throws InfiniteNumberException when maxAllowed is -Infinity', () => {
-                expect(() => new InvestmentAmount(500, usd, -Infinity)).toThrow(
-                    InfiniteNumberException,
-                );
+                expect(() => new InvestmentAmount(500, -Infinity)).toThrow(InfiniteNumberException);
             });
 
             it('throws NonPositiveNumberException when maxAllowed is zero', () => {
-                expect(() => new InvestmentAmount(500, usd, 0)).toThrow(NonPositiveNumberException);
+                expect(() => new InvestmentAmount(500, 0)).toThrow(NonPositiveNumberException);
             });
 
             it('throws NonPositiveNumberException when maxAllowed is negative', () => {
-                expect(() => new InvestmentAmount(500, usd, -100)).toThrow(
-                    NonPositiveNumberException,
-                );
+                expect(() => new InvestmentAmount(500, -100)).toThrow(NonPositiveNumberException);
             });
 
             it('throws NonPositiveNumberException with a descriptive message for invalid maxAllowed', () => {
                 expect.assertions(2);
 
                 try {
-                    new InvestmentAmount(500, usd, 0);
+                    new InvestmentAmount(500, 0);
                 } catch (error) {
                     expect(error).toBeInstanceOf(NonPositiveNumberException);
                     expect((error as NonPositiveNumberException).message).toContain(

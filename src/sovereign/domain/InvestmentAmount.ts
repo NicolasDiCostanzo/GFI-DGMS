@@ -1,15 +1,13 @@
 import { InvalidNumberException } from '@/shared/errors/InvalidNumberException';
 import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberException';
-import { Currency } from '@/shared/types/Currency';
 import { validateNumeric } from '@/shared/utils/validateNumeric';
 import { InvestmentExceedsMaxAllowedException } from './errors/InvestmentExceedsMaxAllowedException';
 
 export class InvestmentAmount {
     readonly value: number;
-    readonly currency: Currency;
     readonly maxAllowed: number;
 
-    constructor(value: number, currency: Currency, maxAllowed: number) {
+    constructor(value: number, maxAllowed: number) {
         validateNumeric(value, 'InvestmentAmount', 'value');
         if (value < 0) {
             throw new InvalidNumberException('InvestmentAmount value must not be negative');
@@ -26,7 +24,6 @@ export class InvestmentAmount {
             );
         }
         this.value = value;
-        this.currency = currency;
         this.maxAllowed = maxAllowed;
     }
 }

@@ -26,11 +26,7 @@ export class CalculateSimulationYields {
         const maxAllowed = country.targetBudget.amount * MAX_FUNDING_PROGRESS_RATIO;
 
         try {
-            const investment = new InvestmentAmount(
-                investmentAmount,
-                country.targetBudget.currency,
-                maxAllowed,
-            );
+            const investment = new InvestmentAmount(investmentAmount, maxAllowed);
 
             const simulation = new Simulation(country, investment, themeMode);
 
