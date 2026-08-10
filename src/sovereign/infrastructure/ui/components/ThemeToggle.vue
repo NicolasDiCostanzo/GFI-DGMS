@@ -53,7 +53,7 @@ function select(value: ThemeMode): void {
             class="theme-toggle-button"
             aria-haspopup="listbox"
             :aria-expanded="isOpen"
-            @click="isOpen = !isOpen"
+            @click="isOpen = true"
         >
             <span class="theme-toggle-icon">
                 <ThemeIcon :name="currentIcon" />
