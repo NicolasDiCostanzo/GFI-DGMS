@@ -171,10 +171,10 @@ describe('InteractiveMap', () => {
             expect(germanPath.attributes('tabindex')).toBe('0');
         });
 
-        it('does not set role="button" and excludes countries without data from the tab order', async () => {
+        it('sets role="img" and excludes countries without data from the tab order', async () => {
             const wrapper = await createWrapper();
             const frenchPath = wrapper.find('path.country-path[data-country-id="250"]');
-            expect(frenchPath.attributes('role')).toBeUndefined();
+            expect(frenchPath.attributes('role')).toBe('img');
             expect(frenchPath.attributes('tabindex')).toBe('-1');
         });
 

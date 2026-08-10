@@ -256,7 +256,8 @@ function handleSidebarClosing(): void {
 </script>
 
 <template>
-    <div class="app" :class="`theme-${themeMode}`" :style="appStyle">
+    <main class="app" :class="`theme-${themeMode}`" :style="appStyle">
+        <h1 class="sr-only">GFI Global Funding Initiative Map</h1>
         <p v-if="loadError" role="alert">
             {{ loadError.message }}
         </p>
@@ -282,7 +283,7 @@ function handleSidebarClosing(): void {
             </Transition>
         </div>
         <ThemeToggle v-model:model-value="themeMode" />
-    </div>
+    </main>
 </template>
 
 <style scoped>
@@ -290,6 +291,15 @@ function handleSidebarClosing(): void {
     position: relative;
     width: 100%;
     height: 100%;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
 }
 
 .app-content {
