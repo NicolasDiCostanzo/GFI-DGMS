@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { toPercentage } from '@/shared/utils/toPercentage';
+import { MAX_FUNDING_PROGRESS_RATIO } from '@/sovereign/domain/constants/FundingConstants';
 import { getColorForFundingProgress, type ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import type { Country } from '@/sovereign/domain/Country';
 import type { SimulationResults } from '@/sovereign/domain/SimulationResults';
@@ -28,7 +29,9 @@ const emit = defineEmits<{
     close: [];
 }>();
 
-const sliderMax = computed(() => (props.country ? props.country.targetBudget.amount * 2 : 0));
+const sliderMax = computed(() =>
+    props.country ? props.country.targetBudget.amount * MAX_FUNDING_PROGRESS_RATIO : 0,
+);
 const sliderMin = 0;
 
 const jobsTarget = computed(() => props.results?.additionalJobs ?? 0);
@@ -71,7 +74,9 @@ const targetLabel = computed(() =>
     props.country ? `Target (${formatInvestment(props.country.targetBudget.amount)})` : '',
 );
 const maxLabel = computed(() =>
-    props.country ? `200% (${formatInvestment(sliderMax.value)})` : '',
+    props.country
+        ? `${MAX_FUNDING_PROGRESS_RATIO * 100}% (${formatInvestment(sliderMax.value)})`
+        : '',
 );
 
 const sliderMarks = computed(() => {
