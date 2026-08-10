@@ -4,7 +4,6 @@ import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import { CalculateSimulationYields } from '@/sovereign/app/CalculateSimulationYields';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { getThemeColors } from '@/sovereign/domain/constants/MapColors';
 import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { StaticCountryRepository } from '@/sovereign/infrastructure/adapters/StaticCountryRepository';
@@ -12,6 +11,7 @@ import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadE
 import ContextualSidebar from '@/sovereign/infrastructure/ui/components/ContextualSidebar.vue';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { computed, onMounted, ref, watch } from 'vue';
 
 const props = withDefaults(

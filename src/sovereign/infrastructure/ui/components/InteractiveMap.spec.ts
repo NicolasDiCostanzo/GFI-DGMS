@@ -1,6 +1,7 @@
-import { DARK_THEME_COLORS, MapColors } from '@/sovereign/domain/constants/MapColors';
+import { MapColors } from '@/sovereign/domain/constants/MapColors';
 import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
+import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';

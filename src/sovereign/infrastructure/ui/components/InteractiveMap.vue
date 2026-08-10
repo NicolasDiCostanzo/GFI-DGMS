@@ -7,11 +7,12 @@ import { computed, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
 import type { Country, CountryId } from '../../../domain/Country';
 import type { SimulationResults } from '../../../domain/SimulationResults';
-import { MapColors, getThemeColors, type ThemeMode } from '../../../domain/constants/MapColors';
+import { MapColors, type ThemeMode } from '../../../domain/constants/MapColors';
 import { useCountryDisplay } from '../composables/useCountryDisplay';
 import { useMapDrag } from '../composables/useMapDrag';
 import { useMapTooltip } from '../composables/useMapTooltip';
 import { useMapZoom } from '../composables/useMapZoom';
+import { getThemeColors } from '../constants/ThemeColors';
 import { createLegendItems } from '../utils/fundingProgressLegend';
 
 const props = defineProps<{

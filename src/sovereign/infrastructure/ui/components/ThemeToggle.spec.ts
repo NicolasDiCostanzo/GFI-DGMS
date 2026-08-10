@@ -1,8 +1,8 @@
+import { COLORBLIND_FUNDING_PROGRESS_COLORS } from '@/sovereign/domain/constants/MapColors';
 import {
-    COLORBLIND_FUNDING_PROGRESS_COLORS,
     DARK_THEME_COLORS,
     LIGHT_THEME_COLORS,
-} from '@/sovereign/domain/constants/MapColors';
+} from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { type ThemeMode } from '../utils/fundingProgressLegend';

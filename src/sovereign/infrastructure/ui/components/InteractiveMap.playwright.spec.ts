@@ -1,6 +1,7 @@
 import { expect, test } from '@/../e2e/coverage-fixtures';
-import { DARK_THEME_COLORS, MapColors, toRGB } from '@/sovereign/domain/constants/MapColors';
+import { MapColors, toRGB } from '@/sovereign/domain/constants/MapColors';
 import { CountryId } from '@/sovereign/domain/Country';
+import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 
 const GERMANY_ID = CountryId('276');
 const BORDER_COLOR = DARK_THEME_COLORS.BORDER;
