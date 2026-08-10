@@ -1,10 +1,9 @@
-import { Currency } from '@/shared/types/Currency';
 import { describe, expect, it } from 'vitest';
 import { Country, CountryId } from './Country';
 import { TargetBudget } from './TargetBudget';
 
 describe('Country', () => {
-    const targetBudget = new TargetBudget(1000, Currency.USD());
+    const targetBudget = new TargetBudget(1000);
     const country = new Country(CountryId('276'), 'Germany', 500, targetBudget, 10, 5, 10000, 5000);
 
     describe('constructor', () => {

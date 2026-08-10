@@ -1,4 +1,3 @@
-import { Currency } from '@/shared/types/Currency';
 import { validateNumeric } from '@/shared/utils/validateNumeric';
 import { Country, CountryId } from '../../domain/Country';
 import { CountryRepository } from '../../domain/repository/CountryRepository';
@@ -11,7 +10,6 @@ export interface CountryRecord {
     name: string;
     baselineInvestment: number;
     targetBudget: number;
-    currency: 'USD' | 'EUR';
     jobMultiplier: number;
     co2Multiplier: number;
     currentNumberOfJobs: number;
@@ -32,8 +30,7 @@ export class StaticCountryRepository implements CountryRepository {
 
         this.countries = new Map(
             records.map((record) => {
-                const currency = record.currency === 'EUR' ? Currency.EUR() : Currency.USD();
-                const targetBudget = new TargetBudget(record.targetBudget, currency);
+                const targetBudget = new TargetBudget(record.targetBudget);
                 const country = new Country(
                     CountryId(record.id),
                     record.name,
@@ -98,12 +95,6 @@ export class StaticCountryRepository implements CountryRepository {
             );
 
             this.validateNumericField(record, index, 'targetBudget', record.targetBudget);
-
-            if (record.currency !== 'USD' && record.currency !== 'EUR') {
-                throw new CountryDataValidationError(
-                    `Invalid country record at index ${index} (id: ${record.id}): 'currency' must be either 'USD' or 'EUR', got '${record.currency}'`,
-                );
-            }
 
             this.validateNumericField(record, index, 'jobMultiplier', record.jobMultiplier);
 

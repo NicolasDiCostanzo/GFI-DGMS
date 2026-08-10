@@ -1,4 +1,3 @@
-import { Currency } from '@/shared/types/Currency';
 import { MapColors } from '@/sovereign/domain/constants/MapColors';
 import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
@@ -8,7 +7,7 @@ export const GERMANY = new Country(
     CountryId('276'),
     'Germany',
     500,
-    new TargetBudget(1000, Currency.USD()),
+    new TargetBudget(1000),
     10,
     5,
     10000,
@@ -19,7 +18,7 @@ export const FRANCE = new Country(
     CountryId('250'),
     'France',
     300,
-    new TargetBudget(800, Currency.EUR()),
+    new TargetBudget(800),
     8,
     4,
     8000,

@@ -1,4 +1,3 @@
-import { Currency } from '@/shared/types/Currency';
 import { describe, expect, it } from 'vitest';
 import { Country, CountryId } from './Country';
 import { InvestmentAmount } from './InvestmentAmount';
@@ -6,13 +5,12 @@ import { Simulation } from './Simulation';
 import { TargetBudget } from './TargetBudget';
 
 describe('Simulation', () => {
-    const usd = Currency.USD();
-    const targetBudget = new TargetBudget(1000, usd);
+    const targetBudget = new TargetBudget(1000);
     const country = new Country(CountryId('DEU'), 'Germany', 500, targetBudget, 10, 5, 10000, 5000);
 
     describe('constructor', () => {
         it('creates a Simulation with country and investment', async () => {
-            const investment = new InvestmentAmount(750, usd, 2000);
+            const investment = new InvestmentAmount(750, 2000);
             const simulation = new Simulation(country, investment);
 
             expect(simulation.country).toBe(country);
@@ -23,7 +21,7 @@ describe('Simulation', () => {
     describe('getResults()', () => {
         describe('fundingProgress', () => {
             it('returns 0.5 when investment is half the target', async () => {
-                const investment = new InvestmentAmount(500, usd, 2000);
+                const investment = new InvestmentAmount(500, 2000);
                 const simulation = new Simulation(country, investment);
 
                 const results = simulation.getResults();
@@ -44,7 +42,7 @@ describe('Simulation', () => {
                     8000,
                     4000,
                 );
-                const investment = new InvestmentAmount(501, usd, 2000);
+                const investment = new InvestmentAmount(501, 2000);
                 const simulation = new Simulation(fractionalCountry, investment);
 
                 const results = simulation.getResults();
@@ -66,7 +64,7 @@ describe('Simulation', () => {
                     8000,
                     4000,
                 );
-                const investment = new InvestmentAmount(1000, usd, 2000);
+                const investment = new InvestmentAmount(1000, 2000);
                 const simulation = new Simulation(fractionalCountry, investment);
 
                 const results = simulation.getResults();
