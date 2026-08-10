@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createWrapper, GERMANY, RESULTS, SLIDER_MAX } from './ContextualSidebar.spec.fixture';
+import { createWrapper, GERMANY, RESULTS, SLIDER_MAX } from './ContextualSidebar.spec.fixtures';
 
 let rafCallbacks = new Map<number, FrameRequestCallback>();
 
@@ -144,7 +144,7 @@ describe('ContextualSidebar', () => {
 
     describe('economic indicator', () => {
         const ECONOMIC_TEXTS = [
-            '3500',
+            '12500',
             'people would be employed',
             '+2500',
             'Based on GFI economic projections',
@@ -158,7 +158,7 @@ describe('ContextualSidebar', () => {
 
     describe('climate indicator', () => {
         const CLIMATE_TEXTS = [
-            '1255',
+            '6250',
             'tonnes of CO₂ would be saved',
             '+1250',
             'Based on CE Delft LCA data',

@@ -1,20 +1,12 @@
+import { MAX_FUNDING_PROGRESS_RATIO } from '@/sovereign/domain/constants/FundingConstants';
 import { MapColors, ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { Country, CountryId } from '@/sovereign/domain/Country';
+import { Country } from '@/sovereign/domain/Country';
+import { GERMANY } from '@/sovereign/domain/Country.spec.fixtures';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
-import { TargetBudget } from '@/sovereign/domain/TargetBudget';
 import { mount } from '@vue/test-utils';
 import ContextualSidebar from './ContextualSidebar.vue';
 
-export const GERMANY = new Country(
-    CountryId('276'),
-    'Germany',
-    500,
-    new TargetBudget(1000),
-    10,
-    5,
-    1000,
-    5,
-);
+export { GERMANY };
 
 export const RESULTS: SimulationResults = {
     fundingProgress: 0.75,
@@ -24,7 +16,7 @@ export const RESULTS: SimulationResults = {
     colorHex: MapColors.ORANGE,
 };
 
-export const SLIDER_MAX = GERMANY.targetBudget.amount * 2;
+export const SLIDER_MAX = GERMANY.targetBudget.amount * MAX_FUNDING_PROGRESS_RATIO;
 export interface WrapperOptions {
     country?: Country | null;
     results?: SimulationResults | null;
