@@ -300,34 +300,34 @@ describe('InteractiveMap', () => {
     describe('drag to pan', () => {
         it('pans the map on left-button drag', async () => {
             const wrapper = await createWrapper();
-            const svgElement = wrapper.find('svg').element;
-            dispatchMouse(svgElement, 'mousedown', { clientX: 0, clientY: 0, button: 0 });
-            dispatchMouse(window, 'mousemove', { clientX: 50, clientY: 30, button: 0 });
+            const oceanRect = wrapper.find('rect').element;
+            dispatchMouse(oceanRect, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
+            dispatchMouse(window, 'mousemove', { clientX: 150, clientY: 130, button: 0 });
             await nextTick();
 
             const mapGroup = wrapper.find('.map-group');
             expect(mapGroup.attributes('transform')).toBe('translate(50,30) scale(1)');
 
-            dispatchMouse(window, 'mouseup', { clientX: 50, clientY: 30, button: 0 });
+            dispatchMouse(window, 'mouseup', { clientX: 150, clientY: 130, button: 0 });
         });
 
         it('pans the map on middle-button drag and prevents the default action', async () => {
             const wrapper = await createWrapper();
-            const svgElement = wrapper.find('svg').element;
-            const mousedownEvent = dispatchMouse(svgElement, 'mousedown', {
-                clientX: 10,
-                clientY: 10,
+            const oceanRect = wrapper.find('rect').element;
+            const mousedownEvent = dispatchMouse(oceanRect, 'mousedown', {
+                clientX: 100,
+                clientY: 100,
                 button: 1,
             });
             expect(mousedownEvent.defaultPrevented).toBe(true);
 
-            dispatchMouse(window, 'mousemove', { clientX: 40, clientY: 10, button: 1 });
+            dispatchMouse(window, 'mousemove', { clientX: 130, clientY: 100, button: 1 });
             await nextTick();
 
             const mapGroup = wrapper.find('.map-group');
             expect(mapGroup.attributes('transform')).toBe('translate(30,0) scale(1)');
 
-            dispatchMouse(window, 'mouseup', { clientX: 40, clientY: 10, button: 1 });
+            dispatchMouse(window, 'mouseup', { clientX: 130, clientY: 100, button: 1 });
         });
 
         it('does not start a drag for other mouse buttons', async () => {

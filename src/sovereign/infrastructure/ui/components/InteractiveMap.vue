@@ -121,10 +121,10 @@ function handleWheel(event: WheelEvent): void {
             @mousedown="handleDragStart"
         >
             <rect
-                width="100%"
-                height="100%"
+                :width="SVG_WIDTH"
+                :height="SVG_HEIGHT"
                 :fill="themeColors.OCEAN"
-                @click="didDragOccur() ? resetDidDrag() : emit('country-select', null)"
+                @click="emit('country-select', null)"
             />
             <g
                 ref="mapGroupRef"
