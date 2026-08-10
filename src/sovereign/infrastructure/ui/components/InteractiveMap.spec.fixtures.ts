@@ -10,6 +10,11 @@ export const RESULTS_GERMANY: SimulationResults = {
     colorHex: MapColors.ORANGE,
 };
 
+/**
+ * Creates the default state used by the interactive map wrapper.
+ *
+ * @returns Wrapper state containing Germany, its simulation results, no selected country, and dark theme mode.
+ */
 export function createWrapperDefaults() {
     return {
         countries: [GERMANY],

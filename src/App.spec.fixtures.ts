@@ -8,6 +8,11 @@ export const RESULTS: SimulationResults = {
     colorHex: MapColors.ORANGE,
 };
 
+/**
+ * Creates a promise whose settlement functions are exposed to the caller.
+ *
+ * @returns The promise and its `resolve` and `reject` functions.
+ */
 export function deferred<T>() {
     let resolve!: (value: T) => void;
     let reject!: (reason: Error) => void;
@@ -20,7 +25,12 @@ export function deferred<T>() {
 
 // Only getItem gets a real (always-empty) default: it's the only member every
 // caller relies on without overriding. App.vue never calls removeItem/clear/key,
-// and setItem has no shared default since every current caller overrides it.
+/**
+ * Creates a mock `Storage` object with an empty `getItem` default.
+ *
+ * @param overrides - Storage properties or methods that replace the defaults
+ * @returns A mock `Storage` object
+ */
 export function createMockLocalStorage(overrides: Partial<Storage>): Storage {
     return {
         getItem: () => null,
