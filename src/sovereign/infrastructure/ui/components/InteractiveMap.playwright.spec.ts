@@ -2,6 +2,7 @@ import { expect, test } from '@/../e2e/coverage-fixtures';
 import { MapColors, toRGB } from '@/sovereign/domain/constants/MapColors';
 import { CountryId } from '@/sovereign/domain/Country';
 import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { checkA11y, injectAxe } from 'axe-playwright';
 
 const GERMANY_ID = CountryId('276');
 const BORDER_COLOR = DARK_THEME_COLORS.BORDER;
@@ -20,6 +21,11 @@ test.describe('InteractiveMap', () => {
 
         const appRoot = page.locator('#app');
         await expect(appRoot).toBeVisible();
+    });
+
+    test('has no detectable accessibility violations on initial load', async ({ page }) => {
+        await injectAxe(page);
+        await checkA11y(page);
     });
 
     test('country paths have black border stroke', async ({ page }) => {
