@@ -17,6 +17,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 const props = withDefaults(
     defineProps<{
         theme?: ThemeMode;
+        // Placeholder for the planned Airtable-backed data adapter; not yet consumed.
         apiEndpoint?: string;
     }>(),
     {
