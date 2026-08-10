@@ -12,12 +12,10 @@ export const MapColors = {
     BORDER: '#000000',
 } as const;
 
-export type MapColor = string;
-
 export const FUNDING_PROGRESS_THRESHOLDS: readonly number[] = [0.5, 0.8, 1.0, 1.2];
 
 // Okabe-Ito colorblind-safe palette: blue -> sky blue -> bluish green -> orange -> vermillion
-export const COLORBLIND_FUNDING_PROGRESS_COLORS: readonly MapColor[] = [
+export const COLORBLIND_FUNDING_PROGRESS_COLORS: readonly string[] = [
     '#0072B2',
     '#56B4E9',
     '#009E73',
@@ -25,7 +23,7 @@ export const COLORBLIND_FUNDING_PROGRESS_COLORS: readonly MapColor[] = [
     '#D55E00',
 ];
 
-export function getFundingProgressColors(mode: ThemeMode): readonly MapColor[] {
+export function getFundingProgressColors(mode: ThemeMode): readonly string[] {
     if (mode === 'colorblind-light' || mode === 'colorblind-dark') {
         return COLORBLIND_FUNDING_PROGRESS_COLORS;
     }
@@ -41,13 +39,13 @@ export function getFundingProgressColors(mode: ThemeMode): readonly MapColor[] {
 export function getColorForFundingProgress(
     fundingProgress: number,
     mode: ThemeMode = 'dark',
-): MapColor {
+): string {
     const colors = getFundingProgressColors(mode);
     const index = FUNDING_PROGRESS_THRESHOLDS.findIndex((threshold) => fundingProgress < threshold);
     return index === -1 ? colors[colors.length - 1] : colors[index];
 }
 
-export function toRGB(hexColor: MapColor): string {
+export function toRGB(hexColor: string): string {
     const r = parseInt(hexColor.slice(1, 3), 16);
     const g = parseInt(hexColor.slice(3, 5), 16);
     const b = parseInt(hexColor.slice(5, 7), 16);

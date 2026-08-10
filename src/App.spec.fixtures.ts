@@ -5,7 +5,6 @@ export const RESULTS: SimulationResults = {
     fundingProgress: 0.75,
     additionalJobs: 2500,
     additionalCO2Tonnes: 1250,
-    isOverTarget: false,
     colorHex: MapColors.ORANGE,
 };
 

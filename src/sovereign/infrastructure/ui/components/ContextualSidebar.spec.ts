@@ -1,26 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { createWrapper, GERMANY, RESULTS, SLIDER_MAX } from './ContextualSidebar.spec.fixtures';
-
-let rafCallbacks = new Map<number, FrameRequestCallback>();
-
-beforeEach(() => {
-    rafCallbacks = new Map();
-    let nextRafId = 1;
-    vi.stubGlobal(
-        'requestAnimationFrame',
-        vi.fn((cb: FrameRequestCallback) => {
-            const id = nextRafId++;
-            rafCallbacks.set(id, cb);
-            return id;
-        }),
-    );
-    vi.stubGlobal(
-        'cancelAnimationFrame',
-        vi.fn((id: number) => {
-            rafCallbacks.delete(id);
-        }),
-    );
-});
 
 describe('ContextualSidebar', () => {
     describe('createWrapper fixture', () => {
