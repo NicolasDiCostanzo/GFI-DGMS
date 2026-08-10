@@ -1,6 +1,7 @@
-export class NonPositiveNumberException extends Error {
+import { NamedError } from './NamedError';
+
+export class NonPositiveNumberException extends NamedError {
     constructor(message: string) {
-        super(message);
-        this.name = 'NonPositiveNumberException';
+        super('NonPositiveNumberException', message);
     }
 }

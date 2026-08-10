@@ -1,11 +1,12 @@
+import { COLORBLIND_FUNDING_PROGRESS_COLORS } from '@/sovereign/domain/constants/MapColors';
 import {
-    COLORBLIND_FUNDING_PROGRESS_COLORS,
     DARK_THEME_COLORS,
     LIGHT_THEME_COLORS,
-} from '@/sovereign/domain/constants/MapColors';
+} from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { type ThemeMode } from '../utils/fundingProgressLegend';
+import { ICON_CASES } from './ThemeToggle.spec.fixtures';
 import ThemeToggle from './ThemeToggle.vue';
 
 describe('ThemeToggle', () => {
@@ -19,7 +20,8 @@ describe('ThemeToggle', () => {
         expect(button.attributes('class')).toBe('theme-toggle-button');
         expect(button.attributes('aria-haspopup')).toBe('listbox');
         expect(button.attributes('aria-expanded')).toBe('false');
-        expect(button.text()).toBe('Dark');
+        expect(button.find('.theme-toggle-icon').exists()).toBe(true);
+        expect(button.find('.theme-toggle-label').text()).toBe('Dark');
         expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(false);
     });
 
@@ -28,7 +30,7 @@ describe('ThemeToggle', () => {
             props: { modelValue: 'invalid' as ThemeMode },
         });
         const button = wrapper.find('button');
-        expect(button.text()).toBe('Dark');
+        expect(button.find('.theme-toggle-label').text()).toBe('Dark');
     });
 
     it('does not render dropdown when closed with colorblind theme', () => {
@@ -60,6 +62,58 @@ describe('ThemeToggle', () => {
 
         await wrapper.trigger('mouseleave');
         const button = wrapper.find('button');
+        expect(button.attributes('aria-expanded')).toBe('false');
+        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(false);
+    });
+
+    it('opens the dropdown when the button is clicked', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        const button = wrapper.find('button');
+        await button.trigger('click');
+
+        expect(button.attributes('aria-expanded')).toBe('true');
+        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(true);
+    });
+
+    it('stays open when a real mouse click follows the pointer-enter that opened it', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        const button = wrapper.find('button');
+        await wrapper.trigger('mouseenter');
+        await button.trigger('click');
+
+        expect(button.attributes('aria-expanded')).toBe('true');
+        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(true);
+    });
+
+    it('stays open on a second button click', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        const button = wrapper.find('button');
+        await button.trigger('click');
+        await button.trigger('click');
+
+        expect(button.attributes('aria-expanded')).toBe('true');
+        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(true);
+    });
+
+    it('closes the dropdown after selecting an option', async () => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        const button = wrapper.find('button');
+        await button.trigger('click');
+        const options = wrapper.findAll('.theme-toggle-option');
+        await options[0].trigger('click');
+
         expect(button.attributes('aria-expanded')).toBe('false');
         expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(false);
     });
@@ -100,6 +154,17 @@ describe('ThemeToggle', () => {
         expect(options[2].classes()).toContain('is-selected');
     });
 
+    it.each([0, 1, 2, 3])('option %s icon in the dropdown contains an svg', async (index) => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue: 'dark' },
+        });
+
+        await wrapper.trigger('mouseenter');
+        const options = wrapper.findAll('.theme-toggle-option');
+
+        expect(options[index].find('.theme-toggle-option-icon').html()).toContain('svg');
+    });
+
     it('applies correct swatch color for each theme option', async () => {
         const wrapper = mount(ThemeToggle, {
             props: { modelValue: 'light' },
@@ -115,6 +180,17 @@ describe('ThemeToggle', () => {
         expect(swatches[3]).toContain(`background-color: ${COLORBLIND_FUNDING_PROGRESS_COLORS[0]}`);
     });
 
+    it.each(ICON_CASES)('%s', (_title, modelValue, expectedSubstrings) => {
+        const wrapper = mount(ThemeToggle, {
+            props: { modelValue },
+        });
+
+        const buttonIcon = wrapper.find('.theme-toggle-icon');
+        for (const substring of expectedSubstrings) {
+            expect(buttonIcon.html()).toContain(substring);
+        }
+    });
+
     it('renders all four theme options in the dropdown', async () => {
         const wrapper = mount(ThemeToggle, {
             props: { modelValue: 'dark' },
@@ -123,18 +199,5 @@ describe('ThemeToggle', () => {
         await wrapper.trigger('mouseenter');
         const options = wrapper.findAll('.theme-toggle-option');
         expect(options.length).toBe(4);
-    });
-
-    it('applies light theme swatch color for light option', async () => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'light' },
-        });
-
-        await wrapper.trigger('mouseenter');
-        const options = wrapper.findAll('.theme-toggle-option');
-        const swatches = options.map((opt) => opt.find('.theme-toggle-swatch').attributes('style'));
-
-        expect(swatches[0]).toContain(`background-color: ${LIGHT_THEME_COLORS.OCEAN}`);
-        expect(swatches[1]).toContain(`background-color: ${DARK_THEME_COLORS.OCEAN}`);
     });
 });

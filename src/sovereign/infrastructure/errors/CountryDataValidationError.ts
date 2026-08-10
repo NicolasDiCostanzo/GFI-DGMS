@@ -1,6 +1,7 @@
-export class CountryDataValidationError extends Error {
+import { NamedError } from '@/shared/errors/NamedError';
+
+export class CountryDataValidationError extends NamedError {
     constructor(message: string) {
-        super(message);
-        this.name = 'CountryDataValidationError';
+        super('CountryDataValidationError', message);
     }
 }

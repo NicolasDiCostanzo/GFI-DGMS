@@ -7,11 +7,12 @@ import { computed, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
 import type { Country, CountryId } from '../../../domain/Country';
 import type { SimulationResults } from '../../../domain/SimulationResults';
-import { MapColors, getThemeColors, type ThemeMode } from '../../../domain/constants/MapColors';
+import { MapColors, type ThemeMode } from '../../../domain/constants/MapColors';
 import { useCountryDisplay } from '../composables/useCountryDisplay';
 import { useMapDrag } from '../composables/useMapDrag';
 import { useMapTooltip } from '../composables/useMapTooltip';
 import { useMapZoom } from '../composables/useMapZoom';
+import { getThemeColors } from '../constants/ThemeColors';
 import { createLegendItems } from '../utils/fundingProgressLegend';
 
 const props = defineProps<{
@@ -52,7 +53,7 @@ const svgRef = useTemplateRef<SVGSVGElement>('svgRef');
 
 const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
 const { zoomState, mapTransform, isAnimated, zoomAtPoint, panTo } = useMapZoom();
-const { getCountryFill, getCountryAriaLabel, getTooltipText } = useCountryDisplay(
+const { getCountryFill, getCountryAriaLabel, getTooltipText, hasCountryData } = useCountryDisplay(
     toRef(props, 'countries'),
     toRef(props, 'resultsByCountry'),
     geoJsonCountries,
@@ -77,7 +78,18 @@ function handlePathClick(isoNumeric: string): void {
         resetDidDrag();
         return;
     }
+    if (!hasCountryData(isoNumeric)) {
+        return;
+    }
     emit('country-select', isoNumeric as CountryId);
+}
+
+function handleBackgroundClick(): void {
+    if (didDragOccur()) {
+        resetDidDrag();
+        return;
+    }
+    emit('country-select', null);
 }
 
 function handlePathMouseEnter(isoNumeric: string, event: MouseEvent | FocusEvent): void {
@@ -118,10 +130,10 @@ function handleWheel(event: WheelEvent): void {
             @mousedown="handleDragStart"
         >
             <rect
-                width="100%"
-                height="100%"
+                :width="SVG_WIDTH"
+                :height="SVG_HEIGHT"
                 :fill="themeColors.OCEAN"
-                @click="didDragOccur() ? resetDidDrag() : emit('country-select', null)"
+                @click="handleBackgroundClick"
             />
             <g
                 ref="mapGroupRef"
@@ -142,9 +154,12 @@ function handleWheel(event: WheelEvent): void {
                         "
                         :stroke-opacity="String(countryFeature.id) === selectedCountryId ? 1 : 0.35"
                         :stroke-width="String(countryFeature.id) === selectedCountryId ? 0.5 : 0.1"
-                        role="button"
-                        tabindex="0"
-                        class="country-path clickable"
+                        :role="hasCountryData(String(countryFeature.id)) ? 'button' : 'img'"
+                        :tabindex="hasCountryData(String(countryFeature.id)) ? 0 : -1"
+                        :class="{
+                            'country-path': true,
+                            clickable: hasCountryData(String(countryFeature.id)),
+                        }"
                         @click="handlePathClick(String(countryFeature.id))"
                         @keydown.enter="handlePathClick(String(countryFeature.id))"
                         @keydown.space.prevent="handlePathClick(String(countryFeature.id))"

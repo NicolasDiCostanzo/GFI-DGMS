@@ -1,6 +1,7 @@
-export class InvalidNumberException extends Error {
+import { NamedError } from './NamedError';
+
+export class InvalidNumberException extends NamedError {
     constructor(message: string) {
-        super(message);
-        this.name = 'InvalidNumberException';
+        super('InvalidNumberException', message);
     }
 }

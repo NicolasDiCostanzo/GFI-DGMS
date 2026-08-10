@@ -29,7 +29,6 @@ export class Simulation {
                 this.country.baselineInvestment,
                 this.country.co2Multiplier,
             ),
-            isOverTarget: fundingProgress > 1.0,
             colorHex: getColorForFundingProgress(fundingProgress, this.themeMode),
         };
     }

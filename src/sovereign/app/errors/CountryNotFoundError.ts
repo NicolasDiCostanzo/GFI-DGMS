@@ -1,6 +1,7 @@
-export class CountryNotFoundError extends Error {
+import { NamedError } from '@/shared/errors/NamedError';
+
+export class CountryNotFoundError extends NamedError {
     constructor(countryId: string) {
-        super(`Country with ID ${countryId} not found`);
-        this.name = 'CountryNotFoundError';
+        super('CountryNotFoundError', `Country with ID ${countryId} not found`);
     }
 }

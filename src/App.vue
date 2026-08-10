@@ -4,7 +4,6 @@ import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import { CalculateSimulationYields } from '@/sovereign/app/CalculateSimulationYields';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { getThemeColors } from '@/sovereign/domain/constants/MapColors';
 import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { StaticCountryRepository } from '@/sovereign/infrastructure/adapters/StaticCountryRepository';
@@ -12,11 +11,13 @@ import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadE
 import ContextualSidebar from '@/sovereign/infrastructure/ui/components/ContextualSidebar.vue';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { computed, onMounted, ref, watch } from 'vue';
 
 const props = withDefaults(
     defineProps<{
         theme?: ThemeMode;
+        // Placeholder for the planned Airtable-backed data adapter; not yet consumed.
         apiEndpoint?: string;
     }>(),
     {
@@ -248,10 +249,16 @@ async function handleSliderUpdate(value: number): Promise<void> {
         sliderValue.value = previousValue;
     }
 }
+
+function handleSidebarClosing(): void {
+    selectedCountryId.value = null;
+    sliderValue.value = 0;
+}
 </script>
 
 <template>
-    <div class="app" :class="`theme-${themeMode}`" :style="appStyle">
+    <main class="app" :class="`theme-${themeMode}`" :style="appStyle">
+        <h1 class="sr-only">GFI Global Funding Initiative Map</h1>
         <p v-if="loadError" role="alert">
             {{ loadError.message }}
         </p>
@@ -272,17 +279,28 @@ async function handleSliderUpdate(value: number): Promise<void> {
                     :slider-value="sliderValue"
                     :theme-mode="themeMode"
                     @update:slider-value="handleSliderUpdate"
+                    @close="handleSidebarClosing"
                 />
             </Transition>
         </div>
         <ThemeToggle v-model:model-value="themeMode" />
-    </div>
+    </main>
 </template>
 
 <style scoped>
 .app {
+    position: relative;
     width: 100%;
     height: 100%;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
 }
 
 .app-content {

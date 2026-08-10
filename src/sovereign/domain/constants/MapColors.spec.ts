@@ -1,155 +1,40 @@
 import { describe, expect, it } from 'vitest';
+import { getColorForFundingProgress, getFundingProgressColors, toRGB } from './MapColors';
 import {
-    getColorForFundingProgress,
-    getFundingProgressColors,
-    getThemeColors,
-    MapColors,
-    toRGB,
-    type ThemeMode,
-} from './MapColors';
+    FUNDING_PROGRESS_COLOR_CASES,
+    FUNDING_PROGRESS_COLORS_CASES,
+    FUNDING_PROGRESS_MODE_CASES,
+    TO_RGB_CASES,
+} from './MapColors.spec.fixtures';
 
 describe('MapColors', () => {
     describe('getColorForFundingProgress()', () => {
-        it('returns RED when fundingProgress is below 0.5', () => {
-            expect(getColorForFundingProgress(0)).toBe(MapColors.RED);
-            expect(getColorForFundingProgress(0.25)).toBe(MapColors.RED);
-            expect(getColorForFundingProgress(0.49)).toBe(MapColors.RED);
-        });
-
-        it('returns ORANGE when fundingProgress is exactly 0.5', () => {
-            expect(getColorForFundingProgress(0.5)).toBe(MapColors.ORANGE);
-        });
-
-        it('returns ORANGE when fundingProgress is between 0.5 and 0.8', () => {
-            expect(getColorForFundingProgress(0.6)).toBe(MapColors.ORANGE);
-            expect(getColorForFundingProgress(0.79)).toBe(MapColors.ORANGE);
-        });
-
-        it('returns YELLOW_AMBER when fundingProgress is exactly 0.8', () => {
-            expect(getColorForFundingProgress(0.8)).toBe(MapColors.YELLOW_AMBER);
-        });
-
-        it('returns YELLOW_AMBER when fundingProgress is between 0.8 and 1.0', () => {
-            expect(getColorForFundingProgress(0.9)).toBe(MapColors.YELLOW_AMBER);
-            expect(getColorForFundingProgress(0.99)).toBe(MapColors.YELLOW_AMBER);
-        });
-
-        it('returns GREEN when fundingProgress is exactly 1.0', () => {
-            expect(getColorForFundingProgress(1.0)).toBe(MapColors.GREEN);
-        });
-
-        it('returns GREEN when fundingProgress is between 1.0 and 1.2', () => {
-            expect(getColorForFundingProgress(1.1)).toBe(MapColors.GREEN);
-            expect(getColorForFundingProgress(1.19)).toBe(MapColors.GREEN);
-        });
-
-        it('returns NEON_GREEN when fundingProgress is exactly 1.2', () => {
-            expect(getColorForFundingProgress(1.2)).toBe(MapColors.NEON_GREEN);
-        });
-
-        it('returns NEON_GREEN when fundingProgress exceeds 1.2', () => {
-            expect(getColorForFundingProgress(2.0)).toBe(MapColors.NEON_GREEN);
+        it.each(FUNDING_PROGRESS_COLOR_CASES)('%s', (_title, fundingProgress, expected) => {
+            expect(getColorForFundingProgress(fundingProgress)).toBe(expected);
         });
     });
 
     describe('toRGB', () => {
-        it('converts hex color to RGB format', () => {
-            expect(toRGB(MapColors.RED)).toBe('rgb(211, 47, 47)');
-            expect(toRGB(MapColors.ORANGE)).toBe('rgb(245, 124, 0)');
-            expect(toRGB(MapColors.YELLOW_AMBER)).toBe('rgb(253, 216, 53)');
-            expect(toRGB(MapColors.GREEN)).toBe('rgb(76, 175, 80)');
-            expect(toRGB(MapColors.NEON_GREEN)).toBe('rgb(0, 230, 118)');
-            expect(toRGB(MapColors.INACTIVE)).toBe('rgb(204, 204, 204)');
-            expect(toRGB(MapColors.SELECTION)).toBe('rgb(33, 150, 243)');
-            expect(toRGB(MapColors.OCEAN)).toBe('rgb(232, 244, 248)');
-            expect(toRGB(MapColors.BORDER)).toBe('rgb(0, 0, 0)');
-        });
-    });
-
-    describe('getThemeColors()', () => {
-        const modes: ThemeMode[] = ['light', 'dark', 'colorblind-light', 'colorblind-dark'];
-
-        it('returns light theme colors for light and colorblind-light modes', () => {
-            const lightColors = getThemeColors('light');
-            const colorblindLightColors = getThemeColors('colorblind-light');
-            expect(colorblindLightColors).toEqual(lightColors);
-            expect(colorblindLightColors.OCEAN).toBe('#e8f4f8');
-            expect(colorblindLightColors.BORDER).toBe('#000000');
-            expect(colorblindLightColors.TOOLTIP_BG).toBe('rgba(0, 0, 0, 0.8)');
-        });
-
-        it('returns dark theme colors for dark and colorblind-dark modes', () => {
-            const darkColors = getThemeColors('dark');
-            const colorblindDarkColors = getThemeColors('colorblind-dark');
-            expect(colorblindDarkColors).toEqual(darkColors);
-            expect(colorblindDarkColors.OCEAN).toBe('#1a2634');
-            expect(colorblindDarkColors.BORDER).toBe('#ffffff');
-            expect(colorblindDarkColors.TOOLTIP_BG).toBe('rgba(0, 0, 0, 0.9)');
-        });
-
-        it('returns an object with all required theme color keys', () => {
-            for (const mode of modes) {
-                const colors = getThemeColors(mode);
-                expect(colors).toHaveProperty('OCEAN');
-                expect(colors).toHaveProperty('INACTIVE');
-                expect(colors).toHaveProperty('BORDER');
-                expect(colors).toHaveProperty('TOOLTIP_BG');
-                expect(colors).toHaveProperty('TOOLTIP_TEXT');
-                expect(colors).toHaveProperty('LEGEND_BG');
-                expect(colors).toHaveProperty('LEGEND_TEXT');
-            }
+        it.each(TO_RGB_CASES)('converts %s to %s', (hex, expected) => {
+            expect(toRGB(hex)).toBe(expected);
         });
     });
 
     describe('getFundingProgressColors()', () => {
-        it('returns the standard red-green palette for light mode', () => {
-            const colors = getFundingProgressColors('light');
-            expect(colors).toEqual([
-                MapColors.RED,
-                MapColors.ORANGE,
-                MapColors.YELLOW_AMBER,
-                MapColors.GREEN,
-                MapColors.NEON_GREEN,
-            ]);
-        });
-
-        it('returns the standard red-green palette for dark mode', () => {
-            const colors = getFundingProgressColors('dark');
-            expect(colors).toEqual([
-                MapColors.RED,
-                MapColors.ORANGE,
-                MapColors.YELLOW_AMBER,
-                MapColors.GREEN,
-                MapColors.NEON_GREEN,
-            ]);
-        });
-
-        it('returns the colorblind-safe palette for colorblind-light mode', () => {
-            const colors = getFundingProgressColors('colorblind-light');
-            expect(colors).toEqual(['#0072B2', '#56B4E9', '#009E73', '#E69F00', '#D55E00']);
-        });
-
-        it('returns the colorblind-safe palette for colorblind-dark mode', () => {
-            const colors = getFundingProgressColors('colorblind-dark');
-            expect(colors).toEqual(['#0072B2', '#56B4E9', '#009E73', '#E69F00', '#D55E00']);
-        });
+        it.each(FUNDING_PROGRESS_COLORS_CASES)(
+            'returns the correct palette for %s mode',
+            (mode, expected) => {
+                expect(getFundingProgressColors(mode)).toEqual(expected);
+            },
+        );
     });
 
     describe('getColorForFundingProgress() with theme mode', () => {
-        it('returns color from standard palette in light mode', () => {
-            expect(getColorForFundingProgress(0.75, 'light')).toBe(MapColors.ORANGE);
-        });
-
-        it('returns color from standard palette in dark mode', () => {
-            expect(getColorForFundingProgress(0.75, 'dark')).toBe(MapColors.ORANGE);
-        });
-
-        it('returns color from colorblind palette in colorblind-light mode', () => {
-            expect(getColorForFundingProgress(0.75, 'colorblind-light')).toBe('#56B4E9');
-        });
-
-        it('returns color from colorblind palette in colorblind-dark mode', () => {
-            expect(getColorForFundingProgress(0.75, 'colorblind-dark')).toBe('#56B4E9');
-        });
+        it.each(FUNDING_PROGRESS_MODE_CASES)(
+            'returns correct color for %s mode',
+            (mode, expected) => {
+                expect(getColorForFundingProgress(0.75, mode)).toBe(expected);
+            },
+        );
     });
 });

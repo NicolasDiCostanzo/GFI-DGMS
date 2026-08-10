@@ -2,9 +2,11 @@
 import { computed, ref } from 'vue';
 import {
     COLORBLIND_FUNDING_PROGRESS_COLORS,
-    getThemeColors,
     type ThemeMode,
 } from '../../../domain/constants/MapColors';
+import { getThemeColors } from '../constants/ThemeColors';
+import type { ThemeIconName } from '../utils/themeIcons';
+import ThemeIcon from './ThemeIcon.vue';
 
 const props = defineProps<{
     modelValue: ThemeMode;
@@ -16,15 +18,19 @@ const emit = defineEmits<{
 
 const isOpen = ref(false);
 
-const options: { value: ThemeMode; label: string }[] = [
-    { value: 'light', label: 'Light' },
-    { value: 'dark', label: 'Dark' },
-    { value: 'colorblind-light', label: 'Colorblind Light' },
-    { value: 'colorblind-dark', label: 'Colorblind Dark' },
+const options: { value: ThemeMode; label: string; icon: ThemeIconName }[] = [
+    { value: 'light', label: 'Light', icon: 'sun' },
+    { value: 'dark', label: 'Dark', icon: 'moon' },
+    { value: 'colorblind-light', label: 'Colorblind Light', icon: 'eye' },
+    { value: 'colorblind-dark', label: 'Colorblind Dark', icon: 'eye-off' },
 ];
 
 const currentLabel = computed(() => {
     return options.find((opt) => opt.value === props.modelValue)?.label ?? 'Dark';
+});
+
+const currentIcon = computed(() => {
+    return options.find((opt) => opt.value === props.modelValue)?.icon ?? 'moon';
 });
 
 function getSwatchColor(value: ThemeMode): string {
@@ -37,13 +43,22 @@ function getSwatchColor(value: ThemeMode): string {
 
 function select(value: ThemeMode): void {
     emit('update:modelValue', value);
+    isOpen.value = false;
 }
 </script>
 
 <template>
     <div class="theme-toggle" @mouseenter="isOpen = true" @mouseleave="isOpen = false">
-        <button class="theme-toggle-button" aria-haspopup="listbox" :aria-expanded="isOpen">
-            {{ currentLabel }}
+        <button
+            class="theme-toggle-button"
+            aria-haspopup="listbox"
+            :aria-expanded="isOpen"
+            @click="isOpen = true"
+        >
+            <span class="theme-toggle-icon">
+                <ThemeIcon :name="currentIcon" />
+            </span>
+            <span class="theme-toggle-label">{{ currentLabel }}</span>
         </button>
         <div v-if="isOpen" class="theme-toggle-dropdown" role="listbox">
             <button
@@ -59,7 +74,10 @@ function select(value: ThemeMode): void {
                     class="theme-toggle-swatch"
                     :style="{ backgroundColor: getSwatchColor(option.value) }"
                 />
-                {{ option.label }}
+                <span class="theme-toggle-option-icon">
+                    <ThemeIcon :name="option.icon" />
+                </span>
+                <span class="theme-toggle-option-label">{{ option.label }}</span>
             </button>
         </div>
     </div>
@@ -74,6 +92,9 @@ function select(value: ThemeMode): void {
 }
 
 .theme-toggle-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 8px 12px;
     border-radius: 6px;
     border: 1px solid var(--border);
@@ -81,6 +102,18 @@ function select(value: ThemeMode): void {
     color: var(--text);
     cursor: pointer;
     font-size: 13px;
+}
+
+.theme-toggle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+}
+
+.theme-toggle-label {
+    font-weight: 500;
 }
 
 .theme-toggle-dropdown {
@@ -102,14 +135,28 @@ function select(value: ThemeMode): void {
     padding: 6px 8px;
     border: none;
     background: transparent;
+    color: var(--text);
     cursor: pointer;
     font-size: 13px;
     text-align: left;
 }
 
+.theme-toggle-option-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+}
+
+.theme-toggle-option-label {
+    flex: 1;
+    color: var(--text);
+}
+
 .theme-toggle-option.is-selected {
     background: var(--inactive);
-    opacity: 0.3;
+    color: var(--text);
 }
 
 .theme-toggle-swatch {

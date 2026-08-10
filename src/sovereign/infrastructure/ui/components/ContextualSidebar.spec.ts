@@ -1,77 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createWrapper, GERMANY, RESULTS, SLIDER_MAX } from './ContextualSidebar.spec.fixture';
-
-let rafCallbacks = new Map<number, FrameRequestCallback>();
-
-beforeEach(() => {
-    rafCallbacks = new Map();
-    let nextRafId = 1;
-    vi.stubGlobal(
-        'requestAnimationFrame',
-        vi.fn((cb: FrameRequestCallback) => {
-            const id = nextRafId++;
-            rafCallbacks.set(id, cb);
-            return id;
-        }),
-    );
-    vi.stubGlobal(
-        'cancelAnimationFrame',
-        vi.fn((id: number) => {
-            rafCallbacks.delete(id);
-        }),
-    );
-});
+import { describe, expect, it } from 'vitest';
+import { createWrapper, GERMANY, RESULTS, SLIDER_MAX } from './ContextualSidebar.spec.fixtures';
 
 describe('ContextualSidebar', () => {
-    describe('loading state', () => {
-        it('shows skeleton placeholders when loading', () => {
-            const wrapper = createWrapper({ country: GERMANY, isLoading: true });
-            expect(wrapper.findAll('.skeleton').length).toBeGreaterThan(0);
-        });
-
-        it('does not show the slider when loading', () => {
-            const wrapper = createWrapper({ country: GERMANY, isLoading: true });
-            expect(wrapper.find('input[type="range"]').exists()).toBe(false);
-        });
-
-        it('includes an accessible status message that country data is loading', () => {
-            const wrapper = createWrapper({ country: GERMANY, isLoading: true });
-            const srMessage = wrapper.find('.sr-only');
-            expect(srMessage.exists()).toBe(true);
-            expect(srMessage.attributes('aria-live')).toBe('polite');
-            expect(srMessage.text()).toBe('Loading country data');
-        });
-
-        it('marks skeleton elements as decorative with aria-hidden', () => {
-            const wrapper = createWrapper({ country: GERMANY, isLoading: true });
-            const skeletons = wrapper.findAll('.skeleton');
-            expect(skeletons.length).toBeGreaterThan(0);
-            for (const skeleton of skeletons) {
-                expect(skeleton.attributes('aria-hidden')).toBe('true');
-            }
-        });
-    });
-
-    describe('error state', () => {
-        it('shows error message with retry button', () => {
-            const wrapper = createWrapper({ country: GERMANY, error: 'Something went wrong' });
-            expect(wrapper.text()).toContain('Something went wrong');
-            expect(wrapper.find('.retry-button').exists()).toBe(true);
-        });
-
-        it('emits retry event when retry button is clicked', async () => {
-            const wrapper = createWrapper({ country: GERMANY, error: 'Something went wrong' });
-            await wrapper.find('.retry-button').trigger('click');
-            expect(wrapper.emitted('retry')).toHaveLength(1);
-        });
-
-        it('uses null error when error prop is explicitly undefined', () => {
-            const wrapper = createWrapper({ country: GERMANY, error: undefined });
-            expect(wrapper.find('.error-state').exists()).toBe(false);
-            expect(wrapper.find('.sidebar-content').exists()).toBe(true);
-        });
-    });
-
     describe('createWrapper fixture', () => {
         it('applies default values when no options provided', () => {
             const wrapper = createWrapper();
@@ -79,19 +9,15 @@ describe('ContextualSidebar', () => {
             expect(wrapper.props('results')).toBeNull();
             expect(wrapper.props('sliderValue')).toBe(0);
             expect(wrapper.props('themeMode')).toBe('dark');
-            expect(wrapper.props('isLoading')).toBe(false);
-            expect(wrapper.props('error')).toBeNull();
         });
 
         it('preserves explicitly provided null values', () => {
             const wrapper = createWrapper({
                 country: null,
                 results: null,
-                error: null,
             });
             expect(wrapper.props('country')).toBeNull();
             expect(wrapper.props('results')).toBeNull();
-            expect(wrapper.props('error')).toBeNull();
         });
     });
 
@@ -197,7 +123,7 @@ describe('ContextualSidebar', () => {
 
     describe('economic indicator', () => {
         const ECONOMIC_TEXTS = [
-            '3500',
+            '12500',
             'people would be employed',
             '+2500',
             'Based on GFI economic projections',
@@ -207,11 +133,37 @@ describe('ContextualSidebar', () => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
             expect(wrapper.text()).toContain(text);
         });
+
+        describe('at baseline', () => {
+            const BASELINE_ECONOMIC_TEXTS = [
+                '10000',
+                'people are currently employed',
+                'Based on GFI economic projections',
+            ];
+
+            it.each(BASELINE_ECONOMIC_TEXTS)('displays "%s"', (text) => {
+                const wrapper = createWrapper({
+                    country: GERMANY,
+                    results: RESULTS,
+                    sliderValue: GERMANY.baselineInvestment,
+                });
+                expect(wrapper.text()).toContain(text);
+            });
+
+            it('hides the jobs delta', () => {
+                const wrapper = createWrapper({
+                    country: GERMANY,
+                    results: RESULTS,
+                    sliderValue: GERMANY.baselineInvestment,
+                });
+                expect(wrapper.find('.economic-delta').text()).toBe('');
+            });
+        });
     });
 
     describe('climate indicator', () => {
         const CLIMATE_TEXTS = [
-            '1255',
+            '6250',
             'tonnes of CO₂ would be saved',
             '+1250',
             'Based on CE Delft LCA data',
@@ -220,6 +172,32 @@ describe('ContextualSidebar', () => {
         it.each(CLIMATE_TEXTS)('displays "%s"', (text) => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
             expect(wrapper.text()).toContain(text);
+        });
+
+        describe('at baseline', () => {
+            const BASELINE_CLIMATE_TEXTS = [
+                '5000',
+                'tonnes of CO₂ are currently saved',
+                'Based on CE Delft LCA data',
+            ];
+
+            it.each(BASELINE_CLIMATE_TEXTS)('displays "%s"', (text) => {
+                const wrapper = createWrapper({
+                    country: GERMANY,
+                    results: RESULTS,
+                    sliderValue: GERMANY.baselineInvestment,
+                });
+                expect(wrapper.text()).toContain(text);
+            });
+
+            it('hides the CO₂ delta', () => {
+                const wrapper = createWrapper({
+                    country: GERMANY,
+                    results: RESULTS,
+                    sliderValue: GERMANY.baselineInvestment,
+                });
+                expect(wrapper.find('.climate-delta').text()).toBe('');
+            });
         });
     });
 
@@ -231,9 +209,22 @@ describe('ContextualSidebar', () => {
 
         it('progress ring has role="img" and aria-label', () => {
             const wrapper = createWrapper({ country: GERMANY, results: RESULTS });
-            const svg = wrapper.find('svg');
+            const svg = wrapper.find('.progress-ring-section').find('svg');
             expect(svg.attributes('role')).toBe('img');
             expect(svg.attributes('aria-label')).toContain('funding progress');
+        });
+
+        it('close button has aria-label for accessibility', () => {
+            const wrapper = createWrapper({ country: GERMANY });
+            const closeButton = wrapper.find('.close-button');
+            expect(closeButton.exists()).toBe(true);
+            expect(closeButton.attributes('aria-label')).toBe('Close sidebar');
+        });
+
+        it('emits close event when close button is clicked', async () => {
+            const wrapper = createWrapper({ country: GERMANY });
+            await wrapper.find('.close-button').trigger('click');
+            expect(wrapper.emitted('close')).toHaveLength(1);
         });
     });
 });

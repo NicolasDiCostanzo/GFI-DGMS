@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { toPercentage } from '@/shared/utils/toPercentage';
+import { MAX_FUNDING_PROGRESS_RATIO } from '@/sovereign/domain/constants/FundingConstants';
 import { getColorForFundingProgress, type ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import type { Country } from '@/sovereign/domain/Country';
 import type { SimulationResults } from '@/sovereign/domain/SimulationResults';
@@ -14,35 +15,33 @@ const props = withDefaults(
         results?: SimulationResults | null;
         sliderValue?: number;
         themeMode?: ThemeMode;
-        isLoading?: boolean;
-        error?: string | null;
     }>(),
     {
         country: null,
         results: null,
         sliderValue: 0,
         themeMode: 'dark',
-        isLoading: false,
-        error: null,
     },
 );
 
 const emit = defineEmits<{
     'update:sliderValue': [value: number];
-    retry: [];
+    close: [];
 }>();
 
-const sliderMax = computed(() => (props.country ? props.country.targetBudget.amount * 2 : 0));
+const sliderMax = computed(() =>
+    props.country ? props.country.targetBudget.amount * MAX_FUNDING_PROGRESS_RATIO : 0,
+);
 const sliderMin = 0;
+
+const isAtBaseline = computed(() => props.country?.baselineInvestment === props.sliderValue);
 
 const jobsTarget = computed(() => props.results?.additionalJobs ?? 0);
 const totalJobs = computed(() =>
     props.country ? props.country.currentNumberOfJobs + jobsTarget.value : 0,
 );
 const jobsDelta = computed(() =>
-    props.country?.baselineInvestment !== props.sliderValue
-        ? `${jobsTarget.value > 0 ? '+' : ''}${jobsTarget.value}`
-        : '',
+    !isAtBaseline.value ? `${jobsTarget.value > 0 ? '+' : ''}${jobsTarget.value}` : '',
 );
 
 const flagEmoji = computed(() => (props.country ? isoToFlagEmoji(props.country.id) : ''));
@@ -60,9 +59,7 @@ const totalCO2 = computed(() =>
     props.country ? props.country.currentCO2Saved + co2Tonnes.value : 0,
 );
 const co2SavedDelta = computed(() =>
-    props.country?.baselineInvestment !== props.sliderValue
-        ? `${co2Tonnes.value > 0 ? '+' : ''}${co2Tonnes.value}`
-        : '',
+    !isAtBaseline.value ? `${co2Tonnes.value > 0 ? '+' : ''}${co2Tonnes.value}` : '',
 );
 const carsEquivalent = computed(() =>
     formatCarsEquivalent(co2TonnesToCarsEquivalent(props.results?.additionalCO2Tonnes ?? 0)),
@@ -75,8 +72,41 @@ const targetLabel = computed(() =>
     props.country ? `Target (${formatInvestment(props.country.targetBudget.amount)})` : '',
 );
 const maxLabel = computed(() =>
-    props.country ? `200% (${formatInvestment(sliderMax.value)})` : '',
+    props.country
+        ? `${MAX_FUNDING_PROGRESS_RATIO * 100}% (${formatInvestment(sliderMax.value)})`
+        : '',
 );
+
+const sliderMarks = computed(() => {
+    const marks = [
+        {
+            key: 'zero',
+            value: 0,
+            label: '$0',
+            disabled: false,
+        },
+        {
+            key: 'baseline',
+            value: props.country?.baselineInvestment ?? 0,
+            label: baselineLabel.value,
+            disabled: !props.country,
+        },
+        {
+            key: 'target',
+            value: props.country?.targetBudget.amount ?? 0,
+            label: targetLabel.value,
+            disabled: !props.country,
+        },
+        {
+            key: 'max',
+            value: sliderMax.value,
+            label: maxLabel.value,
+            disabled: !props.country,
+        },
+    ];
+
+    return marks.slice().sort((a, b) => a.value - b.value || a.key.localeCompare(b.key));
+});
 
 const CIRCLE_RADIUS = 45;
 const CIRCLE_CENTER = 60;
@@ -94,21 +124,23 @@ const dashOffset = computed(() => {
         class="contextual-sidebar"
         :style="{ '--text': themeMode === 'dark' ? '#ffffff' : '#000000' }"
     >
-        <div v-if="error" class="error-state">
-            <p class="error-message" role="alert">{{ error }}</p>
-            <button class="retry-button" @click="emit('retry')">Retry</button>
-        </div>
-
-        <div v-else-if="isLoading" class="loading-state">
-            <p class="sr-only" aria-live="polite">Loading country data</p>
-            <div class="skeleton country-header-skeleton" aria-hidden="true" />
-            <div class="skeleton slider-skeleton" aria-hidden="true" />
-            <div class="skeleton progress-ring-skeleton" aria-hidden="true" />
-            <div class="skeleton economic-skeleton" aria-hidden="true" />
-            <div class="skeleton climate-skeleton" aria-hidden="true" />
-        </div>
-
-        <div v-else class="sidebar-content">
+        <button class="close-button" aria-label="Close sidebar" @click="emit('close')">
+            <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    d="M2 2L14 14M2 14L14 2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                />
+            </svg>
+        </button>
+        <div class="sidebar-content">
             <header class="country-header">
                 <span class="country-flag">{{ flagEmoji }}</span>
                 <span class="country-name">{{ countryName }}</span>
@@ -134,31 +166,14 @@ const dashOffset = computed(() => {
                     "
                 />
                 <div class="slider-labels">
-                    <button class="slider-label" @click="emit('update:sliderValue', 0)">$0</button>
                     <button
+                        v-for="mark in sliderMarks"
+                        :key="mark.key"
                         class="slider-label"
-                        :disabled="!props.country"
-                        @click="
-                            if (props.country) {
-                                emit('update:sliderValue', props.country.baselineInvestment);
-                            }
-                        "
+                        :disabled="mark.disabled"
+                        @click="emit('update:sliderValue', mark.value)"
                     >
-                        {{ baselineLabel }}
-                    </button>
-                    <button
-                        class="slider-label"
-                        :disabled="!props.country"
-                        @click="
-                            if (props.country) {
-                                emit('update:sliderValue', props.country.targetBudget.amount);
-                            }
-                        "
-                    >
-                        {{ targetLabel }}
-                    </button>
-                    <button class="slider-label" @click="emit('update:sliderValue', sliderMax)">
-                        {{ maxLabel }}
+                        {{ mark.label }}
                     </button>
                 </div>
             </div>
@@ -201,19 +216,13 @@ const dashOffset = computed(() => {
                 <div class="economic-indicator">
                     <div class="economic-value">
                         <span class="jobs-count">{{
-                            props.country?.baselineInvestment !== sliderValue
-                                ? totalJobs
-                                : props.country?.currentNumberOfJobs
+                            !isAtBaseline ? totalJobs : props.country?.currentNumberOfJobs
                         }}</span>
                     </div>
                     <div class="economic-label">
                         <span
                             >people
-                            {{
-                                props.country?.baselineInvestment === sliderValue
-                                    ? 'are currently'
-                                    : 'would be'
-                            }}
+                            {{ isAtBaseline ? 'are currently' : 'would be' }}
                             employed
                         </span>
                     </div>
@@ -224,19 +233,13 @@ const dashOffset = computed(() => {
                 <div class="climate-indicator">
                     <div class="climate-value">
                         <span class="co2-count">{{
-                            props.country?.baselineInvestment !== sliderValue
-                                ? totalCO2
-                                : props.country?.currentCO2Saved
+                            !isAtBaseline ? totalCO2 : props.country?.currentCO2Saved
                         }}</span>
                     </div>
                     <div class="climate-label">
                         <span
                             >tonnes of CO₂
-                            {{
-                                props.country?.baselineInvestment === sliderValue
-                                    ? 'are currently'
-                                    : 'would be'
-                            }}
+                            {{ isAtBaseline ? 'are currently' : 'would be' }}
                             saved</span
                         >
                     </div>
@@ -269,6 +272,29 @@ const dashOffset = computed(() => {
     gap: 16px;
     box-shadow: -8px 0 8px rgba(0, 0, 0, 0.1);
     color: var(--text);
+    position: relative;
+}
+
+.close-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+    background: rgba(128, 128, 128, 0.2);
 }
 
 .country-header {
@@ -281,12 +307,6 @@ const dashOffset = computed(() => {
 
 .country-flag {
     font-size: 24px;
-}
-
-.current-investment {
-    margin-left: auto;
-    font-weight: 700;
-    color: var(--accent, #2196f3);
 }
 
 .slider-section {
@@ -339,11 +359,6 @@ input[type='range'] {
     font-weight: 700;
 }
 
-.progress-percent {
-    font-size: 20px;
-    font-weight: 700;
-}
-
 .progress-label {
     font-size: 11px;
     font-style: italic;
@@ -368,19 +383,6 @@ input[type='range'] {
     margin-top: 16px;
 }
 
-.co2-bar {
-    height: 100%;
-    background: var(--accent, #4caf50);
-    border-radius: 6px;
-    transition: width 0.3s ease;
-}
-
-.co2-value {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
 .co2-equivalent {
     font-size: 13px;
     margin-bottom: 4px;
@@ -397,8 +399,7 @@ input[type='range'] {
     margin-top: 4px;
 }
 
-.economic-subtitle,
-.climate-subtitle {
+.economic-subtitle {
     font-size: 11px;
 }
 
@@ -409,88 +410,5 @@ input[type='range'] {
     margin-top: 4px;
     color: var(--accent, #2196f3);
     min-height: 20px;
-}
-
-.error-state,
-.loading-state {
-    padding: 20px;
-    text-align: center;
-}
-
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-.skeleton {
-    background: var(--progress-bg, #e0e0e0);
-    border-radius: 4px;
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%,
-    100% {
-        opacity: 0.6;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-
-.country-header-skeleton {
-    height: 24px;
-    width: 60%;
-    margin-bottom: 12px;
-}
-
-.slider-skeleton {
-    height: 40px;
-    width: 100%;
-    margin-bottom: 12px;
-}
-
-.progress-ring-skeleton {
-    height: 120px;
-    width: 120px;
-    margin: 0 auto 12px;
-    border-radius: 50%;
-}
-
-.economic-skeleton {
-    height: 28px;
-    width: 80%;
-    margin: 0 auto 8px;
-}
-
-.climate-skeleton {
-    height: 60px;
-    width: 100%;
-}
-
-.error-message {
-    color: var(--error, #d32f2f);
-    margin-bottom: 12px;
-}
-
-.retry-button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    background: var(--accent, #2196f3);
-    color: white;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.retry-button:hover {
-    opacity: 0.9;
 }
 </style>

@@ -6,7 +6,7 @@ import {
     ZOOM_TRANSFORM_PAN,
     ZOOM_TRANSFORM_PAN_AFTER_ZOOM,
     ZOOM_TRANSFORM_ZOOM_IN,
-} from './useMapZoom.spec.fixture';
+} from './useMapZoom.spec.fixtures';
 
 describe('useMapZoom', () => {
     it('starts with no transform', () => {
