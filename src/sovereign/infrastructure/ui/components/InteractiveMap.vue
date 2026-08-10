@@ -154,7 +154,7 @@ function handleWheel(event: WheelEvent): void {
                         :stroke-opacity="String(countryFeature.id) === selectedCountryId ? 1 : 0.35"
                         :stroke-width="String(countryFeature.id) === selectedCountryId ? 0.5 : 0.1"
                         :role="hasCountryData(String(countryFeature.id)) ? 'button' : undefined"
-                        :tabindex="hasCountryData(String(countryFeature.id)) ? 0 : undefined"
+                        :tabindex="hasCountryData(String(countryFeature.id)) ? 0 : -1"
                         :class="{
                             'country-path': true,
                             clickable: hasCountryData(String(countryFeature.id)),

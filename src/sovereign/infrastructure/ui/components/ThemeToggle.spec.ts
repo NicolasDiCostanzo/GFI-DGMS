@@ -6,6 +6,7 @@ import {
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { type ThemeMode } from '../utils/fundingProgressLegend';
+import { ICON_CASES } from './ThemeToggle.spec.fixtures';
 import ThemeToggle from './ThemeToggle.vue';
 
 describe('ThemeToggle', () => {
@@ -101,17 +102,7 @@ describe('ThemeToggle', () => {
         expect(options[2].classes()).toContain('is-selected');
     });
 
-    it('displays correct icon for each theme in the button', async () => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'light' },
-        });
-
-        const buttonIcon = wrapper.find('.theme-toggle-icon');
-        expect(buttonIcon.html()).toContain('svg');
-        expect(buttonIcon.html()).toContain('circle');
-    });
-
-    it('displays correct icon for each theme option in dropdown', async () => {
+    it.each([0, 1, 2, 3])('option %s icon in the dropdown contains an svg', async (index) => {
         const wrapper = mount(ThemeToggle, {
             props: { modelValue: 'dark' },
         });
@@ -119,10 +110,7 @@ describe('ThemeToggle', () => {
         await wrapper.trigger('mouseenter');
         const options = wrapper.findAll('.theme-toggle-option');
 
-        expect(options[0].find('.theme-toggle-option-icon').html()).toContain('svg');
-        expect(options[1].find('.theme-toggle-option-icon').html()).toContain('svg');
-        expect(options[2].find('.theme-toggle-option-icon').html()).toContain('svg');
-        expect(options[3].find('.theme-toggle-option-icon').html()).toContain('svg');
+        expect(options[index].find('.theme-toggle-option-icon').html()).toContain('svg');
     });
 
     it('applies correct swatch color for each theme option', async () => {
@@ -140,43 +128,15 @@ describe('ThemeToggle', () => {
         expect(swatches[3]).toContain(`background-color: ${COLORBLIND_FUNDING_PROGRESS_COLORS[0]}`);
     });
 
-    it('renders sun icon for light theme', async () => {
+    it.each(ICON_CASES)('%s', (_title, modelValue, expectedSubstrings) => {
         const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'light' },
+            props: { modelValue },
         });
 
         const buttonIcon = wrapper.find('.theme-toggle-icon');
-        expect(buttonIcon.html()).toContain('circle');
-        expect(buttonIcon.html()).toContain('line');
-    });
-
-    it('renders moon icon for dark theme', async () => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'dark' },
-        });
-
-        const buttonIcon = wrapper.find('.theme-toggle-icon');
-        expect(buttonIcon.html()).toContain('path');
-    });
-
-    it('renders eye icon for colorblind-light theme', async () => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'colorblind-light' },
-        });
-
-        const buttonIcon = wrapper.find('.theme-toggle-icon');
-        expect(buttonIcon.html()).toContain('path');
-        expect(buttonIcon.html()).toContain('circle');
-    });
-
-    it('renders eye-off icon for colorblind-dark theme', async () => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'colorblind-dark' },
-        });
-
-        const buttonIcon = wrapper.find('.theme-toggle-icon');
-        expect(buttonIcon.html()).toContain('path');
-        expect(buttonIcon.html()).toContain('line');
+        for (const substring of expectedSubstrings) {
+            expect(buttonIcon.html()).toContain(substring);
+        }
     });
 
     it('renders all four theme options in the dropdown', async () => {
@@ -187,18 +147,5 @@ describe('ThemeToggle', () => {
         await wrapper.trigger('mouseenter');
         const options = wrapper.findAll('.theme-toggle-option');
         expect(options.length).toBe(4);
-    });
-
-    it('applies light theme swatch color for light option', async () => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'light' },
-        });
-
-        await wrapper.trigger('mouseenter');
-        const options = wrapper.findAll('.theme-toggle-option');
-        const swatches = options.map((opt) => opt.find('.theme-toggle-swatch').attributes('style'));
-
-        expect(swatches[0]).toContain(`background-color: ${LIGHT_THEME_COLORS.OCEAN}`);
-        expect(swatches[1]).toContain(`background-color: ${DARK_THEME_COLORS.OCEAN}`);
     });
 });

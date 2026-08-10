@@ -1,6 +1,7 @@
-export class InvestmentExceedsMaxAllowedException extends Error {
+import { NamedError } from '@/shared/errors/NamedError';
+
+export class InvestmentExceedsMaxAllowedException extends NamedError {
     constructor(message: string) {
-        super(message);
-        this.name = 'InvestmentExceedsMaxAllowedException';
+        super('InvestmentExceedsMaxAllowedException', message);
     }
 }

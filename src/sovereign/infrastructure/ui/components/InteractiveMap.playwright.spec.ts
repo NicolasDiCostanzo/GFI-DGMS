@@ -99,7 +99,7 @@ test.describe('InteractiveMap', () => {
     test('country without simulation data is not selectable', async ({ page }) => {
         const usaPath = page.locator(`path.country-path[data-country-id="${USA_ID}"]`);
         await expect(usaPath).not.toHaveAttribute('role');
-        await expect(usaPath).not.toHaveAttribute('tabindex');
+        await expect(usaPath).toHaveAttribute('tabindex', '-1');
         await usaPath.click({ force: true });
 
         const sidebar = page.locator('.contextual-sidebar');
@@ -210,5 +210,32 @@ test.describe('InteractiveMap', () => {
         await expect(germanyPath).toHaveCSS('stroke', toRGB(SELECTION_COLOR));
         await expect(germanyPath).toHaveCSS('stroke-opacity', '1');
         await expect(germanyPath).toHaveCSS('stroke-width', '0.5px');
+    });
+
+    test('the first real Tab key press lands on a focusable country, and Enter opens its sidebar', async ({
+        page,
+    }) => {
+        // The unit spec only simulates focus/keydown directly on a chosen element
+        // (wrapper.trigger('focus')/'keydown.enter'), which proves the component
+        // reacts correctly to those events but never proves a real Tab key press
+        // actually reaches that element in the browser's computed tab order. Only a
+        // real browser can verify that, which is what this test is for: every
+        // country path has click/keydown listeners (needed so the "no data" ones
+        // stay clickable), and some browsers include listener-bearing elements in
+        // the default tab sequence even without a tabindex attribute — so
+        // non-selectable countries must be explicitly excluded with tabindex="-1"
+        // (see InteractiveMap.vue), not just left without a tabindex.
+        await page.keyboard.press('Tab');
+
+        const focused = page.locator(':focus');
+        await expect(focused).toHaveAttribute('role', 'button');
+        await expect(focused).toHaveClass(/\bclickable\b/);
+        const countryId = await focused.getAttribute('data-country-id');
+
+        await page.keyboard.press('Enter');
+
+        await expect(page.locator('.contextual-sidebar')).toBeVisible();
+        await expect(focused).toHaveCSS('stroke', toRGB(SELECTION_COLOR));
+        await expect(focused).toHaveAttribute('data-country-id', countryId!);
     });
 });
