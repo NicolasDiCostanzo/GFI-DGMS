@@ -2,7 +2,7 @@ import { DARK_THEME_COLORS, MapColors } from '@/sovereign/domain/constants/MapCo
 import { Country, CountryId } from '@/sovereign/domain/Country';
 import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { createWrapperDefaults } from './InteractiveMap.spec.fixture';
 import InteractiveMap from './InteractiveMap.vue';
@@ -415,6 +415,20 @@ describe('InteractiveMap', () => {
             await nextTick();
 
             expect(wrapper.emitted('country-select')).toHaveLength(1);
+        });
+
+        it('removes the window mousemove/mouseup listeners added by an in-progress drag on unmount', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
+
+            dispatchMouse(oceanRect, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
+            wrapper.unmount();
+
+            expect(removeEventListenerSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
+            expect(removeEventListenerSpy).toHaveBeenCalledWith('mouseup', expect.any(Function));
+
+            removeEventListenerSpy.mockRestore();
         });
     });
 
