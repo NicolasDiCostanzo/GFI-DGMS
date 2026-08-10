@@ -16,7 +16,7 @@ test.describe('InteractiveMap', () => {
     });
 
     test('renders an SVG element in the browser', async ({ page }) => {
-        const svg = page.locator('svg');
+        const svg = page.locator('svg[width="100%"]');
         await expect(svg).toBeVisible();
     });
 
@@ -128,13 +128,13 @@ test.describe('InteractiveMap', () => {
     });
 
     test('SVG is responsive with 100% width and height', async ({ page }) => {
-        const svg = page.locator('svg');
+        const svg = page.locator('svg[width="100%"]');
         await expect(svg).toHaveAttribute('width', '100%');
         await expect(svg).toHaveAttribute('height', '100%');
     });
 
     test('SVG has viewBox attribute', async ({ page }) => {
-        const svg = page.locator('svg');
+        const svg = page.locator('svg[width="100%"]');
         await expect(svg).toHaveAttribute('viewBox');
     });
 
@@ -144,7 +144,7 @@ test.describe('InteractiveMap', () => {
         const mapGroup = page.locator('.map-group');
         await expect(mapGroup).toHaveAttribute('transform', '');
 
-        const svgBox = await page.locator('svg').boundingBox();
+        const svgBox = await page.locator('svg[width="100%"]').boundingBox();
         await page.mouse.move(svgBox!.x + svgBox!.width / 2, svgBox!.y + svgBox!.height / 2);
         await page.mouse.wheel(0, -300);
 
@@ -171,7 +171,7 @@ test.describe('InteractiveMap', () => {
     });
 
     test('dragging with the middle mouse button pans the map', async ({ page }) => {
-        const svgBox = (await page.locator('svg').boundingBox())!;
+        const svgBox = (await page.locator('svg[width="100%"]').boundingBox())!;
         const centerX = svgBox.x + svgBox.width / 2;
         const centerY = svgBox.y + svgBox.height / 2;
 
@@ -187,7 +187,7 @@ test.describe('InteractiveMap', () => {
     test('a plain click on a country still selects and zooms it after a drag elsewhere', async ({
         page,
     }) => {
-        const svgBox = (await page.locator('svg').boundingBox())!;
+        const svgBox = (await page.locator('svg[width="100%"]').boundingBox())!;
         await page.mouse.move(svgBox.x + 50, svgBox.y + 50);
         await page.mouse.down({ button: 'left' });
         await page.mouse.move(svgBox.x + 200, svgBox.y + 150, { steps: 10 });
