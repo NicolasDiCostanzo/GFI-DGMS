@@ -17,7 +17,7 @@ export const EU_AMBITION_SCENARIOS: readonly EuAmbitionScenario[] = [
         key: 'moderate',
         label: 'Moderate Policy Support (2040)',
         gvaEurBillions: 111,
-        domesticMarketEurBillions: 79,
+        domesticMarketEurBillions: 53,
         exportsEurBillions: 60,
         jobs: 414_000,
         publicInvestmentEurBillionsPerYear: 1.4,
