@@ -1,0 +1,60 @@
+import { CountryFunding, CountryName } from '@/sovereign/domain/CountryFunding';
+import { Grant, GrantId } from '@/sovereign/domain/Grant';
+import { mount } from '@vue/test-utils';
+import CountryFundingPanel from './CountryFundingPanel.vue';
+
+export const GRANT_ONE = new Grant(
+    GrantId('rec1'),
+    'France',
+    'Scaling cultivated foie gras production',
+    5_000_000,
+    ['Bpifrance', 'European Commission'],
+    'Bpifrance and the European Commission',
+    'Gourmey',
+    'Funding to scale up bioreactor capacity.',
+    'Commercialization',
+    'Business Grant',
+    ['Cultivated'],
+    ['2024', '2025'],
+    'https://example.com/announcement-1',
+);
+
+export const GRANT_TWO = new Grant(
+    GrantId('rec2'),
+    'France',
+    'Early-stage precision fermentation research',
+    null,
+    [],
+    null,
+    null,
+    null,
+    null,
+    null,
+    [],
+    [],
+    null,
+);
+
+export const FRANCE_FUNDING = new CountryFunding(CountryName('France'), [GRANT_ONE, GRANT_TWO]);
+
+export const GERMANY_FUNDING = new CountryFunding(CountryName('Germany'), []);
+
+export interface WrapperOptions {
+    countryFunding?: CountryFunding | null;
+    themeMode?: 'light' | 'dark';
+}
+
+/**
+ * Creates a mounted `CountryFundingPanel` wrapper with configurable fixture props.
+ *
+ * @param options - Optional prop overrides for the mounted component
+ * @returns The mounted `CountryFundingPanel` wrapper
+ */
+export function createWrapper(options: WrapperOptions = {}) {
+    return mount(CountryFundingPanel, {
+        props: {
+            countryFunding: options.countryFunding ?? null,
+            themeMode: options.themeMode ?? 'dark',
+        },
+    });
+}
