@@ -25,6 +25,7 @@ export default defineConfig(({ command }) => ({
                 '**/ContextualSidebar.vue',
                 'src/App.vue',
                 '**/InteractiveMap.vue',
+                '**/CountryFundingPanel.vue',
             ],
             extension: ['.vue', '.ts'],
             requireEnv: true,
