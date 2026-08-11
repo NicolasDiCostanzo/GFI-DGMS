@@ -1,12 +1,42 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CountryName } from '../../domain/CountryFunding';
 import grantsData from '../data/grants.json';
 import { GrantDataValidationError } from '../errors/GrantDataValidationError';
 import {
     AirtableJsonCountryFundingRepository,
+    loadGrantRecords,
     type GrantRecord,
 } from './AirtableJsonCountryFundingRepository';
 import { buildRecord } from './AirtableJsonCountryFundingRepository.spec.fixtures';
+
+describe('loadGrantRecords', () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it('fetches and parses the grant data asset', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve(grantsData),
+            }),
+        );
+
+        const records = await loadGrantRecords();
+
+        expect(records).toEqual(grantsData);
+    });
+
+    it('throws when the fetch response is not ok', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({ ok: false, status: 404, statusText: 'Not Found' }),
+        );
+
+        await expect(loadGrantRecords()).rejects.toThrow('Failed to load grant data: 404');
+    });
+});
 
 describe('AirtableJsonCountryFundingRepository', () => {
     describe('constructor', () => {
@@ -14,13 +44,7 @@ describe('AirtableJsonCountryFundingRepository', () => {
             expect(() => new AirtableJsonCountryFundingRepository([])).toThrow(Error);
         });
 
-        it('constructs successfully with no arguments using the committed grants.json', () => {
-            const repository = new AirtableJsonCountryFundingRepository();
-
-            expect(repository).toBeInstanceOf(AirtableJsonCountryFundingRepository);
-        });
-
-        it('constructs successfully with valid data', () => {
+        it('constructs successfully with the real committed grants.json', () => {
             const repository = new AirtableJsonCountryFundingRepository(
                 grantsData as GrantRecord[],
             );

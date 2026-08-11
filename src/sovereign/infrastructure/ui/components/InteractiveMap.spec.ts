@@ -1,6 +1,5 @@
+import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { MapColors } from '@/sovereign/domain/constants/MapColors';
-import { Country, CountryId } from '@/sovereign/domain/Country';
-import { SimulationResults } from '@/sovereign/domain/SimulationResults';
 import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
@@ -29,9 +28,8 @@ function dispatchMouse(
 
 async function createWrapper(
     options: {
-        countries?: Country[];
-        resultsByCountry?: Map<CountryId, SimulationResults>;
-        selectedCountryId?: CountryId | null;
+        countryFundings?: readonly CountryFunding[];
+        selectedCountryName?: string | null;
         themeMode?: 'light' | 'dark' | 'colorblind-light' | 'colorblind-dark';
     } = {},
 ) {
@@ -40,9 +38,8 @@ async function createWrapper(
 
     return mount(InteractiveMap, {
         props: {
-            countries: props.countries,
-            resultsByCountry: props.resultsByCountry,
-            selectedCountryId: props.selectedCountryId,
+            countryFundings: props.countryFundings,
+            selectedCountryName: props.selectedCountryName,
             themeMode: props.themeMode,
         },
     });
@@ -78,29 +75,27 @@ describe('InteractiveMap', () => {
     });
 
     describe('country coloring', () => {
-        it('fills a country with its simulation colorHex when data exists', async () => {
+        it('fills a country with a funding-tier color when data exists', async () => {
             const wrapper = await createWrapper();
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
             expect(germanPath.exists()).toBe(true);
-            expect(germanPath.attributes('fill')).toBe(MapColors.ORANGE);
+            expect(germanPath.attributes('fill')).toBe(MapColors.NEON_GREEN);
         });
 
-        it('fills a country with inactive colour when no simulation data exists', async () => {
-            const wrapper = await createWrapper({
-                resultsByCountry: new Map(),
-            });
+        it('fills a country with inactive colour when no funding data exists', async () => {
+            const wrapper = await createWrapper({ countryFundings: [] });
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
             expect(germanPath.attributes('fill')).toBe(MapColors.INACTIVE);
         });
     });
 
     describe('country click events', () => {
-        it('emits country-select with countryId on path click', async () => {
+        it('emits country-select with the country name on path click', async () => {
             const wrapper = await createWrapper();
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
             await germanPath.trigger('click');
             expect(wrapper.emitted('country-select')).toHaveLength(1);
-            expect(wrapper.emitted('country-select')![0]).toEqual(['276']);
+            expect(wrapper.emitted('country-select')![0]).toEqual(['Germany']);
         });
 
         it.each([
@@ -148,20 +143,20 @@ describe('InteractiveMap', () => {
     });
 
     describe('keyboard accessibility', () => {
-        it('emits country-select with countryId on Enter keydown', async () => {
+        it('emits country-select with the country name on Enter keydown', async () => {
             const wrapper = await createWrapper();
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
             await germanPath.trigger('keydown.enter');
             expect(wrapper.emitted('country-select')).toHaveLength(1);
-            expect(wrapper.emitted('country-select')![0]).toEqual(['276']);
+            expect(wrapper.emitted('country-select')![0]).toEqual(['Germany']);
         });
 
-        it('emits country-select with countryId on Space keydown', async () => {
+        it('emits country-select with the country name on Space keydown', async () => {
             const wrapper = await createWrapper();
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
             await germanPath.trigger('keydown.space');
             expect(wrapper.emitted('country-select')).toHaveLength(1);
-            expect(wrapper.emitted('country-select')![0]).toEqual(['276']);
+            expect(wrapper.emitted('country-select')![0]).toEqual(['Germany']);
         });
 
         it('sets role="button" and tabindex="0" on countries with data', async () => {
@@ -204,20 +199,18 @@ describe('InteractiveMap', () => {
             expect(ariaLabel).toContain('Germany');
         });
 
-        it('includes funding progress in aria-label when data exists', async () => {
+        it('includes the formatted funding total in aria-label when data exists', async () => {
             const wrapper = await createWrapper();
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
             const ariaLabel = germanPath.attributes('aria-label');
-            expect(ariaLabel).toContain('75');
+            expect(ariaLabel).toContain('$5M');
         });
 
-        it('includes "no data" in aria-label when no results exist', async () => {
-            const wrapper = await createWrapper({
-                resultsByCountry: new Map(),
-            });
+        it('includes "no disclosed funding" in aria-label when no results exist', async () => {
+            const wrapper = await createWrapper({ countryFundings: [] });
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
             const ariaLabel = germanPath.attributes('aria-label');
-            expect(ariaLabel).toContain('no data');
+            expect(ariaLabel).toContain('no disclosed funding');
         });
     });
 
@@ -231,21 +224,21 @@ describe('InteractiveMap', () => {
             expect(tooltip.text()).toContain('Germany');
         });
 
-        it('shows "no data" in the tooltip when no results exist for the country', async () => {
-            const wrapper = await createWrapper({ resultsByCountry: new Map() });
+        it('shows "no disclosed funding" in the tooltip when no results exist for the country', async () => {
+            const wrapper = await createWrapper({ countryFundings: [] });
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
             await germanPath.trigger('mouseenter');
             const tooltip = wrapper.find('.map-tooltip');
-            expect(tooltip.text()).toContain('no data');
+            expect(tooltip.text()).toContain('no disclosed funding');
         });
 
-        it('shows the country name from world-atlas in the tooltip for a country not in the countries list', async () => {
+        it('shows the country name from world-atlas in the tooltip for a country not in the funding list', async () => {
             const wrapper = await createWrapper();
             const frenchPath = wrapper.find('path.country-path[data-country-id="250"]');
             await frenchPath.trigger('mouseenter');
             const tooltip = wrapper.find('.map-tooltip');
             expect(tooltip.text()).toContain('France');
-            expect(tooltip.text()).toContain('no data');
+            expect(tooltip.text()).toContain('no disclosed funding');
         });
 
         it('hides tooltip div on mouseleave', async () => {
@@ -440,10 +433,10 @@ describe('InteractiveMap', () => {
             expect(legend.exists()).toBe(true);
         });
 
-        it('legend shows legend-label elements for gradient steps', async () => {
+        it('legend shows legend-label elements for every bucket including "no data"', async () => {
             const wrapper = await createWrapper();
             const labels = wrapper.findAll('.legend-label');
-            expect(labels.length).toBeGreaterThanOrEqual(5);
+            expect(labels.length).toBeGreaterThanOrEqual(6);
         });
     });
 

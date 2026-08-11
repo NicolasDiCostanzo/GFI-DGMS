@@ -8,8 +8,34 @@ const GERMANY_ID = CountryId('276');
 const BORDER_COLOR = DARK_THEME_COLORS.BORDER;
 const SELECTION_COLOR = MapColors.SELECTION;
 
+// E2E tests must not depend on the live jsDelivr CDN (network flakiness, cache staleness,
+// and — until this data is pushed to origin/main — a guaranteed 404). Intercepting keeps
+// these tests deterministic and focused on app behavior, not on external infrastructure.
+const MOCK_GRANT_RECORDS = [
+    {
+        id: 'rec1',
+        dateAnnounced: '2024-01-01',
+        country: 'Germany',
+        funderAgencies: ['Federal Ministry of Education and Research (BMBF)'],
+        funderName: 'BMBF',
+        recipients: 'Test Recipient',
+        projectTitle: 'Test grant',
+        description: 'A test grant used only by E2E tests.',
+        fundingAmountUsd: 5_000_000,
+        yearForAnnualFigures: '2024',
+        yearsDisbursed: ['2024'],
+        aim: 'Research & Development',
+        fundingInstrument: 'Research Grant',
+        productionPlatforms: ['Plant-based'],
+        sourceUrl: null,
+    },
+];
+
 test.describe('InteractiveMap', () => {
     test.beforeEach(async ({ page }) => {
+        await page.route('https://cdn.jsdelivr.net/gh/**/grants.json', async (route) => {
+            await route.fulfill({ json: MOCK_GRANT_RECORDS });
+        });
         await page.goto('/');
     });
 
@@ -147,7 +173,7 @@ test.describe('InteractiveMap', () => {
 
         await page.keyboard.press('Enter');
 
-        await expect(page.locator('.contextual-sidebar')).toBeVisible();
+        await expect(page.locator('.country-funding-panel')).toBeVisible();
         await expect(focused).toHaveCSS('stroke', toRGB(SELECTION_COLOR));
         await expect(focused).toHaveAttribute('data-country-id', countryId!);
     });
