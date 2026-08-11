@@ -8,7 +8,7 @@ export default defineConfig((configEnv) =>
             test: {
                 globals: true,
                 environment: 'happy-dom',
-                include: ['src/**/*.{test,spec}.{ts,js}'],
+                include: ['src/**/*.{test,spec}.{ts,js}', 'scripts/**/*.{test,spec}.{ts,js}'],
                 exclude: [...configDefaults.exclude, 'src/**/*.playwright.spec.ts'],
                 setupFiles: ['./vitest.setup.ts'],
             },
