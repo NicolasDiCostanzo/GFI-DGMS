@@ -4,6 +4,7 @@ import { NonPositiveNumberException } from '@/shared/errors/NonPositiveNumberExc
 import { SettingsParseError } from '@/shared/errors/SettingsParseError';
 import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
 import { InvalidInvestmentError } from '@/sovereign/app/errors/InvalidInvestmentError';
+import { GrantCountryMismatchException } from '@/sovereign/domain/errors/GrantCountryMismatchException';
 import { InvestmentExceedsMaxAllowedException } from '@/sovereign/domain/errors/InvestmentExceedsMaxAllowedException';
 import { CountryDataValidationError } from './CountryDataValidationError';
 import { CountryLoadError } from './CountryLoadError';
@@ -22,6 +23,11 @@ export const NAMED_ERROR_CASES: ReadonlyArray<[string, new (message: string) => 
         'InvestmentExceedsMaxAllowedException',
         InvestmentExceedsMaxAllowedException,
         'InvestmentAmount value must not exceed maxAllowed',
+    ],
+    [
+        'GrantCountryMismatchException',
+        GrantCountryMismatchException,
+        'CountryFunding grant rec1 has country Germany, expected France',
     ],
     ['CountryLoadError', CountryLoadError, 'network down'],
     [
