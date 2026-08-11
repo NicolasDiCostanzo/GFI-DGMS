@@ -117,5 +117,33 @@ describe('AirtableJsonCountryFundingRepository', () => {
                 expect(result).toBeNull();
             });
         });
+
+        describe('findUnattributedGrants()', () => {
+            it('returns the European Union and Other grants excluded from every country bucket', async () => {
+                const unattributed = await repository.findUnattributedGrants();
+
+                expect(unattributed).toHaveLength(2);
+                expect(unattributed.map((grant) => grant.country).sort()).toEqual([
+                    'European Union',
+                    'Other',
+                ]);
+            });
+
+            it('preserves the raw (unaliased) country label on unattributed grants', async () => {
+                const unattributed = await repository.findUnattributedGrants();
+                const euGrant = unattributed.find((grant) => grant.id === 'rec5');
+
+                expect(euGrant?.amountUsd).toBe(3_000_000);
+            });
+
+            it('falls back to "Unknown" when a record has no country at all', async () => {
+                const withoutCountry = new AirtableJsonCountryFundingRepository([
+                    buildRecord({ id: 'rec1', country: null }),
+                ]);
+                const unattributed = await withoutCountry.findUnattributedGrants();
+
+                expect(unattributed[0]?.country).toBe('Unknown');
+            });
+        });
     });
 });

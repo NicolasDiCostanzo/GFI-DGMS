@@ -42,6 +42,7 @@ function resolveCountryName(rawCountry: string | null): string | null {
 
 export class AirtableJsonCountryFundingRepository implements CountryFundingRepository {
     private readonly fundingByCountry: Map<string, CountryFunding>;
+    private readonly unattributedGrants: Grant[] = [];
 
     constructor(data?: GrantRecord[]) {
         const records = data ?? (grantsData as GrantRecord[]);
@@ -60,13 +61,9 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
             }
 
             const canonicalCountry = resolveCountryName(record.country);
-            if (canonicalCountry === null) {
-                return;
-            }
-
             const grant = new Grant(
                 GrantId(record.id),
-                canonicalCountry,
+                canonicalCountry ?? record.country ?? 'Unknown',
                 record.projectTitle,
                 record.fundingAmountUsd,
                 record.funderAgencies,
@@ -79,6 +76,11 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
                 record.yearsDisbursed,
                 record.sourceUrl,
             );
+
+            if (canonicalCountry === null) {
+                this.unattributedGrants.push(grant);
+                return;
+            }
 
             const countryGrants = grantsByCountry.get(canonicalCountry) ?? [];
             countryGrants.push(grant);
@@ -99,5 +101,9 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
 
     async findAll(): Promise<CountryFunding[]> {
         return Array.from(this.fundingByCountry.values());
+    }
+
+    async findUnattributedGrants(): Promise<readonly Grant[]> {
+        return this.unattributedGrants;
     }
 }

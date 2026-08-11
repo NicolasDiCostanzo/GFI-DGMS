@@ -26,6 +26,7 @@ export default defineConfig(({ command }) => ({
                 'src/App.vue',
                 '**/InteractiveMap.vue',
                 '**/CountryFundingPanel.vue',
+                '**/EuAmbitionDial.vue',
             ],
             extension: ['.vue', '.ts'],
             requireEnv: true,
