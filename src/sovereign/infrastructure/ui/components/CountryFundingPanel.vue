@@ -2,6 +2,7 @@
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { computed } from 'vue';
+import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
 import { formatInvestment } from '../utils/formatInvestment';
 
 const AIRTABLE_SOURCE_URL =
@@ -105,6 +106,8 @@ function formatList(values: readonly string[]): string {
                     Source: Systemiq (2026), commissioned by GFI Europe
                 </div>
             </div>
+
+            <EnvironmentalImpactPanel :grants="grants" />
 
             <ul class="grant-list">
                 <li v-for="grant in grants" :key="grant.id" class="grant-item">

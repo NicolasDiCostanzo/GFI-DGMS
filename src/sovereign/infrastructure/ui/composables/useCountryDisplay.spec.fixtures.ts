@@ -6,7 +6,7 @@ export function buildCountryFunding(countryName: string, amountUsd: number): Cou
         GrantId('rec1'),
         countryName,
         'Untitled grant',
-        amountUsd,
+        amountUsd > 0 ? amountUsd : null,
         [],
         null,
         null,
@@ -18,18 +18,4 @@ export function buildCountryFunding(countryName: string, amountUsd: number): Cou
         null,
     );
     return new CountryFunding(CountryName(countryName), [grant]);
-}
-
-export const GERMANY_FUNDING = buildCountryFunding('Germany', 5_000_000);
-
-/**
- * Creates the default state used by the interactive map wrapper: Germany has disclosed
- * funding, France (used throughout as the "no data" case) does not.
- */
-export function createWrapperDefaults() {
-    return {
-        countryFundings: [GERMANY_FUNDING],
-        selectedCountryName: null as string | null,
-        themeMode: 'dark' as const,
-    };
 }

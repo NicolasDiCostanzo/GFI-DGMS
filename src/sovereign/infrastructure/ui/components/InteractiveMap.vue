@@ -1,29 +1,28 @@
 <script setup lang="ts">
+import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import { computed, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
-import type { Country, CountryId } from '../../../domain/Country';
-import type { SimulationResults } from '../../../domain/SimulationResults';
 import { MapColors, type ThemeMode } from '../../../domain/constants/MapColors';
 import { useCountryDisplay } from '../composables/useCountryDisplay';
 import { useMapDrag } from '../composables/useMapDrag';
 import { useMapTooltip } from '../composables/useMapTooltip';
 import { useMapZoom } from '../composables/useMapZoom';
 import { getThemeColors } from '../constants/ThemeColors';
-import { createLegendItems } from '../utils/fundingProgressLegend';
+import { calculateFundingColorThresholds } from '../utils/calculateFundingColorThresholds';
+import { createFundingAmountLegendItems } from '../utils/fundingAmountLegend';
 
 const props = defineProps<{
-    countries: Country[];
-    resultsByCountry: Map<CountryId, SimulationResults>;
-    selectedCountryId: CountryId | null;
+    countryFundings: readonly CountryFunding[];
+    selectedCountryName: string | null;
     themeMode: ThemeMode;
 }>();
 
 const emit = defineEmits<{
-    'country-select': [countryId: CountryId | null];
+    'country-select': [countryName: string | null];
 }>();
 
 const SVG_WIDTH = 960;
@@ -54,13 +53,17 @@ const svgRef = useTemplateRef<SVGSVGElement>('svgRef');
 const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
 const { zoomState, mapTransform, isAnimated, zoomAtPoint, panTo } = useMapZoom();
 const { getCountryFill, getCountryAriaLabel, getTooltipText, hasCountryData } = useCountryDisplay(
-    toRef(props, 'countries'),
-    toRef(props, 'resultsByCountry'),
-    geoJsonCountries,
+    toRef(props, 'countryFundings'),
+    toRef(props, 'themeMode'),
 );
 
 const themeColors = computed(() => getThemeColors(props.themeMode));
-const legendItems = computed(() => createLegendItems(props.themeMode));
+const legendItems = computed(() => {
+    const thresholds = calculateFundingColorThresholds(
+        props.countryFundings.map((funding) => funding.totalAmountUsd),
+    );
+    return createFundingAmountLegendItems(thresholds, props.themeMode);
+});
 
 const { isDragging, handleDragStart, didDragOccur, resetDidDrag } = useMapDrag(
     svgRef,
@@ -73,15 +76,15 @@ function getCountryPath(countryFeature: Feature<Geometry, NamedFeatureProperties
     return pathGenerator.value(countryFeature) ?? '';
 }
 
-function handlePathClick(isoNumeric: string): void {
+function handlePathClick(countryName: string): void {
     if (didDragOccur()) {
         resetDidDrag();
         return;
     }
-    if (!hasCountryData(isoNumeric)) {
+    if (!hasCountryData(countryName)) {
         return;
     }
-    emit('country-select', isoNumeric as CountryId);
+    emit('country-select', countryName);
 }
 
 function handleBackgroundClick(): void {
@@ -92,14 +95,14 @@ function handleBackgroundClick(): void {
     emit('country-select', null);
 }
 
-function handlePathMouseEnter(isoNumeric: string, event: MouseEvent | FocusEvent): void {
+function handlePathMouseEnter(countryName: string, event: MouseEvent | FocusEvent): void {
     const target = event.currentTarget as SVGGraphicsElement;
     const box = target.getBoundingClientRect();
     const point =
         event instanceof MouseEvent
             ? { clientX: event.clientX, clientY: event.clientY }
             : { clientX: box.left + box.width / 2, clientY: box.top };
-    showTooltip(getTooltipText(isoNumeric), point);
+    showTooltip(getTooltipText(countryName), point);
 }
 
 function handlePathMouseLeave(): void {
@@ -145,26 +148,30 @@ function handleWheel(event: WheelEvent): void {
                     <path
                         :d="getCountryPath(countryFeature)"
                         :data-country-id="countryFeature.id"
-                        :fill="getCountryFill(String(countryFeature.id))"
-                        :aria-label="getCountryAriaLabel(String(countryFeature.id))"
+                        :fill="getCountryFill(countryFeature.properties.name)"
+                        :aria-label="getCountryAriaLabel(countryFeature.properties.name)"
                         :stroke="
-                            String(countryFeature.id) === selectedCountryId
+                            countryFeature.properties.name === selectedCountryName
                                 ? MapColors.SELECTION
                                 : themeColors.BORDER
                         "
-                        :stroke-opacity="String(countryFeature.id) === selectedCountryId ? 1 : 0.35"
-                        :stroke-width="String(countryFeature.id) === selectedCountryId ? 0.5 : 0.1"
-                        :role="hasCountryData(String(countryFeature.id)) ? 'button' : 'img'"
-                        :tabindex="hasCountryData(String(countryFeature.id)) ? 0 : -1"
+                        :stroke-opacity="
+                            countryFeature.properties.name === selectedCountryName ? 1 : 0.35
+                        "
+                        :stroke-width="
+                            countryFeature.properties.name === selectedCountryName ? 0.5 : 0.1
+                        "
+                        :role="hasCountryData(countryFeature.properties.name) ? 'button' : 'img'"
+                        :tabindex="hasCountryData(countryFeature.properties.name) ? 0 : -1"
                         :class="{
                             'country-path': true,
-                            clickable: hasCountryData(String(countryFeature.id)),
+                            clickable: hasCountryData(countryFeature.properties.name),
                         }"
-                        @click="handlePathClick(String(countryFeature.id))"
-                        @keydown.enter="handlePathClick(String(countryFeature.id))"
-                        @keydown.space.prevent="handlePathClick(String(countryFeature.id))"
-                        @mouseenter="handlePathMouseEnter(String(countryFeature.id), $event)"
-                        @focus="handlePathMouseEnter(String(countryFeature.id), $event)"
+                        @click="handlePathClick(countryFeature.properties.name)"
+                        @keydown.enter="handlePathClick(countryFeature.properties.name)"
+                        @keydown.space.prevent="handlePathClick(countryFeature.properties.name)"
+                        @mouseenter="handlePathMouseEnter(countryFeature.properties.name, $event)"
+                        @focus="handlePathMouseEnter(countryFeature.properties.name, $event)"
                         @mouseleave="handlePathMouseLeave"
                         @blur="handlePathMouseLeave"
                     />

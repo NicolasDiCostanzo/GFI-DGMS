@@ -101,6 +101,21 @@ describe('CountryFundingPanel', () => {
         });
     });
 
+    describe('environmental impact panel', () => {
+        it('passes the country funding grants through so the dominant pillar can be shown', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            expect(wrapper.find('.environmental-impact-panel').exists()).toBe(true);
+            expect(wrapper.find('.panel-title').text()).toContain('cultivated meat');
+        });
+
+        it('renders nothing when the country has no grants', () => {
+            const wrapper = createWrapper({ countryFunding: GERMANY_FUNDING });
+
+            expect(wrapper.find('.environmental-impact-panel').exists()).toBe(false);
+        });
+    });
+
     describe('interaction', () => {
         it('emits close when the close button is clicked', async () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });

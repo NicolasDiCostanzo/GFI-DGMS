@@ -1,8 +1,26 @@
 import { CountryFunding, CountryName } from '../../domain/CountryFunding';
 import { CountryFundingRepository } from '../../domain/repository/CountryFundingRepository';
 import { Grant, GrantId } from '../../domain/Grant';
-import grantsData from '../data/grants.json';
 import { GrantDataValidationError } from '../errors/GrantDataValidationError';
+
+// grants.json is ~1.2MB (real grant descriptions/funder names for 791 records) — a static
+// import would inline the whole file into the JS bundle (verified: it blew the 120KB gzip
+// budget to 420KB). Vite's library build mode also inlines local asset URLs as base64
+// (verified: `new URL(..., import.meta.url)` made it worse, at 593KB), since a "library"
+// build has no place to emit separate co-located files. Fetching from jsDelivr's GitHub CDN
+// mirror avoids both: the JS bundle stays code-only, and the data refreshes independently
+// whenever the nightly sync workflow commits — see .github/workflows/sync-airtable-grants.yml,
+// which purges this URL from jsDelivr's cache right after pushing so it doesn't lag.
+const GRANT_DATA_URL =
+    'https://cdn.jsdelivr.net/gh/NicolasDiCostanzo/GFI-DGMS@main/src/sovereign/infrastructure/data/grants.json';
+
+export async function loadGrantRecords(): Promise<GrantRecord[]> {
+    const response = await fetch(GRANT_DATA_URL);
+    if (!response.ok) {
+        throw new Error(`Failed to load grant data: ${response.status} ${response.statusText}`);
+    }
+    return (await response.json()) as GrantRecord[];
+}
 
 export interface GrantRecord {
     id: string;
@@ -44,9 +62,7 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
     private readonly fundingByCountry: Map<string, CountryFunding>;
     private readonly unattributedGrants: Grant[] = [];
 
-    constructor(data?: GrantRecord[]) {
-        const records = data ?? (grantsData as GrantRecord[]);
-
+    constructor(records: GrantRecord[]) {
         if (!Array.isArray(records) || records.length === 0) {
             throw new Error('Grant data file is missing or empty');
         }

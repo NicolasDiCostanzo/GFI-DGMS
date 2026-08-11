@@ -132,6 +132,7 @@ function onStopsKeydown(event: KeyboardEvent): void {
 <style scoped>
 .eu-ambition-dial {
     background: var(--sidebar-bg, rgba(255, 255, 255, 0.95));
+    color: var(--text, #000000);
     border-radius: 8px;
     padding: 12px 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -155,9 +156,11 @@ function onStopsKeydown(event: KeyboardEvent): void {
 }
 
 .dial-stop.active {
-    background: var(--accent, #2196f3);
+    /* var(--accent) (#2196f3) fails WCAG AA (3.12:1) with white text at this font size;
+       #1565c0 clears it (5.75:1) while staying visibly the same accent blue. */
+    background: #1565c0;
     color: #ffffff;
-    border-color: var(--accent, #2196f3);
+    border-color: #1565c0;
 }
 
 .dial-figures {

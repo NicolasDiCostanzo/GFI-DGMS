@@ -1,35 +1,23 @@
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { Country } from '@/sovereign/domain/Country';
-import { FRANCE, GERMANY } from '@/sovereign/domain/Country.spec.fixtures';
-import { SimulationResults } from '@/sovereign/domain/SimulationResults';
+import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
+import type { Grant } from '@/sovereign/domain/Grant';
 import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMockLocalStorage, deferred, RESULTS } from './App.spec.fixtures.ts';
+import { createMockLocalStorage, FRANCE_FUNDING, GERMANY_FUNDING } from './App.spec.fixtures.ts';
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
-import ContextualSidebar from './sovereign/infrastructure/ui/components/ContextualSidebar.vue';
+import CountryFundingPanel from './sovereign/infrastructure/ui/components/CountryFundingPanel.vue';
+import EuAmbitionDial from './sovereign/infrastructure/ui/components/EuAmbitionDial.vue';
 import InteractiveMap from './sovereign/infrastructure/ui/components/InteractiveMap.vue';
 
-const findAllMock = vi.fn<() => Promise<Country[]>>();
-const executeMock =
-    vi.fn<
-        (
-            countryId: string,
-            investmentAmount: number,
-            themeMode: ThemeMode,
-        ) => Promise<SimulationResults>
-    >();
+const findAllMock = vi.fn<() => Promise<CountryFunding[]>>();
+const findUnattributedGrantsMock = vi.fn<() => Promise<readonly Grant[]>>();
 
-vi.mock('@/sovereign/infrastructure/adapters/StaticCountryRepository', () => ({
-    StaticCountryRepository: vi.fn().mockImplementation(function () {
-        return { findAll: findAllMock };
+vi.mock('@/sovereign/infrastructure/adapters/AirtableJsonCountryFundingRepository', () => ({
+    AirtableJsonCountryFundingRepository: vi.fn().mockImplementation(function () {
+        return { findAll: findAllMock, findUnattributedGrants: findUnattributedGrantsMock };
     }),
-}));
-
-vi.mock('@/sovereign/app/CalculateSimulationYields', () => ({
-    CalculateSimulationYields: vi.fn().mockImplementation(function () {
-        return { execute: executeMock };
-    }),
+    loadGrantRecords: vi.fn().mockResolvedValue([]),
 }));
 
 function mountApp(options: Parameters<typeof mount<typeof App>>[1] = {}) {
@@ -37,7 +25,7 @@ function mountApp(options: Parameters<typeof mount<typeof App>>[1] = {}) {
         ...options,
         global: {
             ...options.global,
-            stubs: { InteractiveMap: true, ContextualSidebar: true },
+            stubs: { InteractiveMap: true, CountryFundingPanel: true, EuAmbitionDial: true },
         },
     });
 }
@@ -45,71 +33,40 @@ function mountApp(options: Parameters<typeof mount<typeof App>>[1] = {}) {
 describe('App', () => {
     beforeEach(() => {
         findAllMock.mockReset();
-        executeMock.mockReset();
+        findUnattributedGrantsMock.mockReset();
+        findUnattributedGrantsMock.mockResolvedValue([]);
     });
 
-    it('loads countries and passes computed results down to the map', async () => {
-        findAllMock.mockResolvedValue([GERMANY, FRANCE]);
-        executeMock.mockResolvedValue(RESULTS);
+    it('loads country fundings and passes them down to the map and the EU dial', async () => {
+        findAllMock.mockResolvedValue([GERMANY_FUNDING, FRANCE_FUNDING]);
 
         const wrapper = mountApp();
         await flushPromises();
 
-        expect(executeMock).toHaveBeenCalledWith(GERMANY.id, GERMANY.baselineInvestment, 'dark');
-        expect(executeMock).toHaveBeenCalledWith(FRANCE.id, FRANCE.baselineInvestment, 'dark');
-
-        const resultsByCountry = wrapper.findComponent(InteractiveMap).props('resultsByCountry');
-        expect(resultsByCountry.get(GERMANY.id)).toEqual(RESULTS);
-        expect(resultsByCountry.get(FRANCE.id)).toEqual(RESULTS);
+        expect(wrapper.findComponent(InteractiveMap).props('countryFundings')).toEqual([
+            GERMANY_FUNDING,
+            FRANCE_FUNDING,
+        ]);
+        expect(wrapper.findComponent(EuAmbitionDial).props('countryFundings')).toEqual([
+            GERMANY_FUNDING,
+            FRANCE_FUNDING,
+        ]);
     });
 
-    it('omits a country whose simulation computation failed, without crashing', async () => {
-        findAllMock.mockResolvedValue([GERMANY, FRANCE]);
-        executeMock.mockImplementation(async (countryId) => {
-            if (countryId === FRANCE.id) {
-                throw new Error('investment exceeds max allowed');
-            }
-            return RESULTS;
-        });
+    it('passes unattributed grants down to the EU dial', async () => {
+        const unattributed: Grant[] = [];
+        findAllMock.mockResolvedValue([]);
+        findUnattributedGrantsMock.mockResolvedValue(unattributed);
 
         const wrapper = mountApp();
         await flushPromises();
 
-        const resultsByCountry = wrapper.findComponent(InteractiveMap).props('resultsByCountry');
-        expect(resultsByCountry.get(GERMANY.id)).toEqual(RESULTS);
-        expect(resultsByCountry.has(FRANCE.id)).toBe(false);
+        expect(wrapper.findComponent(EuAmbitionDial).props('unattributedGrants')).toEqual(
+            unattributed,
+        );
     });
 
-    it('renders ContextualSidebar with undefined results when the selected country has no computed results', async () => {
-        findAllMock.mockResolvedValue([GERMANY, FRANCE]);
-        executeMock.mockImplementation(async (countryId) => {
-            if (countryId === FRANCE.id) {
-                throw new Error('investment exceeds max allowed');
-            }
-            return RESULTS;
-        });
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        wrapper.findComponent(InteractiveMap).vm.$emit('country-select', FRANCE.id);
-        await flushPromises();
-
-        const sidebar = wrapper.findComponent(ContextualSidebar);
-        expect(sidebar.props('country')).toEqual(FRANCE);
-        expect(sidebar.props('results')).toBeNull();
-    });
-
-    it('stops before computing results when loading countries fails', async () => {
-        findAllMock.mockRejectedValue(new Error('network down'));
-
-        mountApp();
-        await flushPromises();
-
-        expect(executeMock).not.toHaveBeenCalled();
-    });
-
-    it('displays error message when loading countries fails', async () => {
+    it('displays error message when loading country fundings fails', async () => {
         findAllMock.mockRejectedValue(new Error('network down'));
 
         const wrapper = mountApp();
@@ -119,167 +76,76 @@ describe('App', () => {
         expect(wrapper.find('p[role="alert"]').text()).toContain('network down');
     });
 
-    it('selects a country when the map emits country-select', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
+    it('displays error message when loading unattributed grants fails', async () => {
+        findAllMock.mockResolvedValue([]);
+        findUnattributedGrantsMock.mockRejectedValue(new Error('network down'));
+
+        const wrapper = mountApp();
+        await flushPromises();
+
+        expect(wrapper.find('p[role="alert"]').exists()).toBe(true);
+    });
+
+    it('does not render CountryFundingPanel when no country is selected', async () => {
+        findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+        const wrapper = mountApp();
+        await flushPromises();
+
+        expect(wrapper.findComponent(CountryFundingPanel).exists()).toBe(false);
+    });
+
+    it('renders CountryFundingPanel with the selected country when a country is selected', async () => {
+        findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+        const wrapper = mountApp();
+        await flushPromises();
+
+        wrapper.findComponent(InteractiveMap).vm.$emit('country-select', 'Germany');
+        await flushPromises();
+
+        const panel = wrapper.findComponent(CountryFundingPanel);
+        expect(panel.exists()).toBe(true);
+        expect(panel.props('countryFunding')).toEqual(GERMANY_FUNDING);
+    });
+
+    it('hides the panel when the map deselects a country', async () => {
+        findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
         await flushPromises();
 
         const map = wrapper.findComponent(InteractiveMap);
-        map.vm.$emit('country-select', GERMANY.id);
+        map.vm.$emit('country-select', 'Germany');
         await flushPromises();
-
-        expect(map.props('selectedCountryId')).toBe(GERMANY.id);
-    });
-
-    it('does not render ContextualSidebar when no country is selected', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        expect(wrapper.findComponent(ContextualSidebar).exists()).toBe(false);
-    });
-
-    it('renders ContextualSidebar with the selected country when a country is selected', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        wrapper.findComponent(InteractiveMap).vm.$emit('country-select', GERMANY.id);
-        await flushPromises();
-
-        const sidebar = wrapper.findComponent(ContextualSidebar);
-        expect(sidebar.exists()).toBe(true);
-        expect(sidebar.props('country')).toEqual(GERMANY);
-        expect(sidebar.props('results')).toEqual(RESULTS);
-    });
-
-    it('initializes slider value to baseline investment when country is selected', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        wrapper.findComponent(InteractiveMap).vm.$emit('country-select', GERMANY.id);
-        await flushPromises();
-
-        expect(wrapper.findComponent(ContextualSidebar).props('sliderValue')).toBe(
-            GERMANY.baselineInvestment,
-        );
-    });
-
-    it('recalculates the simulation for the new slider value', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        wrapper.findComponent(InteractiveMap).vm.$emit('country-select', GERMANY.id);
-        await flushPromises();
-
-        const updatedResults: SimulationResults = { ...RESULTS, additionalJobs: 4000 };
-        executeMock.mockResolvedValue(updatedResults);
-
-        const sidebar = wrapper.findComponent(ContextualSidebar);
-        sidebar.vm.$emit('update:sliderValue', 750);
-        await flushPromises();
-
-        expect(executeMock).toHaveBeenCalledWith(GERMANY.id, 750, 'dark');
-        expect(sidebar.props('sliderValue')).toBe(750);
-        expect(sidebar.props('results')).toEqual(updatedResults);
-    });
-
-    it('applies the new slider value optimistically while the recalculation is pending', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        wrapper.findComponent(InteractiveMap).vm.$emit('country-select', GERMANY.id);
-        await flushPromises();
-
-        const { promise, resolve } = deferred<SimulationResults>();
-        executeMock.mockReturnValue(promise);
-
-        const sidebar = wrapper.findComponent(ContextualSidebar);
-        sidebar.vm.$emit('update:sliderValue', 750);
-        await flushPromises();
-
-        expect(sidebar.props('sliderValue')).toBe(750);
-
-        resolve(RESULTS);
-        await flushPromises();
-
-        expect(sidebar.props('sliderValue')).toBe(750);
-    });
-
-    it('reverts the slider value when recalculation fails', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        wrapper.findComponent(InteractiveMap).vm.$emit('country-select', GERMANY.id);
-        await flushPromises();
-
-        executeMock.mockRejectedValueOnce(new Error('investment exceeds max allowed'));
-
-        const sidebar = wrapper.findComponent(ContextualSidebar);
-        sidebar.vm.$emit('update:sliderValue', 750);
-        await flushPromises();
-
-        expect(sidebar.props('sliderValue')).toBe(GERMANY.baselineInvestment);
-    });
-
-    it('hides sidebar when the map deselects a country', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        const map = wrapper.findComponent(InteractiveMap);
-        map.vm.$emit('country-select', GERMANY.id);
-        await flushPromises();
-        expect(wrapper.findComponent(ContextualSidebar).exists()).toBe(true);
+        expect(wrapper.findComponent(CountryFundingPanel).exists()).toBe(true);
 
         map.vm.$emit('country-select', null);
         await flushPromises();
 
-        expect(wrapper.findComponent(ContextualSidebar).exists()).toBe(false);
+        expect(wrapper.findComponent(CountryFundingPanel).exists()).toBe(false);
     });
 
-    it('hides sidebar when ContextualSidebar emits close', async () => {
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
+    it('hides the panel when CountryFundingPanel emits close', async () => {
+        findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
         await flushPromises();
 
-        wrapper.findComponent(InteractiveMap).vm.$emit('country-select', GERMANY.id);
+        wrapper.findComponent(InteractiveMap).vm.$emit('country-select', 'Germany');
         await flushPromises();
-        const sidebar = wrapper.findComponent(ContextualSidebar);
-        expect(sidebar.exists()).toBe(true);
+        const panel = wrapper.findComponent(CountryFundingPanel);
+        expect(panel.exists()).toBe(true);
 
-        sidebar.vm.$emit('close');
+        panel.vm.$emit('close');
         await flushPromises();
 
-        expect(wrapper.findComponent(ContextualSidebar).exists()).toBe(false);
+        expect(wrapper.findComponent(CountryFundingPanel).exists()).toBe(false);
     });
 
     it('defaults to dark theme when no localStorage value exists', async () => {
         localStorage.removeItem('gfi-dgms-settings');
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
+        findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
         await flushPromises();
@@ -289,8 +155,7 @@ describe('App', () => {
 
     it('loads theme from localStorage on mount', async () => {
         localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
+        findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
         await flushPromises();
@@ -300,8 +165,7 @@ describe('App', () => {
 
     it('persists theme change to localStorage', async () => {
         localStorage.removeItem('gfi-dgms-settings');
-        findAllMock.mockResolvedValue([GERMANY]);
-        executeMock.mockResolvedValue(RESULTS);
+        findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
         await flushPromises();
@@ -318,8 +182,7 @@ describe('App', () => {
     describe('settings persistence errors', () => {
         it('throws SettingsParseError when localStorage contains invalid JSON', async () => {
             localStorage.setItem('gfi-dgms-settings', '{invalid json}');
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             expect(() => mountApp()).toThrow(SettingsParseError);
         });
@@ -331,8 +194,7 @@ describe('App', () => {
             const mockLocalStorage = createMockLocalStorage({ getItem });
             vi.stubGlobal('localStorage', mockLocalStorage);
             try {
-                findAllMock.mockResolvedValue([GERMANY]);
-                executeMock.mockResolvedValue(RESULTS);
+                findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
                 const wrapper = mountApp();
                 await flushPromises();
@@ -351,8 +213,7 @@ describe('App', () => {
             const mockLocalStorage = createMockLocalStorage({ setItem });
             vi.stubGlobal('localStorage', mockLocalStorage);
             try {
-                findAllMock.mockResolvedValue([GERMANY]);
-                executeMock.mockResolvedValue(RESULTS);
+                findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
                 const capturedErrors: unknown[] = [];
 
@@ -390,8 +251,7 @@ describe('App', () => {
     describe('theme prop', () => {
         it('uses the theme prop value when provided, overrides localStorage', async () => {
             localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'dark' }));
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
                 props: { theme: 'light' },
@@ -404,8 +264,7 @@ describe('App', () => {
 
         it('uses the theme prop value when provided, regardless of localStorage', async () => {
             localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
                 props: { theme: 'colorblind-dark' },
@@ -417,8 +276,7 @@ describe('App', () => {
 
         it('falls back to localStorage when theme prop is not provided', async () => {
             localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp();
             await flushPromises();
@@ -428,8 +286,7 @@ describe('App', () => {
 
         it('defaults to dark when neither theme prop nor localStorage is set', async () => {
             localStorage.removeItem('gfi-dgms-settings');
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp();
             await flushPromises();
@@ -439,8 +296,7 @@ describe('App', () => {
 
         it('still persists through localStorage when theme prop is used', async () => {
             localStorage.removeItem('gfi-dgms-settings');
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             mountApp({
                 props: { theme: 'colorblind-light' },
@@ -453,8 +309,7 @@ describe('App', () => {
 
         it('falls back to settings when theme prop has an invalid runtime value', async () => {
             localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
                 props: { theme: 'invalid-theme' as unknown as ThemeMode },
@@ -467,8 +322,7 @@ describe('App', () => {
 
         it('updates the UI when theme prop changes', async () => {
             localStorage.removeItem('gfi-dgms-settings');
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
                 props: { theme: 'dark' },
@@ -484,44 +338,41 @@ describe('App', () => {
             expect(wrapper.find('.theme-light').exists()).toBe(true);
         });
 
-        it('passes theme mode to ContextualSidebar', async () => {
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+        it('passes theme mode to CountryFundingPanel', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
                 props: { theme: 'light' },
             });
             await flushPromises();
 
-            wrapper.findComponent(InteractiveMap).vm.$emit('country-select', GERMANY.id);
+            wrapper.findComponent(InteractiveMap).vm.$emit('country-select', 'Germany');
             await flushPromises();
 
-            expect(wrapper.findComponent(ContextualSidebar).props('themeMode')).toBe('light');
+            expect(wrapper.findComponent(CountryFundingPanel).props('themeMode')).toBe('light');
         });
 
-        it('updates ContextualSidebar theme when theme prop changes', async () => {
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+        it('updates CountryFundingPanel theme when theme prop changes', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
                 props: { theme: 'dark' },
             });
             await flushPromises();
 
-            wrapper.findComponent(InteractiveMap).vm.$emit('country-select', GERMANY.id);
+            wrapper.findComponent(InteractiveMap).vm.$emit('country-select', 'Germany');
             await flushPromises();
-            const sidebar = wrapper.findComponent(ContextualSidebar);
-            expect(sidebar.props('themeMode')).toBe('dark');
+            const panel = wrapper.findComponent(CountryFundingPanel);
+            expect(panel.props('themeMode')).toBe('dark');
 
             await wrapper.setProps({ theme: 'light' });
             await flushPromises();
 
-            expect(sidebar.props('themeMode')).toBe('light');
+            expect(panel.props('themeMode')).toBe('light');
         });
 
         it('applies theme CSS variables to the app container', async () => {
-            findAllMock.mockResolvedValue([GERMANY]);
-            executeMock.mockResolvedValue(RESULTS);
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
                 props: { theme: 'dark' },
