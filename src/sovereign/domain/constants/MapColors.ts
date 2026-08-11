@@ -12,8 +12,6 @@ export const MapColors = {
     BORDER: '#000000',
 } as const;
 
-export const FUNDING_PROGRESS_THRESHOLDS: readonly number[] = [0.5, 0.8, 1.0, 1.2];
-
 // Okabe-Ito colorblind-safe palette: blue -> sky blue -> bluish green -> orange -> vermillion
 export const COLORBLIND_FUNDING_PROGRESS_COLORS: readonly string[] = [
     '#0072B2',
@@ -40,22 +38,6 @@ export function getFundingProgressColors(mode: ThemeMode): readonly string[] {
         MapColors.GREEN,
         MapColors.NEON_GREEN,
     ];
-}
-
-/**
- * Selects the color representing a funding progress value for the specified theme.
- *
- * @param fundingProgress - The funding progress value to classify.
- * @param mode - The theme mode used to select the color palette.
- * @returns The color corresponding to the first threshold greater than the funding progress, or the final palette color when all thresholds are met.
- */
-export function getColorForFundingProgress(
-    fundingProgress: number,
-    mode: ThemeMode = 'dark',
-): string {
-    const colors = getFundingProgressColors(mode);
-    const index = FUNDING_PROGRESS_THRESHOLDS.findIndex((threshold) => fundingProgress < threshold);
-    return index === -1 ? colors[colors.length - 1] : colors[index];
 }
 
 /**

@@ -121,8 +121,8 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 
 - **Purpose**: Pure business logic, no external dependencies
 - **Contents**:
-  - Domain entities (e.g., `Country`)
-  - Value objects (e.g., `TargetBudget`, `InvestmentAmount`)
+  - Domain entities (e.g., `Grant`, `CountryFunding`)
+  - Value objects (e.g., `GrantId`, `CountryName`)
   - Domain errors (e.g., `DomainError`)
 - **Rules**: No Vue, no infrastructure imports, no side effects
 
