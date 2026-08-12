@@ -16,8 +16,24 @@ describe('CountryFunding', () => {
 
             expect(funding.totalAmountUsd).toBe(3_500_000);
             expect(funding.disclosedGrantCount).toBe(2);
-            expect(funding.grants).toBe(grants);
             expect(funding.countryName).toBe('France');
+        });
+
+        it('is unaffected by mutations to the input grants array after construction', () => {
+            const grants = [
+                buildGrant({ id: 'rec1', amountUsd: 1_000_000 }),
+                buildGrant({ id: 'rec2', amountUsd: null }),
+                buildGrant({ id: 'rec3', amountUsd: 2_500_000 }),
+            ];
+
+            const funding = new CountryFunding(CountryName('France'), grants);
+
+            grants.push(buildGrant({ id: 'rec4', amountUsd: 9_000_000 }));
+            grants.splice(0, 1);
+
+            expect(funding.totalAmountUsd).toBe(3_500_000);
+            expect(funding.disclosedGrantCount).toBe(2);
+            expect(funding.grants).toHaveLength(3);
         });
 
         it('returns zero totals for an empty grant list', () => {
