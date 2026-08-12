@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
     createWrapper,
     FRANCE_FUNDING,
+    FRANCE_FUNDING_WITH_UNSAFE_URL,
     GERMANY_FUNDING,
 } from './CountryFundingPanel.spec.fixtures';
 
@@ -84,6 +85,20 @@ describe('CountryFundingPanel', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
 
             expect(wrapper.findAll('.grant-item')[1].find('.grant-link').exists()).toBe(false);
+        });
+
+        it('does not render a source link for an unsafe scheme such as javascript:', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING_WITH_UNSAFE_URL });
+
+            expect(wrapper.findAll('.grant-item')[1].find('.grant-link').exists()).toBe(false);
+        });
+
+        it('still renders the source link for a valid https URL alongside an unsafe one', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING_WITH_UNSAFE_URL });
+
+            expect(wrapper.findAll('.grant-item')[0].find('.grant-link').attributes('href')).toBe(
+                'https://example.com/announcement-1',
+            );
         });
     });
 

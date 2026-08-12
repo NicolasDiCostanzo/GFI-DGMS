@@ -35,7 +35,28 @@ export const GRANT_TWO = new Grant(
     null,
 );
 
+export const GRANT_THREE = new Grant(
+    GrantId('rec3'),
+    'France',
+    'Unsafe source URL grant',
+    null,
+    [],
+    null,
+    null,
+    null,
+    null,
+    null,
+    [],
+    [],
+    'javascript:alert(1)',
+);
+
 export const FRANCE_FUNDING = new CountryFunding(CountryName('France'), [GRANT_ONE, GRANT_TWO]);
+
+export const FRANCE_FUNDING_WITH_UNSAFE_URL = new CountryFunding(CountryName('France'), [
+    GRANT_ONE,
+    GRANT_THREE,
+]);
 
 export const GERMANY_FUNDING = new CountryFunding(CountryName('Germany'), []);
 
