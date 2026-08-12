@@ -9,6 +9,7 @@ const OUTPUT_PATH = new URL(
 );
 const MAX_RETRIES = 3;
 const BASE_BACKOFF_MS = 1_000;
+const REQUEST_TIMEOUT_MS = 30_000;
 
 function isRetryableStatus(status) {
     return status === 429 || (status >= 500 && status <= 599);
@@ -22,13 +23,19 @@ function getRetryDelayMs(response, attempt) {
             return seconds * 1_000;
         }
     }
+    if (response.status === 429) {
+        return REQUEST_TIMEOUT_MS;
+    }
     return BASE_BACKOFF_MS * 2 ** attempt;
 }
 
 async function fetchWithRetry(url, init) {
     let lastResponse;
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
-        const response = await fetch(url, init);
+        const response = await fetch(url, {
+            ...init,
+            signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
         if (response.ok) {
             return response;
         }
@@ -58,7 +65,6 @@ async function fetchAllRecords(token) {
 
         const response = await fetchWithRetry(url, {
             headers: { Authorization: `Bearer ${token}` },
-            signal: AbortSignal.timeout(30_000),
         });
 
         const data = await response.json();
