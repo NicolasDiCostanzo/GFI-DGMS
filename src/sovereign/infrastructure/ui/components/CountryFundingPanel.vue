@@ -81,7 +81,12 @@ function formatList(values: readonly string[]): string {
 <template>
     <aside
         class="country-funding-panel"
-        :style="{ '--text': themeMode === 'dark' ? '#ffffff' : '#000000' }"
+        :style="{
+            '--text':
+                themeMode === 'dark' || themeMode === 'colorblind-dark' ? '#ffffff' : '#000000',
+            '--link':
+                themeMode === 'dark' || themeMode === 'colorblind-dark' ? '#64b5f6' : '#1565c0',
+        }"
     >
         <button class="close-button" aria-label="Close panel" @click="emit('close')">
             <svg
@@ -302,10 +307,22 @@ function formatList(values: readonly string[]): string {
     margin: 2px 0 0;
 }
 
+.grant-link,
+.source-link {
+    color: var(--link, #1565c0);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
 .grant-link {
     display: inline-block;
     margin-top: 8px;
     font-size: 12px;
+}
+
+.grant-link:hover,
+.source-link:hover {
+    opacity: 0.7;
 }
 
 .panel-footer {

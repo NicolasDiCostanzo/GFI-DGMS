@@ -1,3 +1,4 @@
+import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { CountryFunding, CountryName } from '@/sovereign/domain/CountryFunding';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 import { mount } from '@vue/test-utils';
@@ -62,7 +63,7 @@ export const GERMANY_FUNDING = new CountryFunding(CountryName('Germany'), []);
 
 export interface WrapperOptions {
     countryFunding?: CountryFunding | null;
-    themeMode?: 'light' | 'dark';
+    themeMode?: ThemeMode;
 }
 
 /**

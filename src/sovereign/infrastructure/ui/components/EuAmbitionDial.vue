@@ -152,6 +152,8 @@ function onStopsKeydown(event: KeyboardEvent): void {
     border: 1px solid rgba(128, 128, 128, 0.4);
     border-radius: 4px;
     background: transparent;
+    /* Buttons don't inherit color; explicit value keeps non-selected stops readable on dark themes */
+    color: var(--text, #000000);
     cursor: pointer;
 }
 
