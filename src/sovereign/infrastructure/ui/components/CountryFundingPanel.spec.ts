@@ -150,4 +150,22 @@ describe('CountryFundingPanel', () => {
             );
         });
     });
+
+    describe('theme modes', () => {
+        it.each([
+            ['dark', '#ffffff', '#64b5f6'],
+            ['colorblind-dark', '#ffffff', '#64b5f6'],
+            ['light', '#000000', '#1565c0'],
+            ['colorblind-light', '#000000', '#1565c0'],
+        ] as const)(
+            'sets --text and --link for the %s theme',
+            (themeMode, expectedTextColor, expectedLinkColor) => {
+                const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode });
+                const style = wrapper.find('.country-funding-panel').attributes('style');
+
+                expect(style).toContain(`--text: ${expectedTextColor}`);
+                expect(style).toContain(`--link: ${expectedLinkColor}`);
+            },
+        );
+    });
 });
