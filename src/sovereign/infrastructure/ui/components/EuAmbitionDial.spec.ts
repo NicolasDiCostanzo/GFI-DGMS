@@ -39,7 +39,7 @@ describe('EuAmbitionDial', () => {
 
             expect(text).toContain('€111bn/year GVA');
             expect(text).toContain('414,000 jobs');
-            expect(text).toContain('€79bn domestic market, €60bn exports');
+            expect(text).toContain('€53bn domestic market, €60bn exports');
             expect(text).toContain('€1.4bn/year public investment needed');
             expect(text).toContain('Moderate Policy Support (2040)');
         });
