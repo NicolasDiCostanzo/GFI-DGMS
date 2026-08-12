@@ -2,8 +2,8 @@
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { computed } from 'vue';
-import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
 import { formatInvestment } from '../utils/formatInvestment';
+import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
 
 const AIRTABLE_SOURCE_URL =
     'https://airtable.com/app9etL9LpZ9MKX3v/shr3Czph4N1AWaE18/tblxsTk9dw1Kq1qid';
@@ -39,6 +39,23 @@ const emit = defineEmits<{
 
 const countryName = computed(() => props.countryFunding?.countryName ?? '');
 const grants = computed(() => props.countryFunding?.grants ?? []);
+
+function isValidHttpUrl(value: string): boolean {
+    try {
+        const url = new URL(value);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
+const grantsWithValidatedUrls = computed(() =>
+    grants.value.map((grant) => ({
+        grant,
+        sourceUrl:
+            grant.sourceUrl !== null && isValidHttpUrl(grant.sourceUrl) ? grant.sourceUrl : null,
+    })),
+);
 
 const totalAmountLabel = computed(() =>
     props.countryFunding ? formatInvestment(props.countryFunding.totalAmountUsd / 1_000_000) : '',
@@ -110,7 +127,11 @@ function formatList(values: readonly string[]): string {
             <EnvironmentalImpactPanel :grants="grants" />
 
             <ul class="grant-list">
-                <li v-for="grant in grants" :key="grant.id" class="grant-item">
+                <li
+                    v-for="{ grant, sourceUrl } in grantsWithValidatedUrls"
+                    :key="grant.id"
+                    class="grant-item"
+                >
                     <div class="grant-title">{{ grant.projectTitle ?? 'Untitled grant' }}</div>
                     <div class="grant-amount">{{ formatGrantAmount(grant.amountUsd) }}</div>
                     <dl class="grant-details">
@@ -130,9 +151,9 @@ function formatList(values: readonly string[]): string {
                         <dd>{{ formatList(grant.yearsDisbursed) }}</dd>
                     </dl>
                     <a
-                        v-if="grant.sourceUrl"
+                        v-if="sourceUrl"
                         class="grant-link"
-                        :href="grant.sourceUrl"
+                        :href="sourceUrl"
                         target="_blank"
                         rel="noopener noreferrer"
                         >View announcement</a
