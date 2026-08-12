@@ -7,18 +7,20 @@ export const CountryName = (name: string): CountryName => name as CountryName;
 export class CountryFunding {
     readonly totalAmountUsd: number;
     readonly disclosedGrantCount: number;
+    readonly grants: readonly Grant[];
 
     constructor(
         readonly countryName: CountryName,
-        readonly grants: readonly Grant[],
+        grants: readonly Grant[],
     ) {
-        const mismatchedGrant = grants.find((grant) => grant.country !== countryName);
+        this.grants = Object.freeze([...grants]);
+        const mismatchedGrant = this.grants.find((grant) => grant.country !== countryName);
         if (mismatchedGrant) {
             throw new GrantCountryMismatchException(
                 `CountryFunding grant ${mismatchedGrant.id} has country ${mismatchedGrant.country}, expected ${countryName}`,
             );
         }
-        const disclosedGrants = grants.filter(
+        const disclosedGrants = this.grants.filter(
             (grant): grant is Grant & { amountUsd: number } => grant.amountUsd !== null,
         );
         this.totalAmountUsd = disclosedGrants.reduce((sum, grant) => sum + grant.amountUsd, 0);
