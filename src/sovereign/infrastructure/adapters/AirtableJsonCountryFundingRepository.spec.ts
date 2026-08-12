@@ -7,7 +7,11 @@ import {
     loadGrantRecords,
     type GrantRecord,
 } from './AirtableJsonCountryFundingRepository';
-import { buildRecord } from './AirtableJsonCountryFundingRepository.spec.fixtures';
+import {
+    buildInvalidRecord,
+    buildRecord,
+    VALIDATION_CASES,
+} from './AirtableJsonCountryFundingRepository.spec.fixtures';
 
 describe('loadGrantRecords', () => {
     afterEach(() => {
@@ -36,6 +40,20 @@ describe('loadGrantRecords', () => {
 
         await expect(loadGrantRecords()).rejects.toThrow('Failed to load grant data: 404');
     });
+
+    it('throws when the payload is not an array', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve({ records: grantsData }),
+            }),
+        );
+
+        await expect(loadGrantRecords()).rejects.toThrow(
+            'Failed to load grant data: payload must be an array of grant records',
+        );
+    });
 });
 
 describe('AirtableJsonCountryFundingRepository', () => {
@@ -50,6 +68,36 @@ describe('AirtableJsonCountryFundingRepository', () => {
             );
 
             expect(repository).toBeInstanceOf(AirtableJsonCountryFundingRepository);
+        });
+
+        it('throws GrantDataValidationError when a record is not an object', () => {
+            const records = ['not-an-object'] as unknown as GrantRecord[];
+
+            expect(() => new AirtableJsonCountryFundingRepository(records)).toThrow(
+                GrantDataValidationError,
+            );
+        });
+
+        it('throws GrantDataValidationError when a record is null', () => {
+            const records = [null] as unknown as GrantRecord[];
+
+            expect(() => new AirtableJsonCountryFundingRepository(records)).toThrow(
+                GrantDataValidationError,
+            );
+        });
+
+        it('throws GrantDataValidationError when a record is an array', () => {
+            const records = [[]] as unknown as GrantRecord[];
+
+            expect(() => new AirtableJsonCountryFundingRepository(records)).toThrow(
+                GrantDataValidationError,
+            );
+        });
+
+        it.each(VALIDATION_CASES)('throws %s', (_title, overrides) => {
+            expect(
+                () => new AirtableJsonCountryFundingRepository(buildInvalidRecord(overrides)),
+            ).toThrow(GrantDataValidationError);
         });
 
         it('throws GrantDataValidationError when id is missing', () => {

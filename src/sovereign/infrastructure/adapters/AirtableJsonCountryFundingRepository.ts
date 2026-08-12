@@ -1,6 +1,6 @@
 import { CountryFunding, CountryName } from '../../domain/CountryFunding';
-import { CountryFundingRepository } from '../../domain/repository/CountryFundingRepository';
 import { Grant, GrantId } from '../../domain/Grant';
+import { CountryFundingRepository } from '../../domain/repository/CountryFundingRepository';
 import { GrantDataValidationError } from '../errors/GrantDataValidationError';
 
 // grants.json is ~1.2MB (real grant descriptions/funder names for 791 records) — a static
@@ -19,7 +19,11 @@ export async function loadGrantRecords(): Promise<GrantRecord[]> {
     if (!response.ok) {
         throw new Error(`Failed to load grant data: ${response.status} ${response.statusText}`);
     }
-    return (await response.json()) as GrantRecord[];
+    const payload: unknown = await response.json();
+    if (!Array.isArray(payload)) {
+        throw new Error('Failed to load grant data: payload must be an array of grant records');
+    }
+    return payload;
 }
 
 export interface GrantRecord {
@@ -70,11 +74,7 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
         const grantsByCountry = new Map<string, Grant[]>();
 
         records.forEach((record, index) => {
-            if (typeof record.id !== 'string' || record.id.trim() === '') {
-                throw new GrantDataValidationError(
-                    `Invalid grant record at index ${index + 1}: 'id' must be a non-empty string`,
-                );
-            }
+            this.validateRecord(record, index + 1);
 
             const canonicalCountry = resolveCountryName(record.country);
             const grant = new Grant(
@@ -109,6 +109,65 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
                 new CountryFunding(CountryName(country), countryGrants),
             ]),
         );
+    }
+
+    private assertNullableString(record: GrantRecord, index: number, fieldName: string): void {
+        const value = record[fieldName as keyof GrantRecord];
+        if (value !== null && typeof value !== 'string') {
+            throw new GrantDataValidationError(
+                `Invalid grant record at index ${index}: '${fieldName}' must be a string or null`,
+            );
+        }
+    }
+
+    private assertStringArray(record: GrantRecord, index: number, fieldName: string): void {
+        const value = record[fieldName as keyof GrantRecord];
+        if (!Array.isArray(value) || value.some((entry) => typeof entry !== 'string')) {
+            throw new GrantDataValidationError(
+                `Invalid grant record at index ${index}: '${fieldName}' must be an array of strings`,
+            );
+        }
+    }
+
+    private validateRecord(record: GrantRecord, index: number): void {
+        if (typeof record !== 'object' || record === null || Array.isArray(record)) {
+            throw new GrantDataValidationError(
+                `Invalid grant record at index ${index}: record must be an object`,
+            );
+        }
+
+        if (typeof record.id !== 'string' || record.id.trim() === '') {
+            throw new GrantDataValidationError(
+                `Invalid grant record at index ${index}: 'id' must be a non-empty string`,
+            );
+        }
+
+        this.assertNullableString(record, index, 'dateAnnounced');
+        this.assertNullableString(record, index, 'country');
+        this.assertStringArray(record, index, 'funderAgencies');
+        this.assertNullableString(record, index, 'funderName');
+        this.assertNullableString(record, index, 'recipients');
+        this.assertNullableString(record, index, 'projectTitle');
+        this.assertNullableString(record, index, 'description');
+
+        const fundingAmountUsd = record.fundingAmountUsd;
+        if (fundingAmountUsd !== null && typeof fundingAmountUsd !== 'number') {
+            throw new GrantDataValidationError(
+                `Invalid grant record at index ${index}: 'fundingAmountUsd' must be a number or null`,
+            );
+        }
+        if (typeof fundingAmountUsd === 'number' && !Number.isFinite(fundingAmountUsd)) {
+            throw new GrantDataValidationError(
+                `Invalid grant record at index ${index}: 'fundingAmountUsd' must be finite`,
+            );
+        }
+
+        this.assertNullableString(record, index, 'yearForAnnualFigures');
+        this.assertStringArray(record, index, 'yearsDisbursed');
+        this.assertNullableString(record, index, 'aim');
+        this.assertNullableString(record, index, 'fundingInstrument');
+        this.assertStringArray(record, index, 'productionPlatforms');
+        this.assertNullableString(record, index, 'sourceUrl');
     }
 
     async findByCountryName(name: CountryName): Promise<CountryFunding | null> {
