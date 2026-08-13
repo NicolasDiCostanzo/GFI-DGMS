@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
     createWrapper,
     FRANCE_FUNDING,
+    FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
     FRANCE_FUNDING_WITH_UNSAFE_URL,
     GERMANY_FUNDING,
 } from './CountryFundingPanel.spec.fixtures';
@@ -19,6 +20,12 @@ describe('CountryFundingPanel', () => {
             const wrapper = createWrapper();
 
             expect(wrapper.find('.projection-section').exists()).toBe(false);
+        });
+
+        it('does not render a grant table', () => {
+            const wrapper = createWrapper();
+
+            expect(wrapper.find('.grant-table').exists()).toBe(false);
         });
     });
 
@@ -44,14 +51,14 @@ describe('CountryFundingPanel', () => {
         });
     });
 
-    describe('grant list', () => {
-        it('renders one item per grant', () => {
+    describe('grant table', () => {
+        it('renders one row per grant', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
 
             expect(wrapper.findAll('.grant-item')).toHaveLength(2);
         });
 
-        it('renders a fully populated grant', () => {
+        it('renders a fully populated grant row', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
             const text = wrapper.findAll('.grant-item')[0].text();
 
@@ -61,16 +68,34 @@ describe('CountryFundingPanel', () => {
             expect(text).toContain('Bpifrance and the European Commission');
             expect(text).toContain('Gourmey');
             expect(text).toContain('Funding to scale up bioreactor capacity.');
-            expect(text).toContain('Commercialization');
-            expect(text).toContain('Cultivated');
+            expect(text).toContain('Comm.');
+            expect(text).toContain('CM');
             expect(text).toContain('2024, 2025');
         });
 
-        it('links to the grant source URL when present', () => {
+        it('renders the funding instrument chip with the cleaned label', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const link = wrapper.findAll('.grant-item')[0].find('.grant-link');
+            const row = wrapper.findAll('.grant-item')[0];
 
-            expect(link.attributes('href')).toBe('https://example.com/announcement-1');
+            expect(row.find('.instrument-chip').text()).toBe('Business Grant');
+        });
+
+        it('renders the aim chip with the short label', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const row = wrapper.findAll('.grant-item')[0];
+
+            expect(row.find('.aim-chip').text()).toBe('Comm.');
+        });
+
+        it('renders the production platform segments in PB, CM, FM order', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const row = wrapper.findAll('.grant-item')[0];
+            const segments = row.findAll('.platform-segment');
+
+            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+            expect(segments[0].classes()).not.toContain('is-active');
+            expect(segments[1].classes()).toContain('is-active');
+            expect(segments[2].classes()).not.toContain('is-active');
         });
 
         it('renders defaults for a grant with no disclosed fields', () => {
@@ -79,6 +104,13 @@ describe('CountryFundingPanel', () => {
 
             expect(text).toContain('Undisclosed');
             expect(text).toContain('Not specified');
+        });
+
+        it('links to the grant source URL when present', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const link = wrapper.findAll('.grant-item')[0].find('.grant-link');
+
+            expect(link.attributes('href')).toBe('https://example.com/announcement-1');
         });
 
         it('does not render a source link when the grant has none', () => {
@@ -99,6 +131,124 @@ describe('CountryFundingPanel', () => {
             expect(wrapper.findAll('.grant-item')[0].find('.grant-link').attributes('href')).toBe(
                 'https://example.com/announcement-1',
             );
+        });
+    });
+
+    describe('aim row tinting', () => {
+        it('tints the row with the light aim palette in light mode', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode: 'light' });
+            const row = wrapper.findAll('.grant-item')[0];
+            const style = row.attributes('style') ?? '';
+
+            expect(style).toContain('background-color: rgba(46, 125, 50, 0.08)');
+            expect(style).toContain('border-color: #2e7d32');
+        });
+
+        it('tints the row with the dark aim palette in dark mode', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode: 'dark' });
+            const row = wrapper.findAll('.grant-item')[0];
+            const style = row.attributes('style') ?? '';
+
+            expect(style).toContain('background-color: rgba(129, 199, 132, 0.12)');
+            expect(style).toContain('border-color: #81c784');
+        });
+    });
+
+    describe('description expansion', () => {
+        it('shows a short description without a toggle', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const row = wrapper.findAll('.grant-item')[0];
+
+            expect(row.find('.description-cell').text()).toContain(
+                'Funding to scale up bioreactor capacity.',
+            );
+            expect(row.find('.description-toggle').exists()).toBe(false);
+        });
+
+        it('shows a truncated preview with a toggle for a long description', () => {
+            const wrapper = createWrapper({
+                countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
+            });
+            const row = wrapper.findAll('.grant-item')[0];
+
+            expect(row.find('.description-toggle').exists()).toBe(true);
+            expect(row.find('.description-toggle').text()).toBe('Show more');
+        });
+
+        it('expands the description when the toggle is clicked', async () => {
+            const wrapper = createWrapper({
+                countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
+            });
+            const row = wrapper.findAll('.grant-item')[0];
+
+            await row.find('.description-toggle').trigger('click');
+
+            expect(row.find('.description-cell').text()).toContain(
+                'This is a very long description that definitely exceeds one hundred and twenty characters so that it should be truncated and made expandable in the table view.',
+            );
+            expect(row.find('.description-toggle').text()).toBe('Show less');
+        });
+
+        it('collapses the description when the toggle is clicked again', async () => {
+            const wrapper = createWrapper({
+                countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
+            });
+            const row = wrapper.findAll('.grant-item')[0];
+
+            await row.find('.description-toggle').trigger('click');
+            await row.find('.description-toggle').trigger('click');
+
+            expect(row.find('.description-toggle').text()).toBe('Show more');
+        });
+
+        it('shows Not specified for a null description without a toggle', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const row = wrapper.findAll('.grant-item')[1];
+
+            expect(row.find('.description-cell').text()).toContain('Not specified');
+            expect(row.find('.description-toggle').exists()).toBe(false);
+        });
+    });
+
+    describe('legends', () => {
+        it('renders an aim legend with one swatch per aim', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const swatches = wrapper.findAll('.aim-legend .legend-swatch');
+
+            expect(swatches).toHaveLength(3);
+            expect(swatches.map((s) => s.text())).toEqual([
+                'Research & Development',
+                'Commercialization',
+                'Mixed',
+            ]);
+        });
+
+        it('renders a funding instrument legend with one swatch per family', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const swatches = wrapper.findAll('.instrument-legend .legend-swatch');
+
+            expect(swatches).toHaveLength(6);
+            expect(swatches.map((s) => s.text())).toEqual([
+                'Research',
+                'Business',
+                'Debt',
+                'Equity',
+                'Infrastructure',
+                'Other',
+            ]);
+        });
+
+        it('renders a production platform legend with the three segments', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const segments = wrapper.findAll('.platform-legend .platform-segment');
+
+            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+        });
+
+        it('does not render legends when there are no grants', () => {
+            const wrapper = createWrapper({ countryFunding: GERMANY_FUNDING });
+
+            expect(wrapper.find('.table-legends').exists()).toBe(false);
         });
     });
 

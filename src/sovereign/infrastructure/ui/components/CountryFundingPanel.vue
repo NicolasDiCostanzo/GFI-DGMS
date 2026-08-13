@@ -2,8 +2,17 @@
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { computed, ref } from 'vue';
+import { getAimLegend } from '../constants/AimDisplay';
+import { getFundingInstrumentLegend } from '../constants/FundingInstrumentDisplay';
 import { formatInvestment } from '../utils/formatInvestment';
+import AimLegend from './AimLegend.vue';
+import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
+import CountryHeader from './CountryHeader.vue';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
+import InstrumentLegend from './InstrumentLegend.vue';
+import PanelFooter from './PanelFooter.vue';
+import PlatformLegend from './PlatformLegend.vue';
+import ProjectionSection from './ProjectionSection.vue';
 
 const AIRTABLE_SOURCE_URL =
     'https://airtable.com/app9etL9LpZ9MKX3v/shr3Czph4N1AWaE18/tblxsTk9dw1Kq1qid';
@@ -42,22 +51,8 @@ const isExpanded = ref(false);
 const countryName = computed(() => props.countryFunding?.countryName ?? '');
 const grants = computed(() => props.countryFunding?.grants ?? []);
 
-function isValidHttpUrl(value: string): boolean {
-    try {
-        const url = new URL(value);
-        return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch {
-        return false;
-    }
-}
-
-const grantsWithValidatedUrls = computed(() =>
-    grants.value.map((grant) => ({
-        grant,
-        sourceUrl:
-            grant.sourceUrl !== null && isValidHttpUrl(grant.sourceUrl) ? grant.sourceUrl : null,
-    })),
-);
+const aimLegend = computed(() => getAimLegend(props.themeMode));
+const instrumentLegend = computed(() => getFundingInstrumentLegend(props.themeMode));
 
 const totalAmountLabel = computed(() =>
     props.countryFunding ? formatInvestment(props.countryFunding.totalAmountUsd / 1_000_000) : '',
@@ -71,13 +66,19 @@ const disclosureLabel = computed(() => {
 
 const projection = computed(() => COUNTRY_2040_PROJECTIONS[countryName.value] ?? null);
 
-function formatGrantAmount(amountUsd: number | null): string {
-    return amountUsd === null ? 'Undisclosed' : formatInvestment(amountUsd / 1_000_000);
-}
-
-function formatList(values: readonly string[]): string {
-    return values.length > 0 ? values.join(', ') : 'Not specified';
-}
+const tableColumnOrder = [
+    'projectTitle',
+    'recipients',
+    'amountUsd',
+    'funderName',
+    'funderAgencies',
+    'fundingInstrument',
+    'aim',
+    'platform',
+    'yearsDisbursed',
+    'description',
+    'url',
+] as const;
 </script>
 
 <template>
@@ -148,76 +149,30 @@ function formatList(values: readonly string[]): string {
             </svg>
         </button>
         <div class="panel-content">
-            <header class="country-header">
-                <span class="country-name">{{ countryName }}</span>
-            </header>
+            <CountryHeader
+                :country-name="countryName"
+                :total-amount-label="totalAmountLabel"
+                :disclosure-label="disclosureLabel"
+            />
 
-            <div class="total-section">
-                <div class="total-value">{{ totalAmountLabel }}</div>
-                <div class="total-label">total public R&amp;I funding tracked</div>
-                <div class="disclosure-note">{{ disclosureLabel }}</div>
-            </div>
-
-            <div v-if="projection" class="projection-section">
-                <div class="projection-value">
-                    €{{ projection.gvaEurBillions }}bn/year GVA,
-                    {{ projection.jobs.toLocaleString('en-US') }} jobs
-                </div>
-                <div class="projection-label">
-                    Potential by 2040 under a Moderate Policy Support scenario — a single published
-                    projection, not derived from the funding total above.
-                </div>
-                <div class="projection-source">
-                    Source: Systemiq (2026), commissioned by GFI Europe
-                </div>
-            </div>
+            <ProjectionSection v-if="projection" :projection="projection" />
 
             <EnvironmentalImpactPanel :grants="grants" />
 
-            <ul class="grant-list">
-                <li
-                    v-for="{ grant, sourceUrl } in grantsWithValidatedUrls"
-                    :key="grant.id"
-                    class="grant-item"
-                >
-                    <div class="grant-title">{{ grant.projectTitle ?? 'Untitled grant' }}</div>
-                    <div class="grant-amount">{{ formatGrantAmount(grant.amountUsd) }}</div>
-                    <dl class="grant-details">
-                        <dt>Funder agency</dt>
-                        <dd>{{ formatList(grant.funderAgencies) }}</dd>
-                        <dt>Funder name</dt>
-                        <dd>{{ grant.funderName ?? 'Not specified' }}</dd>
-                        <dt>Recipient(s)</dt>
-                        <dd>{{ grant.recipients ?? 'Not specified' }}</dd>
-                        <dt>Description</dt>
-                        <dd>{{ grant.description ?? 'Not specified' }}</dd>
-                        <dt>Aim</dt>
-                        <dd>{{ grant.aim ?? 'Not specified' }}</dd>
-                        <dt>Production platform</dt>
-                        <dd>{{ formatList(grant.productionPlatforms) }}</dd>
-                        <dt>Years disbursed</dt>
-                        <dd>{{ formatList(grant.yearsDisbursed) }}</dd>
-                    </dl>
-                    <a
-                        v-if="sourceUrl"
-                        class="grant-link"
-                        :href="sourceUrl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        >View announcement</a
-                    >
-                </li>
-            </ul>
+            <div v-if="grants.length" class="table-legends">
+                <AimLegend :aims="aimLegend" />
+                <InstrumentLegend :instruments="instrumentLegend" />
+                <PlatformLegend />
+            </div>
 
-            <footer class="panel-footer">
-                <a
-                    class="source-link"
-                    :href="AIRTABLE_SOURCE_URL"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >Data source: SOGPR research funding tracker</a
-                >
-            </footer>
+            <CountryFundingPanelTable
+                v-if="grants.length"
+                :grants="grants"
+                :theme-mode="props.themeMode"
+                :column-order="tableColumnOrder"
+            />
+
+            <PanelFooter :source-url="AIRTABLE_SOURCE_URL" />
         </div>
     </aside>
 </template>
@@ -299,114 +254,5 @@ function formatList(values: readonly string[]): string {
 
 .close-button:hover {
     background: rgba(128, 128, 128, 0.2);
-}
-
-.country-header {
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.total-section {
-    text-align: center;
-}
-
-.total-value {
-    font-size: 28px;
-    font-weight: 700;
-}
-
-.total-label {
-    font-size: 13px;
-}
-
-.disclosure-note {
-    font-size: 11px;
-    font-style: italic;
-    margin-top: 4px;
-}
-
-.projection-section {
-    border-top: 1px solid rgba(128, 128, 128, 0.3);
-    border-bottom: 1px solid rgba(128, 128, 128, 0.3);
-    padding: 12px 0;
-    font-size: 13px;
-}
-
-.projection-value {
-    font-weight: 600;
-    font-size: 15px;
-}
-
-.projection-label {
-    margin-top: 4px;
-}
-
-.projection-source {
-    font-size: 11px;
-    font-style: italic;
-    margin-top: 4px;
-}
-
-.grant-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow-y: auto;
-}
-
-.grant-item {
-    border: 1px solid rgba(128, 128, 128, 0.3);
-    border-radius: 6px;
-    padding: 10px;
-}
-
-.grant-title {
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.grant-amount {
-    font-size: 13px;
-    margin-top: 2px;
-}
-
-.grant-details {
-    font-size: 12px;
-    margin: 8px 0 0;
-}
-
-.grant-details dt {
-    font-weight: 600;
-    margin-top: 6px;
-}
-
-.grant-details dd {
-    margin: 2px 0 0;
-}
-
-.grant-link,
-.source-link {
-    color: var(--link, #1565c0);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-}
-
-.grant-link {
-    display: inline-block;
-    margin-top: 8px;
-    font-size: 12px;
-}
-
-.grant-link:hover,
-.source-link:hover {
-    opacity: 0.7;
-}
-
-.panel-footer {
-    font-size: 11px;
-    text-align: center;
 }
 </style>
