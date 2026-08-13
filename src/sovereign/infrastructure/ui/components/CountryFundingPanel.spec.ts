@@ -1,4 +1,6 @@
+import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { describe, expect, it } from 'vitest';
+import { AIM_PALETTES, getThemeColors } from '../constants/ThemeColors';
 import {
     createWrapper,
     FRANCE_FUNDING,
@@ -139,18 +141,18 @@ describe('CountryFundingPanel', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode: 'light' });
             const row = wrapper.findAll('.grant-item')[0];
             const style = row.attributes('style') ?? '';
-
-            expect(style).toContain('background-color: rgba(46, 125, 50, 0.08)');
-            expect(style).toContain('border-color: #2e7d32');
+            const expected = AIM_PALETTES['Commercialization'].light;
+            expect(style).toContain(`background-color: ${expected.backgroundColor}`);
+            expect(style).toContain(`border-color: ${expected.borderColor}`);
         });
 
         it('tints the row with the dark aim palette in dark mode', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode: 'dark' });
             const row = wrapper.findAll('.grant-item')[0];
             const style = row.attributes('style') ?? '';
-
-            expect(style).toContain('background-color: rgba(129, 199, 132, 0.12)');
-            expect(style).toContain('border-color: #81c784');
+            const expected = AIM_PALETTES['Commercialization'].dark;
+            expect(style).toContain(`background-color: ${expected.backgroundColor}`);
+            expect(style).toContain(`border-color: ${expected.borderColor}`);
         });
     });
 
@@ -334,17 +336,13 @@ describe('CountryFundingPanel', () => {
             expect(wrapper.emitted('close')).toHaveLength(1);
         });
 
-        it.each([
-            ['dark', '#ffffff'],
-            ['colorblind-dark', '#ffffff'],
-            ['light', '#000000'],
-            ['colorblind-light', '#000000'],
-        ] as const)(
+        it.each([['dark'], ['colorblind-dark'], ['light'], ['colorblind-light']] as const)(
             'still applies theme colors when expanded in %s mode',
-            (themeMode, expectedTextColor) => {
+            (themeMode) => {
                 const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode });
                 const style = wrapper.find('.country-funding-panel').attributes('style');
-                expect(style).toContain(`--text: ${expectedTextColor}`);
+                const colors = getThemeColors(themeMode as ThemeMode);
+                expect(style).toContain(`--text: ${colors.TEXT}`);
             },
         );
     });
@@ -360,19 +358,15 @@ describe('CountryFundingPanel', () => {
     });
 
     describe('theme modes', () => {
-        it.each([
-            ['dark', '#ffffff', '#64b5f6'],
-            ['colorblind-dark', '#ffffff', '#64b5f6'],
-            ['light', '#000000', '#1565c0'],
-            ['colorblind-light', '#000000', '#1565c0'],
-        ] as const)(
+        it.each([['dark'], ['colorblind-dark'], ['light'], ['colorblind-light']] as const)(
             'sets --text and --link for the %s theme',
-            (themeMode, expectedTextColor, expectedLinkColor) => {
+            (themeMode) => {
                 const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode });
                 const style = wrapper.find('.country-funding-panel').attributes('style');
 
-                expect(style).toContain(`--text: ${expectedTextColor}`);
-                expect(style).toContain(`--link: ${expectedLinkColor}`);
+                const colors = getThemeColors(themeMode as ThemeMode);
+                expect(style).toContain(`--text: ${colors.TEXT}`);
+                expect(style).toContain(`--link: ${colors.LINK}`);
             },
         );
     });

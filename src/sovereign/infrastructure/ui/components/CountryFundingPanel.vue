@@ -4,6 +4,7 @@ import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { computed, ref } from 'vue';
 import { getAimLegend } from '../constants/AimDisplay';
 import { getFundingInstrumentLegend } from '../constants/FundingInstrumentDisplay';
+import { getThemeColors } from '../constants/ThemeColors';
 import { formatInvestment } from '../utils/formatInvestment';
 import AimLegend from './AimLegend.vue';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
@@ -79,19 +80,36 @@ const tableColumnOrder = [
     'description',
     'url',
 ] as const;
+const cssVars = computed(() => {
+    const colors = getThemeColors(props.themeMode!);
+    return {
+        '--text': colors.TEXT,
+        '--link': colors.LINK,
+        '--on-link': colors.ON_LINK,
+        '--sidebar-bg': colors.SIDEBAR_BG,
+        '--legend-bg': colors.LEGEND_BG,
+        '--legend-text': colors.LEGEND_TEXT,
+        '--accent': colors.ACCENT,
+        '--ocean': colors.OCEAN,
+        '--inactive': colors.INACTIVE,
+        '--border': colors.BORDER,
+        '--tooltip-bg': colors.TOOLTIP_BG,
+        '--tooltip-text': colors.TOOLTIP_TEXT,
+        '--progress-bg': colors.PROGRESS_BG,
+        '--error': colors.ERROR,
+        '--panel-shadow': colors.PANEL_SHADOW,
+        '--panel-shadow-strong': colors.PANEL_SHADOW_STRONG,
+        '--muted-border': colors.MUTED_BORDER,
+        '--muted': colors.MUTED,
+        '--muted-bg': colors.MUTED_BG,
+        '--muted-light': colors.MUTED_LIGHT,
+        '--on-accent': colors.ON_ACCENT,
+    } as Record<string, string>;
+});
 </script>
 
 <template>
-    <aside
-        class="country-funding-panel"
-        :class="{ 'is-expanded': isExpanded }"
-        :style="{
-            '--text':
-                themeMode === 'dark' || themeMode === 'colorblind-dark' ? '#ffffff' : '#000000',
-            '--link':
-                themeMode === 'dark' || themeMode === 'colorblind-dark' ? '#64b5f6' : '#1565c0',
-        }"
-    >
+    <aside class="country-funding-panel" :class="{ 'is-expanded': isExpanded }" :style="cssVars">
         <button
             class="expand-button"
             type="button"
@@ -194,12 +212,12 @@ const tableColumnOrder = [
     width: 380px;
     max-width: none;
     height: 100%;
-    background: var(--sidebar-bg, rgba(255, 255, 255, 0.95));
+    background: var(--sidebar-bg);
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    box-shadow: -8px 0 8px rgba(0, 0, 0, 0.1);
+    box-shadow: -8px 0 8px var(--panel-shadow);
     color: var(--text);
     overflow: hidden;
     transition:
@@ -209,7 +227,7 @@ const tableColumnOrder = [
 
 .country-funding-panel.is-expanded {
     width: 100%;
-    box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 16px var(--panel-shadow-strong);
 }
 
 .expand-button {
@@ -231,7 +249,7 @@ const tableColumnOrder = [
 }
 
 .expand-button:hover {
-    background: rgba(128, 128, 128, 0.2);
+    background: var(--muted-light);
 }
 
 .close-button {
@@ -253,6 +271,6 @@ const tableColumnOrder = [
 }
 
 .close-button:hover {
-    background: rgba(128, 128, 128, 0.2);
+    background: var(--muted-light);
 }
 </style>

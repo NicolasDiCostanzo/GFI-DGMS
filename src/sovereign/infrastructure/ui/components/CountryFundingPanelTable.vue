@@ -5,6 +5,7 @@ import { computed, defineComponent, PropType, ref } from 'vue';
 import { getAimDisplay } from '../constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '../constants/FundingInstrumentDisplay';
 import { getPlatformSegments } from '../constants/ProductionPlatformSegments';
+import { getThemeColors } from '../constants/ThemeColors';
 import { formatInvestment } from '../utils/formatInvestment';
 
 const DEFAULT_COLUMN_ORDER = [
@@ -110,6 +111,12 @@ export default defineComponent({
             return description !== null && description.length > DESCRIPTION_PREVIEW_LENGTH;
         }
 
+        const instrumentTextColor = computed(() => {
+            const colors = getThemeColors(props.themeMode);
+            const isDark = props.themeMode === 'dark' || props.themeMode === 'colorblind-dark';
+            return isDark ? colors.ON_LIGHT : colors.ON_ACCENT;
+        });
+
         const columnLabels: Record<ColumnKey, string> = {
             projectTitle: 'Title',
             recipients: 'Recipient(s)',
@@ -180,6 +187,7 @@ export default defineComponent({
             columns,
             columnLabels,
             getCellValue,
+            instrumentTextColor,
         };
     },
 });
@@ -223,10 +231,7 @@ export default defineComponent({
                                 class="instrument-chip"
                                 :style="{
                                     backgroundColor: row.instrument.color,
-                                    color:
-                                        themeMode === 'dark' || themeMode === 'colorblind-dark'
-                                            ? '#000000'
-                                            : '#ffffff',
+                                    color: instrumentTextColor,
                                 }"
                                 >{{ row.instrument.label }}</span
                             >
@@ -323,13 +328,13 @@ export default defineComponent({
 .grant-table th {
     text-align: left;
     padding: 6px 8px;
-    border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+    border-bottom: 1px solid var(--muted-border);
     font-weight: 600;
 }
 
 .grant-table td {
     padding: 6px 8px;
-    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    border-bottom: 1px solid var(--muted-light);
     vertical-align: top;
 }
 
@@ -349,7 +354,7 @@ export default defineComponent({
 }
 
 .aim-chip--none {
-    color: rgba(128, 128, 128, 0.5);
+    color: var(--muted);
 }
 
 .platform-segment {
@@ -358,15 +363,15 @@ export default defineComponent({
     text-align: center;
     font-size: 11px;
     font-weight: 600;
-    color: rgba(128, 128, 128, 0.5);
-    border: 1px solid rgba(128, 128, 128, 0.3);
+    color: var(--muted);
+    border: 1px solid var(--muted-border);
     border-radius: 3px;
     margin-right: 2px;
 }
 
 .platform-segment.is-active {
     color: var(--text);
-    background-color: rgba(128, 128, 128, 0.15);
+    background-color: var(--muted-bg);
 }
 
 .description-cell {
@@ -374,10 +379,10 @@ export default defineComponent({
     word-break: break-word;
 }
 
-.description-toggle {
+description-toggle {
     margin-left: 6px;
     font-size: 11px;
-    color: var(--link, #1565c0);
+    color: var(--link);
     background: none;
     border: none;
     cursor: pointer;
@@ -386,12 +391,12 @@ export default defineComponent({
 }
 
 .no-url {
-    color: rgba(128, 128, 128, 0.5);
+    color: var(--muted);
 }
 
 .grant-link,
 .source-link {
-    color: var(--link, #1565c0);
+    color: var(--link);
     text-decoration: underline;
     text-underline-offset: 2px;
 }

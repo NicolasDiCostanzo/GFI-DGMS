@@ -3,6 +3,7 @@ import {
     getFundingInstrumentDisplay,
     getFundingInstrumentLegend,
 } from './FundingInstrumentDisplay';
+import { INSTRUMENT_FAMILY_COLORS } from './ThemeColors';
 
 describe('FundingInstrumentDisplay', () => {
     describe('getFundingInstrumentDisplay()', () => {
@@ -10,7 +11,7 @@ describe('FundingInstrumentDisplay', () => {
             expect(getFundingInstrumentDisplay(instrument, 'dark')).toEqual({
                 family: 'Other',
                 label: 'Not specified',
-                color: '#bdbdbd',
+                color: INSTRUMENT_FAMILY_COLORS.Other.dark,
             });
         });
 
@@ -50,17 +51,47 @@ describe('FundingInstrumentDisplay', () => {
             expect(getFundingInstrumentDisplay('Something new', 'dark')).toEqual({
                 family: 'Other',
                 label: 'Something new',
-                color: '#bdbdbd',
+                color: INSTRUMENT_FAMILY_COLORS.Other.dark,
             });
         });
 
         it.each([
-            ['Research', 'Research Grant', '#1565c0', '#64b5f6'],
-            ['Business', 'Business Grant', '#2e7d32', '#81c784'],
-            ['Debt', 'Loan', '#c62828', '#ef5350'],
-            ['Equity', 'Investment', '#6a1b9a', '#ba68c8'],
-            ['Infrastructure', 'Facility Construction', '#00796b', '#26a69a'],
-            ['Other', 'Other', '#616161', '#bdbdbd'],
+            [
+                'Research',
+                'Research Grant',
+                INSTRUMENT_FAMILY_COLORS.Research.light,
+                INSTRUMENT_FAMILY_COLORS.Research.dark,
+            ],
+            [
+                'Business',
+                'Business Grant',
+                INSTRUMENT_FAMILY_COLORS.Business.light,
+                INSTRUMENT_FAMILY_COLORS.Business.dark,
+            ],
+            [
+                'Debt',
+                'Loan',
+                INSTRUMENT_FAMILY_COLORS.Debt.light,
+                INSTRUMENT_FAMILY_COLORS.Debt.dark,
+            ],
+            [
+                'Equity',
+                'Investment',
+                INSTRUMENT_FAMILY_COLORS.Equity.light,
+                INSTRUMENT_FAMILY_COLORS.Equity.dark,
+            ],
+            [
+                'Infrastructure',
+                'Facility Construction',
+                INSTRUMENT_FAMILY_COLORS.Infrastructure.light,
+                INSTRUMENT_FAMILY_COLORS.Infrastructure.dark,
+            ],
+            [
+                'Other',
+                'Other',
+                INSTRUMENT_FAMILY_COLORS.Other.light,
+                INSTRUMENT_FAMILY_COLORS.Other.dark,
+            ],
         ] as const)(
             'uses the %s family color for light and dark',
             (_family, instrument, lightColor, darkColor) => {
@@ -77,7 +108,9 @@ describe('FundingInstrumentDisplay', () => {
         ] as const)('resolves the %s palette the same as %s', (themeMode, paletteFamily) => {
             const darkMode = paletteFamily === 'dark';
             expect(getFundingInstrumentDisplay('Research Grant', themeMode).color).toBe(
-                darkMode ? '#64b5f6' : '#1565c0',
+                darkMode
+                    ? INSTRUMENT_FAMILY_COLORS.Research.dark
+                    : INSTRUMENT_FAMILY_COLORS.Research.light,
             );
         });
     });
@@ -97,12 +130,12 @@ describe('FundingInstrumentDisplay', () => {
         it('returns the dark color for each family in dark mode', () => {
             const legend = getFundingInstrumentLegend('dark');
             expect(legend.map((f) => f.color)).toEqual([
-                '#64b5f6',
-                '#81c784',
-                '#ef5350',
-                '#ba68c8',
-                '#26a69a',
-                '#bdbdbd',
+                INSTRUMENT_FAMILY_COLORS.Research.dark,
+                INSTRUMENT_FAMILY_COLORS.Business.dark,
+                INSTRUMENT_FAMILY_COLORS.Debt.dark,
+                INSTRUMENT_FAMILY_COLORS.Equity.dark,
+                INSTRUMENT_FAMILY_COLORS.Infrastructure.dark,
+                INSTRUMENT_FAMILY_COLORS.Other.dark,
             ]);
         });
     });

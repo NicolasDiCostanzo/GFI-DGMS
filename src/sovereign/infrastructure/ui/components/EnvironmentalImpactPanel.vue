@@ -58,7 +58,7 @@ const sourceText = computed(() =>
 
 <style scoped>
 .environmental-impact-panel {
-    border-top: 1px solid rgba(128, 128, 128, 0.3);
+    border-top: 1px solid var(--muted-border);
     padding-top: 12px;
     font-size: 13px;
 }

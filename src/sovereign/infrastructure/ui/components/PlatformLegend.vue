@@ -24,7 +24,8 @@
     height: 20px;
     padding: 0 6px;
     border-radius: 2px;
-    background: rgba(0, 0, 0, 0.06);
+    background: var(--legend-bg);
+    color: var(--legend-text);
     font-weight: 600;
     font-size: 12px;
 }

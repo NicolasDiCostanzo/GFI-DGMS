@@ -25,8 +25,8 @@ defineProps<{
 
 <style scoped>
 .projection-section {
-    border-top: 1px solid rgba(128, 128, 128, 0.3);
-    border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+    border-top: 1px solid var(--muted-border);
+    border-bottom: 1px solid var(--muted-border);
     padding: 12px 0;
     font-size: 13px;
 }

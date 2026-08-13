@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getAimDisplay } from './AimDisplay';
+import { AIM_PALETTES } from './ThemeColors';
 
 describe('AimDisplay', () => {
     describe('getAimDisplay()', () => {
@@ -23,36 +24,30 @@ describe('AimDisplay', () => {
             expect(display?.shortLabel).toBe(expected.shortLabel);
         });
 
-        it.each([
-            ['Research & Development', '#1565c0', 'rgba(21, 101, 192, 0.08)', '#1565c0'],
-            ['Commercialization', '#2e7d32', 'rgba(46, 125, 50, 0.08)', '#2e7d32'],
-            ['Mixed', '#f57f17', 'rgba(245, 127, 23, 0.08)', '#f57f17'],
-        ] as const)(
+        it.each(Object.keys(AIM_PALETTES) as Array<keyof typeof AIM_PALETTES>)(
             'uses the light palette for %s in light mode',
-            (aim, borderColor, backgroundColor, textColor) => {
+            (aim) => {
+                const palette = AIM_PALETTES[aim].light;
                 expect(getAimDisplay(aim, 'light')).toEqual({
                     label: expect.any(String) as unknown as string,
                     shortLabel: expect.any(String) as unknown as string,
-                    borderColor,
-                    backgroundColor,
-                    textColor,
+                    borderColor: palette.borderColor,
+                    backgroundColor: palette.backgroundColor,
+                    textColor: palette.textColor,
                 });
             },
         );
 
-        it.each([
-            ['Research & Development', '#64b5f6', 'rgba(100, 181, 246, 0.12)', '#64b5f6'],
-            ['Commercialization', '#81c784', 'rgba(129, 199, 132, 0.12)', '#81c784'],
-            ['Mixed', '#ffd54f', 'rgba(255, 213, 79, 0.12)', '#ffd54f'],
-        ] as const)(
+        it.each(Object.keys(AIM_PALETTES) as Array<keyof typeof AIM_PALETTES>)(
             'uses the dark palette for %s in dark mode',
-            (aim, borderColor, backgroundColor, textColor) => {
+            (aim) => {
+                const palette = AIM_PALETTES[aim].dark;
                 expect(getAimDisplay(aim, 'dark')).toEqual({
                     label: expect.any(String) as unknown as string,
                     shortLabel: expect.any(String) as unknown as string,
-                    borderColor,
-                    backgroundColor,
-                    textColor,
+                    borderColor: palette.borderColor,
+                    backgroundColor: palette.backgroundColor,
+                    textColor: palette.textColor,
                 });
             },
         );
@@ -71,17 +66,10 @@ describe('AimDisplay', () => {
                     'Mixed',
                 ] as const) {
                     const darkMode = paletteFamily === 'dark';
-                    const expectedBorder = darkMode
-                        ? aim === 'Research & Development'
-                            ? '#64b5f6'
-                            : aim === 'Commercialization'
-                              ? '#81c784'
-                              : '#ffd54f'
-                        : aim === 'Research & Development'
-                          ? '#1565c0'
-                          : aim === 'Commercialization'
-                            ? '#2e7d32'
-                            : '#f57f17';
+                    const family = aim as keyof typeof AIM_PALETTES;
+                    const expectedBorder = (
+                        darkMode ? AIM_PALETTES[family].dark : AIM_PALETTES[family].light
+                    ).borderColor;
                     expect(getAimDisplay(aim, themeMode)?.borderColor).toBe(expectedBorder);
                 }
             },

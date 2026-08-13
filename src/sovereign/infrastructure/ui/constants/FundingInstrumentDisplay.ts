@@ -1,4 +1,5 @@
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { INSTRUMENT_FAMILY_COLORS } from './ThemeColors';
 
 export interface FundingInstrumentDisplay {
     readonly family: string;
@@ -6,24 +7,7 @@ export interface FundingInstrumentDisplay {
     readonly color: string;
 }
 
-interface FamilyPalette {
-    readonly light: string;
-    readonly dark: string;
-}
-
-// Instruments are grouped into six families so the table can show a colored chip per row
-// while still surfacing the exact instrument name. Families are colorblind-safe and diverge
-// per light/dark theme.
-const FAMILY_COLORS: Readonly<Record<string, FamilyPalette>> = {
-    Research: { light: '#1565c0', dark: '#64b5f6' },
-    Business: { light: '#2e7d32', dark: '#81c784' },
-    Debt: { light: '#c62828', dark: '#ef5350' },
-    Equity: { light: '#6a1b9a', dark: '#ba68c8' },
-    Infrastructure: { light: '#00796b', dark: '#26a69a' },
-    Other: { light: '#616161', dark: '#bdbdbd' },
-};
-
-const FAMILY_ORDER: readonly (keyof typeof FAMILY_COLORS)[] = [
+const FAMILY_ORDER: readonly (keyof typeof INSTRUMENT_FAMILY_COLORS)[] = [
     'Research',
     'Business',
     'Debt',
@@ -34,7 +18,10 @@ const FAMILY_ORDER: readonly (keyof typeof FAMILY_COLORS)[] = [
 
 // Maps each raw instrument value to its family and a cleaned display label.
 const INSTRUMENT_ENTRIES: Readonly<
-    Record<string, { readonly family: keyof typeof FAMILY_COLORS; readonly label: string }>
+    Record<
+        string,
+        { readonly family: keyof typeof INSTRUMENT_FAMILY_COLORS; readonly label: string }
+    >
 > = {
     'Research Grant': { family: 'Research', label: 'Research Grant' },
     'Bilateral Research Grant': { family: 'Research', label: 'Bilateral Research Grant' },
@@ -70,13 +57,17 @@ export function getFundingInstrumentDisplay(
     themeMode: ThemeMode,
 ): FundingInstrumentDisplay {
     if (!instrument) {
-        const color = isDarkTheme(themeMode) ? FAMILY_COLORS.Other.dark : FAMILY_COLORS.Other.light;
+        const color = isDarkTheme(themeMode)
+            ? INSTRUMENT_FAMILY_COLORS.Other.dark
+            : INSTRUMENT_FAMILY_COLORS.Other.light;
         return { family: 'Other', label: 'Not specified', color };
     }
     const entry = INSTRUMENT_ENTRIES[instrument];
     const family = entry?.family ?? 'Other';
     const label = entry?.label ?? instrument;
-    const color = isDarkTheme(themeMode) ? FAMILY_COLORS[family].dark : FAMILY_COLORS[family].light;
+    const color = isDarkTheme(themeMode)
+        ? INSTRUMENT_FAMILY_COLORS[family].dark
+        : INSTRUMENT_FAMILY_COLORS[family].light;
     return { family, label, color };
 }
 
@@ -87,6 +78,8 @@ export function getFundingInstrumentLegend(
     return FAMILY_ORDER.map((family) => ({
         family,
         label: family,
-        color: dark ? FAMILY_COLORS[family].dark : FAMILY_COLORS[family].light,
+        color: dark
+            ? INSTRUMENT_FAMILY_COLORS[family].dark
+            : INSTRUMENT_FAMILY_COLORS[family].light,
     }));
 }

@@ -19,7 +19,7 @@ defineProps<{
 }
 
 .source-link {
-    color: var(--link, #1565c0);
+    color: var(--link);
     text-decoration: underline;
     text-underline-offset: 2px;
 }
