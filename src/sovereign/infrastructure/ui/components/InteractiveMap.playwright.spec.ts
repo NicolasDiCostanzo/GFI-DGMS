@@ -1,35 +1,12 @@
 import { expect, test } from '@/../e2e/coverage-fixtures';
 import { MapColors, toRGB } from '@/sovereign/domain/constants/MapColors';
-import { CountryId } from '@/sovereign/domain/Country';
+import { MOCK_GRANT_RECORDS } from '@/sovereign/infrastructure/ui/components/InteractiveMap.playwright.spec.fixtures';
 import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { checkA11y, injectAxe } from 'axe-playwright';
 
-const GERMANY_ID = CountryId('276');
+const GERMANY_ID = '276';
 const BORDER_COLOR = DARK_THEME_COLORS.BORDER;
 const SELECTION_COLOR = MapColors.SELECTION;
-
-// E2E tests must not depend on the live jsDelivr CDN (network flakiness, cache staleness,
-// and — until this data is pushed to origin/main — a guaranteed 404). Intercepting keeps
-// these tests deterministic and focused on app behavior, not on external infrastructure.
-const MOCK_GRANT_RECORDS = [
-    {
-        id: 'rec1',
-        dateAnnounced: '2024-01-01',
-        country: 'Germany',
-        funderAgencies: ['Federal Ministry of Education and Research (BMBF)'],
-        funderName: 'BMBF',
-        recipients: 'Test Recipient',
-        projectTitle: 'Test grant',
-        description: 'A test grant used only by E2E tests.',
-        fundingAmountUsd: 5_000_000,
-        yearForAnnualFigures: '2024',
-        yearsDisbursed: ['2024'],
-        aim: 'Research & Development',
-        fundingInstrument: 'Research Grant',
-        productionPlatforms: ['Plant-based'],
-        sourceUrl: null,
-    },
-];
 
 test.describe('InteractiveMap', () => {
     test.beforeEach(async ({ page }) => {

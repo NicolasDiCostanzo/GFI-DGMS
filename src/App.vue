@@ -5,6 +5,7 @@ import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { Grant } from '@/sovereign/domain/Grant';
+import { GetCountryFundingOverview } from '@/sovereign/app/GetCountryFundingOverview';
 import {
     AirtableJsonCountryFundingRepository,
     loadGrantRecords,
@@ -171,12 +172,9 @@ onMounted(async () => {
     try {
         const records = await loadGrantRecords();
         const countryFundingRepository = new AirtableJsonCountryFundingRepository(records);
-        const [allFundings, allUnattributed] = await Promise.all([
-            countryFundingRepository.findAll(),
-            countryFundingRepository.findUnattributedGrants(),
-        ]);
-        countryFundings.value = allFundings;
-        unattributedGrants.value = [...allUnattributed];
+        const overview = await new GetCountryFundingOverview(countryFundingRepository).execute();
+        countryFundings.value = overview.countryFundings;
+        unattributedGrants.value = [...overview.unattributedGrants];
     } catch (error) {
         loadError.value = new CountryLoadError(getErrorMessage(error));
     }
