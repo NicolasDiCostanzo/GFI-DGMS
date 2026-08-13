@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { formatInvestment } from '../utils/formatInvestment';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
 
@@ -36,6 +36,8 @@ const props = withDefaults(
 const emit = defineEmits<{
     close: [];
 }>();
+
+const isExpanded = ref(false);
 
 const countryName = computed(() => props.countryFunding?.countryName ?? '');
 const grants = computed(() => props.countryFunding?.grants ?? []);
@@ -81,6 +83,7 @@ function formatList(values: readonly string[]): string {
 <template>
     <aside
         class="country-funding-panel"
+        :class="{ 'is-expanded': isExpanded }"
         :style="{
             '--text':
                 themeMode === 'dark' || themeMode === 'colorblind-dark' ? '#ffffff' : '#000000',
@@ -88,6 +91,46 @@ function formatList(values: readonly string[]): string {
                 themeMode === 'dark' || themeMode === 'colorblind-dark' ? '#64b5f6' : '#1565c0',
         }"
     >
+        <button
+            class="expand-button"
+            type="button"
+            :aria-label="isExpanded ? 'Restore panel' : 'Expand panel'"
+            :aria-expanded="isExpanded"
+            @click="isExpanded = !isExpanded"
+        >
+            <svg
+                v-if="!isExpanded"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    d="M1 6V1H6M15 6V1H10M1 10V15H6M15 10V15H10"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+            </svg>
+            <svg
+                v-else
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    d="M6 1V6H1M10 1V6H15M6 15V10H1M10 15V10H15"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+            </svg>
+        </button>
         <button class="close-button" aria-label="Close panel" @click="emit('close')">
             <svg
                 width="16"
@@ -188,7 +231,14 @@ function formatList(values: readonly string[]): string {
 }
 
 .country-funding-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    box-sizing: border-box;
     width: 380px;
+    max-width: none;
+    height: 100%;
     background: var(--sidebar-bg, rgba(255, 255, 255, 0.95));
     padding: 20px;
     display: flex;
@@ -196,7 +246,37 @@ function formatList(values: readonly string[]): string {
     gap: 16px;
     box-shadow: -8px 0 8px rgba(0, 0, 0, 0.1);
     color: var(--text);
-    position: relative;
+    overflow: hidden;
+    transition:
+        width 0.35s ease-in-out,
+        box-shadow 0.35s ease-in-out;
+}
+
+.country-funding-panel.is-expanded {
+    width: 100%;
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
+}
+
+.expand-button {
+    position: absolute;
+    top: 12px;
+    right: 48px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.expand-button:hover {
+    background: rgba(128, 128, 128, 0.2);
 }
 
 .close-button {

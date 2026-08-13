@@ -141,6 +141,64 @@ describe('CountryFundingPanel', () => {
         });
     });
 
+    describe('expand/collapse', () => {
+        it('renders an expand button that is collapsed by default', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            const expandButton = wrapper.find('.expand-button');
+            expect(expandButton.exists()).toBe(true);
+            expect(expandButton.attributes('aria-label')).toBe('Expand panel');
+            expect(expandButton.attributes('aria-expanded')).toBe('false');
+            expect(wrapper.find('.country-funding-panel.is-expanded').exists()).toBe(false);
+        });
+
+        it('expands the panel when the expand button is clicked', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            await wrapper.find('.expand-button').trigger('click');
+
+            const panel = wrapper.find('.country-funding-panel');
+            expect(panel.classes()).toContain('is-expanded');
+            expect(wrapper.find('.expand-button').attributes('aria-expanded')).toBe('true');
+            expect(wrapper.find('.expand-button').attributes('aria-label')).toBe('Restore panel');
+        });
+
+        it('collapses the panel when the expand button is clicked again', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            await wrapper.find('.expand-button').trigger('click');
+            await wrapper.find('.expand-button').trigger('click');
+
+            const panel = wrapper.find('.country-funding-panel');
+            expect(panel.classes()).not.toContain('is-expanded');
+            expect(wrapper.find('.expand-button').attributes('aria-expanded')).toBe('false');
+            expect(wrapper.find('.expand-button').attributes('aria-label')).toBe('Expand panel');
+        });
+
+        it('emits close when the close button is clicked while expanded', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            await wrapper.find('.expand-button').trigger('click');
+            await wrapper.find('.close-button').trigger('click');
+
+            expect(wrapper.emitted('close')).toHaveLength(1);
+        });
+
+        it.each([
+            ['dark', '#ffffff'],
+            ['colorblind-dark', '#ffffff'],
+            ['light', '#000000'],
+            ['colorblind-light', '#000000'],
+        ] as const)(
+            'still applies theme colors when expanded in %s mode',
+            (themeMode, expectedTextColor) => {
+                const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode });
+                const style = wrapper.find('.country-funding-panel').attributes('style');
+                expect(style).toContain(`--text: ${expectedTextColor}`);
+            },
+        );
+    });
+
     describe('data source attribution', () => {
         it('links to the Airtable tracker', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });

@@ -30,6 +30,24 @@ function mountApp(options: Parameters<typeof mount<typeof App>>[1] = {}) {
     });
 }
 
+function mountWithTrackingPanel({ count }: { count: () => void }) {
+    const wrapper = mount(App, {
+        global: {
+            stubs: {
+                InteractiveMap: true,
+                EuAmbitionDial: true,
+                CountryFundingPanel: {
+                    template: '<div class="tracked-panel"><slot /></div>',
+                    mounted() {
+                        count();
+                    },
+                },
+            },
+        },
+    });
+    return { wrapper };
+}
+
 describe('App', () => {
     beforeEach(() => {
         findAllMock.mockReset();
@@ -245,6 +263,49 @@ describe('App', () => {
             } finally {
                 vi.unstubAllGlobals();
             }
+        });
+    });
+
+    describe('CountryFundingPanel remounting', () => {
+        beforeEach(() => {
+            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'dark' }));
+        });
+
+        it('remounts the panel when a different country is selected', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING, FRANCE_FUNDING]);
+
+            const mountCount = vi.fn();
+            const { wrapper } = mountWithTrackingPanel({ count: mountCount });
+            await flushPromises();
+
+            const map = wrapper.findComponent(InteractiveMap);
+            map.vm.$emit('country-select', 'Germany');
+            await flushPromises();
+            expect(mountCount).toHaveBeenCalledTimes(1);
+
+            map.vm.$emit('country-select', 'France');
+            await flushPromises();
+            expect(mountCount).toHaveBeenCalledTimes(2);
+        });
+
+        it('remounts the panel after deselect and re-select', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+            const mountCount = vi.fn();
+            const { wrapper } = mountWithTrackingPanel({ count: mountCount });
+            await flushPromises();
+
+            const map = wrapper.findComponent(InteractiveMap);
+            map.vm.$emit('country-select', 'Germany');
+            await flushPromises();
+            expect(mountCount).toHaveBeenCalledTimes(1);
+
+            map.vm.$emit('country-select', null);
+            await flushPromises();
+
+            map.vm.$emit('country-select', 'Germany');
+            await flushPromises();
+            expect(mountCount).toHaveBeenCalledTimes(2);
         });
     });
 

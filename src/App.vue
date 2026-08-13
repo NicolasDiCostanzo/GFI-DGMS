@@ -210,6 +210,7 @@ function handleSidebarClosing(): void {
             <Transition name="slide">
                 <CountryFundingPanel
                     v-if="selectedCountryName"
+                    :key="selectedCountryName"
                     class="sidebar-overlay"
                     :country-funding="selectedCountryFunding"
                     :theme-mode="themeMode"
