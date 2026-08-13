@@ -6,8 +6,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockLocalStorage, FRANCE_FUNDING, GERMANY_FUNDING } from './App.spec.fixtures.ts';
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
-import CountryFundingPanel from './sovereign/infrastructure/ui/components/CountryFundingPanel.vue';
-import EuAmbitionDial from './sovereign/infrastructure/ui/components/EuAmbitionDial.vue';
+import CountryFundingPanel from './sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
+import EuAmbitionDial from './sovereign/infrastructure/ui/components/eu-ambition-dial/EuAmbitionDial.vue';
 import InteractiveMap from './sovereign/infrastructure/ui/components/InteractiveMap.vue';
 
 const findAllMock = vi.fn<() => Promise<CountryFunding[]>>();

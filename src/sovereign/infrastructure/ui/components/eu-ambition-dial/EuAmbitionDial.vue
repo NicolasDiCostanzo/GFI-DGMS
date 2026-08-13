@@ -2,9 +2,9 @@
 import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { Grant } from '@/sovereign/domain/Grant';
 import { computed, ref } from 'vue';
-import { EU_AMBITION_SCENARIOS } from '../constants/EuAmbitionScenarios';
-import { calculateEuFundingTodayUsd } from '../utils/calculateEuFundingToday';
-import { formatInvestment } from '../utils/formatInvestment';
+import { EU_AMBITION_SCENARIOS } from '../../constants/EuAmbitionScenarios';
+import { calculateEuFundingTodayUsd } from '../../utils/calculateEuFundingToday';
+import { formatInvestment } from '../../utils/formatInvestment';
 
 const props = withDefaults(
     defineProps<{

@@ -1,6 +1,6 @@
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { describe, expect, it } from 'vitest';
-import { AIM_PALETTES, getThemeColors } from '../constants/ThemeColors';
+import { AIM_PALETTES, getThemeColors } from '../../constants/ThemeColors';
 import {
     createWrapper,
     FRANCE_FUNDING,

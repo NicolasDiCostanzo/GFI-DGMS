@@ -11,8 +11,8 @@ import {
     loadGrantRecords,
 } from '@/sovereign/infrastructure/adapters/AirtableJsonCountryFundingRepository';
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
-import CountryFundingPanel from '@/sovereign/infrastructure/ui/components/CountryFundingPanel.vue';
-import EuAmbitionDial from '@/sovereign/infrastructure/ui/components/EuAmbitionDial.vue';
+import CountryFundingPanel from '@/sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
+import EuAmbitionDial from '@/sovereign/infrastructure/ui/components/eu-ambition-dial/EuAmbitionDial.vue';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';

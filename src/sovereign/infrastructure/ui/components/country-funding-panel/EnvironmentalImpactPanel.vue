@@ -4,8 +4,8 @@ import { computed } from 'vue';
 import {
     CULTIVATED_LCA_FIGURES,
     PLANT_BASED_LCA_FIGURES,
-} from '../constants/EnvironmentalImpactData';
-import { resolveDominantProductionPillar } from '../utils/resolveDominantProductionPillar';
+} from '../../constants/EnvironmentalImpactData';
+import { resolveDominantProductionPillar } from '../../utils/resolveDominantProductionPillar';
 
 const props = withDefaults(
     defineProps<{

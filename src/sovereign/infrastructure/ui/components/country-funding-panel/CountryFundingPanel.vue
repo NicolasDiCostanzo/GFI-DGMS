@@ -2,10 +2,10 @@
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { computed, ref } from 'vue';
-import { getAimLegend } from '../constants/AimDisplay';
-import { getFundingInstrumentLegend } from '../constants/FundingInstrumentDisplay';
-import { getThemeColors } from '../constants/ThemeColors';
-import { formatInvestment } from '../utils/formatInvestment';
+import { getAimLegend } from '../../constants/AimDisplay.ts';
+import { getFundingInstrumentLegend } from '../../constants/FundingInstrumentDisplay.ts';
+import { getThemeColors } from '../../constants/ThemeColors.ts';
+import { formatInvestment } from '../../utils/formatInvestment.ts';
 import AimLegend from './AimLegend.vue';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
 import CountryHeader from './CountryHeader.vue';
