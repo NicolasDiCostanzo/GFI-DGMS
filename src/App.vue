@@ -2,10 +2,10 @@
 import { SettingsParseError } from '@/shared/errors/SettingsParseError';
 import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
-import { CountryFunding } from '@/sovereign/domain/CountryFunding';
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { Grant } from '@/sovereign/domain/Grant';
 import { GetCountryFundingOverview } from '@/sovereign/app/GetCountryFundingOverview';
+import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { CountryFunding } from '@/sovereign/domain/CountryFunding';
+import { Grant } from '@/sovereign/domain/Grant';
 import {
     AirtableJsonCountryFundingRepository,
     loadGrantRecords,
@@ -226,6 +226,7 @@ function handleSidebarClosing(): void {
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 .sr-only {
