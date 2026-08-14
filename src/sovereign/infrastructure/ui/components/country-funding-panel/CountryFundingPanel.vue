@@ -6,11 +6,10 @@ import { getAimLegend } from '../../constants/AimDisplay.ts';
 import { getFundingInstrumentLegend } from '../../constants/FundingInstrumentDisplay.ts';
 import { getThemeColors } from '../../constants/ThemeColors.ts';
 import { formatInvestment } from '../../utils/formatInvestment.ts';
-import AimLegend from './AimLegend.vue';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
 import CountryHeader from './CountryHeader.vue';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
-import InstrumentLegend from './InstrumentLegend.vue';
+import Legend from './Legend.vue';
 import PanelFooter from './PanelFooter.vue';
 import PlatformLegend from './PlatformLegend.vue';
 import ProjectionSection from './ProjectionSection.vue';
@@ -23,9 +22,6 @@ interface Country2040Projection {
     readonly jobs: number;
 }
 
-// Systemiq (2026), "Seizing the economic opportunity of alternative proteins in Europe" —
-// Moderate Policy Support scenario, 2040. The only 3 countries with a published country-level
-// projection; every other country only has the EU-wide figure (shown elsewhere, not here).
 const COUNTRY_2040_PROJECTIONS: Readonly<Record<string, Country2040Projection>> = {
     France: { gvaEurBillions: 18, jobs: 64_000 },
     Italy: { gvaEurBillions: 10, jobs: 31_000 },
@@ -80,6 +76,7 @@ const tableColumnOrder = [
     'description',
     'url',
 ] as const;
+
 const cssVars = computed(() => {
     const colors = getThemeColors(props.themeMode!);
     return {
@@ -172,17 +169,10 @@ const cssVars = computed(() => {
                 :total-amount-label="totalAmountLabel"
                 :disclosure-label="disclosureLabel"
             />
-
             <ProjectionSection v-if="projection" :projection="projection" />
-
             <EnvironmentalImpactPanel :grants="grants" />
-
-            <div v-if="grants.length" class="table-legends">
-                <AimLegend :aims="aimLegend" />
-                <InstrumentLegend :instruments="instrumentLegend" />
-                <PlatformLegend />
-            </div>
-
+            <Legend :aims="aimLegend" :instruments="instrumentLegend" />
+            <PlatformLegend />
             <CountryFundingPanelTable
                 v-if="grants.length"
                 :grants="grants"

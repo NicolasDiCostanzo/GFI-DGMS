@@ -218,11 +218,7 @@ describe('CountryFundingPanel', () => {
             const swatches = wrapper.findAll('.aim-legend .legend-swatch');
 
             expect(swatches).toHaveLength(3);
-            expect(swatches.map((s) => s.text())).toEqual([
-                'Research & Development',
-                'Commercialization',
-                'Mixed',
-            ]);
+            expect(swatches.map((s) => s.text())).toEqual(['R&D', 'Comm.', 'Mix']);
         });
 
         it('renders a funding instrument legend with one swatch per family', () => {
