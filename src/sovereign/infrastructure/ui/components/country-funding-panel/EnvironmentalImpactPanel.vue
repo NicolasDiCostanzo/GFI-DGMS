@@ -65,6 +65,7 @@ const sourceText = computed(() =>
 
 .panel-title {
     font-size: 14px;
+    /* istanbul ignore next */
     font-weight: 600;
     margin: 0 0 8px;
 }
