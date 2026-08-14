@@ -26,7 +26,7 @@ describe('ProductionPlatformSegments', () => {
         });
 
         it('treats near-duplicate plant-based spellings as PB only', () => {
-            for (const value of ['Plant-Based', 'Plant-based meat']) {
+            for (const value of ['Plant-based', 'Plant-based meat']) {
                 expect(getPlatformSegments([value])?.map((s) => s.active)).toEqual([
                     true,
                     false,

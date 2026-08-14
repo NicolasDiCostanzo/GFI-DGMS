@@ -2,8 +2,6 @@
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { computed, ref } from 'vue';
-import { getAimLegend } from '../../constants/AimDisplay.ts';
-import { getFundingInstrumentLegend } from '../../constants/FundingInstrumentDisplay.ts';
 import { getThemeColors } from '../../constants/ThemeColors.ts';
 import { formatInvestment } from '../../utils/formatInvestment.ts';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
@@ -47,9 +45,6 @@ const isExpanded = ref(false);
 
 const countryName = computed(() => props.countryFunding?.countryName ?? '');
 const grants = computed(() => props.countryFunding?.grants ?? []);
-
-const aimLegend = computed(() => getAimLegend(props.themeMode));
-const instrumentLegend = computed(() => getFundingInstrumentLegend(props.themeMode));
 
 const totalAmountLabel = computed(() =>
     props.countryFunding ? formatInvestment(props.countryFunding.totalAmountUsd / 1_000_000) : '',
@@ -171,7 +166,7 @@ const cssVars = computed(() => {
             />
             <ProjectionSection v-if="projection" :projection="projection" />
             <EnvironmentalImpactPanel :grants="grants" />
-            <Legend :aims="aimLegend" :instruments="instrumentLegend" />
+            <Legend />
             <PlatformLegend />
             <CountryFundingPanelTable
                 v-if="grants.length"
@@ -185,12 +180,18 @@ const cssVars = computed(() => {
     </aside>
 </template>
 
-<style scoped>
+<style>
+.legend-title {
+    font-weight: 600;
+    margin-right: 4px;
+}
+
 .panel-content {
     height: 100%;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    gap: 16px;
 }
 
 .country-funding-panel {

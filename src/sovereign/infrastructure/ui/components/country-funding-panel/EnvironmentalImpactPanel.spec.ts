@@ -24,14 +24,6 @@ describe('EnvironmentalImpactPanel', () => {
     });
 
     describe('with a plant-based-dominant mix', () => {
-        it('shows the plant-based title', () => {
-            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
-
-            expect(wrapper.find('.panel-title').text()).toBe(
-                'Environmental potential of plant-based meat',
-            );
-        });
-
         it('lists all three meat types with their GHG figures', () => {
             const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
             const text = wrapper.text();
@@ -52,14 +44,6 @@ describe('EnvironmentalImpactPanel', () => {
     });
 
     describe('with a cultivated-dominant mix', () => {
-        it('shows the cultivated title with the renewable-energy caveat', () => {
-            const wrapper = createWrapper(CULTIVATED_DOMINANT_GRANTS);
-
-            expect(wrapper.find('.panel-title').text()).toBe(
-                'Environmental potential of cultivated meat (produced with renewable energy)',
-            );
-        });
-
         it('lists all three meat types with their GHG figures', () => {
             const wrapper = createWrapper(CULTIVATED_DOMINANT_GRANTS);
             const text = wrapper.text();

@@ -79,36 +79,36 @@ export const AIM_PALETTES = {
     'Research & Development': {
         light: {
             borderColor: '#1565c0',
-            backgroundColor: 'rgba(21, 101, 192, 0.08)',
+            backgroundColor: 'rgba(21, 101, 192, 0.25)',
             textColor: '#1565c0',
         },
         dark: {
             borderColor: '#64b5f6',
-            backgroundColor: 'rgba(100, 181, 246, 0.12)',
+            backgroundColor: 'rgba(100, 181, 246, 0.25)',
             textColor: '#64b5f6',
         },
     },
     Commercialization: {
         light: {
             borderColor: '#2e7d32',
-            backgroundColor: 'rgba(46, 125, 50, 0.08)',
+            backgroundColor: 'rgba(46, 125, 50, 0.25)',
             textColor: '#2e7d32',
         },
         dark: {
             borderColor: '#81c784',
-            backgroundColor: 'rgba(129, 199, 132, 0.12)',
+            backgroundColor: 'rgba(129, 199, 132, 0.25)',
             textColor: '#81c784',
         },
     },
     Mixed: {
         light: {
             borderColor: '#f57f17',
-            backgroundColor: 'rgba(245, 127, 23, 0.08)',
+            backgroundColor: 'rgba(245, 127, 23, 0.25)',
             textColor: '#f57f17',
         },
         dark: {
             borderColor: '#ffd54f',
-            backgroundColor: 'rgba(255, 213, 79, 0.12)',
+            backgroundColor: 'rgba(255, 213, 79, 0.25)',
             textColor: '#ffd54f',
         },
     },

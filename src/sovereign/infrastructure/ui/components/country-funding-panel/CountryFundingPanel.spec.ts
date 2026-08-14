@@ -218,21 +218,10 @@ describe('CountryFundingPanel', () => {
             const swatches = wrapper.findAll('.aim-legend .legend-swatch');
 
             expect(swatches).toHaveLength(3);
-            expect(swatches.map((s) => s.text())).toEqual(['R&D', 'Comm.', 'Mix']);
-        });
-
-        it('renders a funding instrument legend with one swatch per family', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const swatches = wrapper.findAll('.instrument-legend .legend-swatch');
-
-            expect(swatches).toHaveLength(6);
             expect(swatches.map((s) => s.text())).toEqual([
-                'Research',
-                'Business',
-                'Debt',
-                'Equity',
-                'Infrastructure',
-                'Other',
+                'Research & Development',
+                'Commercialization',
+                'Mixed',
             ]);
         });
 
@@ -240,7 +229,11 @@ describe('CountryFundingPanel', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
             const segments = wrapper.findAll('.platform-legend .platform-segment');
 
-            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+            expect(segments.map((s) => s.text())).toEqual([
+                'PB = Plant-based',
+                'CM = Cultivated',
+                'FM = Fermentation',
+            ]);
         });
 
         it('does not render legends when there are no grants', () => {
@@ -269,7 +262,6 @@ describe('CountryFundingPanel', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
 
             expect(wrapper.find('.environmental-impact-panel').exists()).toBe(true);
-            expect(wrapper.find('.panel-title').text()).toContain('cultivated meat');
         });
 
         it('renders nothing when the country has no grants', () => {

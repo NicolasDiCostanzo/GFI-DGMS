@@ -138,5 +138,17 @@ describe('FundingInstrumentDisplay', () => {
                 INSTRUMENT_FAMILY_COLORS.Other.dark,
             ]);
         });
+
+        it('returns the light color for each family in light mode', () => {
+            const legend = getFundingInstrumentLegend('light');
+            expect(legend.map((f) => f.color)).toEqual([
+                INSTRUMENT_FAMILY_COLORS.Research.light,
+                INSTRUMENT_FAMILY_COLORS.Business.light,
+                INSTRUMENT_FAMILY_COLORS.Debt.light,
+                INSTRUMENT_FAMILY_COLORS.Equity.light,
+                INSTRUMENT_FAMILY_COLORS.Infrastructure.light,
+                INSTRUMENT_FAMILY_COLORS.Other.light,
+            ]);
+        });
     });
 });

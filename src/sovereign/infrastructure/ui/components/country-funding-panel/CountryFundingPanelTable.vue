@@ -33,10 +33,7 @@ export default defineComponent({
             type: String as PropType<ThemeMode>,
             required: true,
         },
-        // Optional column order to make it easy to reorganize columns from the parent.
-        // Example: ['projectTitle','recipients','amountUsd','funderName']
         columnOrder: {
-            // restrict to the known column keys so dynamic indexing is type-safe
             type: Array as PropType<ReadonlyArray<ColumnKey>>,
             required: false,
             default: () => DEFAULT_COLUMN_ORDER,
@@ -66,8 +63,6 @@ export default defineComponent({
             })),
         );
 
-        // Each grant is enriched with its color-coded aim, funding-instrument family and production
-        // platform segments so the table can render compact, color-coded cells.
         const enrichedGrants = computed(() =>
             grantsWithValidatedUrls.value.map(({ grant, sourceUrl }) => ({
                 grant,
@@ -317,6 +312,7 @@ export default defineComponent({
 <style scoped>
 .table-wrapper {
     overflow-x: auto;
+    border: black 2px solid;
 }
 
 .grant-table {

@@ -3,9 +3,9 @@
 <template>
     <div class="legend platform-legend">
         <span class="legend-title">Production platform</span>
-        <span class="platform-segment">PB</span>
-        <span class="platform-segment">CM</span>
-        <span class="platform-segment">FM</span>
+        <span class="platform-segment">PB = Plant-based</span>
+        <span class="platform-segment">CM = Cultivated</span>
+        <span class="platform-segment">FM = Fermentation</span>
     </div>
 </template>
 

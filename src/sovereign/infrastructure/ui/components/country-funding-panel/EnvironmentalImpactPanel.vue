@@ -39,7 +39,7 @@ const sourceText = computed(() =>
 
 <template>
     <section v-if="figures" class="environmental-impact-panel">
-        <h3 class="panel-title">Environmental potential of {{ pillarLabel }}</h3>
+        <h3 class="legend-title">Environmental potential of {{ pillarLabel }}</h3>
         <ul class="figure-list">
             <li v-for="figure in figures" :key="figure.meatType" class="figure-item">
                 <span class="meat-type">{{ figure.meatType }}</span>
@@ -61,13 +61,6 @@ const sourceText = computed(() =>
     border-top: 1px solid var(--muted-border);
     padding-top: 12px;
     font-size: 13px;
-}
-
-.panel-title {
-    font-size: 14px;
-    /* istanbul ignore next */
-    font-weight: 600;
-    margin: 0 0 8px;
 }
 
 .figure-list {
