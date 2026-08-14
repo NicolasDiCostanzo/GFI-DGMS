@@ -1,58 +1,51 @@
-import { toPercentage } from '@/shared/utils/toPercentage';
-import type { FeatureCollection, Geometry } from 'geojson';
+import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { computed, type Ref } from 'vue';
-import { MapColors } from '../../../domain/constants/MapColors';
-import type { Country, CountryId } from '../../../domain/Country';
-import type { SimulationResults } from '../../../domain/SimulationResults';
-
-interface NamedFeatureProperties {
-    name: string;
-}
+import type { ThemeMode } from '../../../domain/constants/MapColors';
+import { calculateFundingColorThresholds } from '../utils/calculateFundingColorThresholds';
+import { formatInvestment } from '../utils/formatInvestment';
+import { getColorForFundingAmount } from '../utils/getColorForFundingAmount';
 
 export function useCountryDisplay(
-    countries: Ref<Country[]>,
-    resultsByCountry: Ref<Map<CountryId, SimulationResults>>,
-    geoJsonCountries: Ref<FeatureCollection<Geometry, NamedFeatureProperties>>,
+    countryFundings: Ref<readonly CountryFunding[]>,
+    themeMode: Ref<ThemeMode>,
 ) {
-    const countryNameMap = computed(() => {
-        const map = new Map<string, string>();
-        for (const country of countries.value) {
-            map.set(country.id, country.name);
-        }
-        for (const feature of geoJsonCountries.value.features) {
-            const id = String(feature.id);
-            if (!map.has(id)) {
-                map.set(id, feature.properties.name);
-            }
+    const fundingByName = computed(() => {
+        const map = new Map<string, CountryFunding>();
+        for (const funding of countryFundings.value) {
+            map.set(funding.countryName, funding);
         }
         return map;
     });
 
-    function getCountryFill(isoNumeric: string): string {
-        const results = resultsByCountry.value.get(isoNumeric as CountryId);
-        return results ? results.colorHex : MapColors.INACTIVE;
+    const thresholds = computed(() =>
+        calculateFundingColorThresholds(
+            countryFundings.value.map((funding) => funding.totalAmountUsd),
+        ),
+    );
+
+    function getCountryFill(countryName: string): string {
+        const funding = fundingByName.value.get(countryName);
+        return getColorForFundingAmount(
+            funding?.totalAmountUsd ?? 0,
+            thresholds.value,
+            themeMode.value,
+        );
     }
 
-    function getCountryAriaLabel(isoNumeric: string): string {
-        const name = countryNameMap.value.get(isoNumeric);
-        const results = resultsByCountry.value.get(isoNumeric as CountryId);
-        if (results) {
-            return `${name} — ${toPercentage(results.fundingProgress)}% funded`;
+    function getCountryAriaLabel(countryName: string): string {
+        const funding = fundingByName.value.get(countryName);
+        if (!funding || funding.totalAmountUsd <= 0) {
+            return `${countryName} — no disclosed funding`;
         }
-        return `${name} — no data`;
+        return `${countryName} — ${formatInvestment(funding.totalAmountUsd / 1_000_000)} tracked`;
     }
 
-    function getTooltipText(isoNumeric: string): string {
-        const name = countryNameMap.value.get(isoNumeric);
-        const results = resultsByCountry.value.get(isoNumeric as CountryId);
-        if (results) {
-            return `${name} — ${toPercentage(results.fundingProgress)}%`;
-        }
-        return `${name} — no data`;
+    function getTooltipText(countryName: string): string {
+        return getCountryAriaLabel(countryName);
     }
 
-    function hasCountryData(isoNumeric: string): boolean {
-        return resultsByCountry.value.has(isoNumeric as CountryId);
+    function hasCountryData(countryName: string): boolean {
+        return fundingByName.value.has(countryName);
     }
 
     return {

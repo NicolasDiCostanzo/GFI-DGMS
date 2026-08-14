@@ -1,27 +1,31 @@
-import { MapColors } from '@/sovereign/domain/constants/MapColors';
-import { CountryId } from '@/sovereign/domain/Country';
-import { GERMANY } from '@/sovereign/domain/Country.spec.fixtures';
-import { SimulationResults } from '@/sovereign/domain/SimulationResults';
+import { CountryFunding, CountryName } from '@/sovereign/domain/CountryFunding';
+import { Grant, GrantId } from '@/sovereign/domain/Grant';
 
-export const RESULTS_GERMANY: SimulationResults = {
-    fundingProgress: 0.75,
-    additionalJobs: 2500,
-    additionalCO2Tonnes: 1250,
-    colorHex: MapColors.ORANGE,
-};
+export function buildCountryFunding(countryName: string, amountUsd: number): CountryFunding {
+    const grant = new Grant(
+        GrantId('rec1'),
+        countryName,
+        'Untitled grant',
+        amountUsd,
+        [],
+        null,
+        null,
+        null,
+        null,
+        null,
+        [],
+        [],
+        null,
+    );
+    return new CountryFunding(CountryName(countryName), [grant]);
+}
 
-/**
- * Creates the default state used by the interactive map wrapper.
- *
- * @returns Wrapper state containing Germany, its simulation results, no selected country, and dark theme mode.
- */
+export const GERMANY_FUNDING = buildCountryFunding('Germany', 5_000_000);
+
 export function createWrapperDefaults() {
     return {
-        countries: [GERMANY],
-        resultsByCountry: new Map<CountryId, SimulationResults>([
-            ['276' as CountryId, RESULTS_GERMANY],
-        ]),
-        selectedCountryId: null as CountryId | null,
+        countryFundings: [GERMANY_FUNDING],
+        selectedCountryName: null as string | null,
         themeMode: 'dark' as const,
     };
 }

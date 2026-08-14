@@ -9,8 +9,6 @@ import Element, {
 
 describe('gfi-dgms-widget custom element entry', () => {
     beforeEach(() => {
-        // happy-dom resets the customElements registry between test files, so the
-        // import-time auto-registration is not visible here. Register explicitly.
         defineGfiDgmsWidget();
     });
 

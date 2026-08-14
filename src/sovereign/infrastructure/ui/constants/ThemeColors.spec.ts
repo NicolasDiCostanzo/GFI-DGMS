@@ -33,6 +33,7 @@ describe('ThemeColors', () => {
                 expect(colors).toHaveProperty('TOOLTIP_TEXT');
                 expect(colors).toHaveProperty('LEGEND_BG');
                 expect(colors).toHaveProperty('LEGEND_TEXT');
+                expect(colors).toHaveProperty('ON_LINK');
             },
         );
     });

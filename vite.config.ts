@@ -22,9 +22,11 @@ export default defineConfig(({ command }) => ({
                 // an unconditional throw executed at runtime, confirmed via stack trace, is still
                 // reported as uncovered). No source change can fix this; revisit if a
                 // vite-plugin-istanbul upgrade addresses SFC branch mapping.
-                '**/ContextualSidebar.vue',
                 'src/App.vue',
                 '**/InteractiveMap.vue',
+                '**/CountryFundingPanel.vue',
+                '**/CountryFundingPanelTable.vue',
+                '**/EuAmbitionDial.vue',
             ],
             extension: ['.vue', '.ts'],
             requireEnv: true,

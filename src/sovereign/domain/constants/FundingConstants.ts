@@ -1,1 +1,0 @@
-export const MAX_FUNDING_PROGRESS_RATIO = 2;

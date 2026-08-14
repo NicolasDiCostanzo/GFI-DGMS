@@ -2,13 +2,17 @@
 import { SettingsParseError } from '@/shared/errors/SettingsParseError';
 import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
-import { CalculateSimulationYields } from '@/sovereign/app/CalculateSimulationYields';
+import { GetCountryFundingOverview } from '@/sovereign/app/GetCountryFundingOverview';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { Country, CountryId } from '@/sovereign/domain/Country';
-import { SimulationResults } from '@/sovereign/domain/SimulationResults';
-import { StaticCountryRepository } from '@/sovereign/infrastructure/adapters/StaticCountryRepository';
+import { CountryFunding } from '@/sovereign/domain/CountryFunding';
+import { Grant } from '@/sovereign/domain/Grant';
+import {
+    AirtableJsonCountryFundingRepository,
+    loadGrantRecords,
+} from '@/sovereign/infrastructure/adapters/AirtableJsonCountryFundingRepository';
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
-import ContextualSidebar from '@/sovereign/infrastructure/ui/components/ContextualSidebar.vue';
+import CountryFundingPanel from '@/sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
+import EuAmbitionDial from '@/sovereign/infrastructure/ui/components/eu-ambition-dial/EuAmbitionDial.vue';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
@@ -17,23 +21,16 @@ import { computed, onMounted, ref, watch } from 'vue';
 const props = withDefaults(
     defineProps<{
         theme?: ThemeMode;
-        // Placeholder for the planned Airtable-backed data adapter; not yet consumed.
-        apiEndpoint?: string;
     }>(),
     {
         theme: undefined,
-        apiEndpoint: undefined,
     },
 );
 
-const countryRepository = new StaticCountryRepository();
-const calculateSimulationYields = new CalculateSimulationYields(countryRepository);
-
-const countries = ref<Country[]>([]);
-const resultsByCountry = ref<Map<CountryId, SimulationResults>>(new Map());
-const selectedCountryId = ref<CountryId | null>(null);
+const countryFundings = ref<CountryFunding[]>([]);
+const unattributedGrants = ref<Grant[]>([]);
+const selectedCountryName = ref<string | null>(null);
 const loadError = ref<CountryLoadError | null>(null);
-const sliderValue = ref<number>(0);
 
 const STORAGE_KEY = 'gfi-dgms-settings';
 
@@ -127,11 +124,15 @@ const themeMode = computed({
     },
 });
 
-const selectedCountry = computed(() => {
-    if (!selectedCountryId.value) {
+const selectedCountryFunding = computed(() => {
+    if (!selectedCountryName.value) {
         return null;
     }
-    return countries.value.find((c) => c.id === selectedCountryId.value) || null;
+    return (
+        countryFundings.value.find(
+            (funding) => funding.countryName === selectedCountryName.value,
+        ) ?? null
+    );
 });
 
 watch(
@@ -141,36 +142,6 @@ watch(
             settings.value.themeMode = newTheme;
             persistSettings(settings.value);
         }
-    },
-);
-
-watch(
-    () => themeMode.value,
-    async (newThemeMode) => {
-        if (countries.value.length === 0) {
-            return;
-        }
-
-        const entries = await Promise.all(
-            countries.value.map(async (country) => {
-                try {
-                    const investmentAmount =
-                        country.id === selectedCountryId.value
-                            ? sliderValue.value
-                            : country.baselineInvestment;
-                    const results = await calculateSimulationYields.execute(
-                        country.id,
-                        investmentAmount,
-                        newThemeMode,
-                    );
-                    return [country.id, results] as const;
-                } catch {
-                    return null;
-                }
-            }),
-        );
-
-        resultsByCountry.value = new Map(entries.filter((entry) => entry !== null));
     },
 );
 
@@ -199,60 +170,22 @@ const appStyle = computed(() => ({
 
 onMounted(async () => {
     try {
-        countries.value = await countryRepository.findAll();
+        const records = await loadGrantRecords();
+        const countryFundingRepository = new AirtableJsonCountryFundingRepository(records);
+        const overview = await new GetCountryFundingOverview(countryFundingRepository).execute();
+        countryFundings.value = overview.countryFundings;
+        unattributedGrants.value = [...overview.unattributedGrants];
     } catch (error) {
         loadError.value = new CountryLoadError(getErrorMessage(error));
-        return;
     }
-
-    const entries = await Promise.all(
-        countries.value.map(async (country) => {
-            try {
-                const results = await calculateSimulationYields.execute(
-                    country.id,
-                    country.baselineInvestment,
-                    themeMode.value,
-                );
-                return [country.id, results] as const;
-            } catch {
-                return null;
-            }
-        }),
-    );
-
-    resultsByCountry.value = new Map(entries.filter((entry) => entry !== null));
 });
 
-function handleCountrySelect(countryId: CountryId | null): void {
-    selectedCountryId.value = countryId;
-
-    if (countryId && selectedCountry.value) {
-        sliderValue.value = selectedCountry.value.baselineInvestment;
-    } else {
-        sliderValue.value = 0;
-    }
-}
-
-async function handleSliderUpdate(value: number): Promise<void> {
-    const countryId = selectedCountryId.value;
-    const previousValue = sliderValue.value;
-    sliderValue.value = value;
-
-    if (!countryId) {
-        return;
-    }
-
-    try {
-        const results = await calculateSimulationYields.execute(countryId, value, themeMode.value);
-        resultsByCountry.value = new Map(resultsByCountry.value).set(countryId, results);
-    } catch {
-        sliderValue.value = previousValue;
-    }
+function handleCountrySelect(countryName: string | null): void {
+    selectedCountryName.value = countryName;
 }
 
 function handleSidebarClosing(): void {
-    selectedCountryId.value = null;
-    sliderValue.value = 0;
+    selectedCountryName.value = null;
 }
 </script>
 
@@ -264,21 +197,23 @@ function handleSidebarClosing(): void {
         </p>
         <div v-else class="app-content">
             <InteractiveMap
-                :countries="countries"
-                :results-by-country="resultsByCountry"
-                :selected-country-id="selectedCountryId"
+                :country-fundings="countryFundings"
+                :selected-country-name="selectedCountryName"
                 :theme-mode="themeMode"
                 @country-select="handleCountrySelect"
             />
+            <EuAmbitionDial
+                class="eu-dial-overlay"
+                :country-fundings="countryFundings"
+                :unattributed-grants="unattributedGrants"
+            />
             <Transition name="slide">
-                <ContextualSidebar
-                    v-if="selectedCountryId"
+                <CountryFundingPanel
+                    v-if="selectedCountryName"
+                    :key="selectedCountryName"
                     class="sidebar-overlay"
-                    :country="selectedCountry"
-                    :results="resultsByCountry.get(selectedCountryId)"
-                    :slider-value="sliderValue"
+                    :country-funding="selectedCountryFunding"
                     :theme-mode="themeMode"
-                    @update:slider-value="handleSliderUpdate"
                     @close="handleSidebarClosing"
                 />
             </Transition>
@@ -292,6 +227,7 @@ function handleSidebarClosing(): void {
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 .sr-only {
@@ -315,6 +251,15 @@ function handleSidebarClosing(): void {
     top: 0;
     height: 100%;
     z-index: 10;
+}
+
+.eu-dial-overlay {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    width: 280px;
 }
 
 .slide-enter-active,
