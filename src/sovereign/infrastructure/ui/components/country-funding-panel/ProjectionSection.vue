@@ -8,7 +8,7 @@
             Potential by 2040 under a Moderate Policy Support scenario — a single published
             projection, not derived from the funding total above.
         </div>
-        <div class="projection-source">Source: Systemiq (2026), commissioned by GFI Europe</div>
+        <div class="projection-source">Source: Systemiq (2026), supported by GFI Europe</div>
     </div>
 </template>
 
