@@ -375,7 +375,7 @@ export default defineComponent({
     word-break: break-word;
 }
 
-description-toggle {
+.description-toggle {
     margin-left: 6px;
     font-size: 11px;
     color: var(--link);
