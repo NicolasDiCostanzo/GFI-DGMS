@@ -2,9 +2,9 @@
 import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { Grant } from '@/sovereign/domain/Grant';
 import { computed, ref } from 'vue';
-import { EU_AMBITION_SCENARIOS } from '../constants/EuAmbitionScenarios';
-import { calculateEuFundingTodayUsd } from '../utils/calculateEuFundingToday';
-import { formatInvestment } from '../utils/formatInvestment';
+import { EU_AMBITION_SCENARIOS } from '../../constants/EuAmbitionScenarios';
+import { calculateEuFundingTodayUsd } from '../../utils/calculateEuFundingToday';
+import { formatInvestment } from '../../utils/formatInvestment';
 
 const props = withDefaults(
     defineProps<{
@@ -131,11 +131,11 @@ function onStopsKeydown(event: KeyboardEvent): void {
 
 <style scoped>
 .eu-ambition-dial {
-    background: var(--sidebar-bg, rgba(255, 255, 255, 0.95));
-    color: var(--text, #000000);
+    background: var(--sidebar-bg);
+    color: var(--text);
     border-radius: 8px;
     padding: 12px 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px var(--panel-shadow);
     font-size: 13px;
 }
 
@@ -149,20 +149,19 @@ function onStopsKeydown(event: KeyboardEvent): void {
     flex: 1;
     font-size: 11px;
     padding: 4px 6px;
-    border: 1px solid rgba(128, 128, 128, 0.4);
+    border: 1px solid var(--muted-border);
     border-radius: 4px;
     background: transparent;
     /* Buttons don't inherit color; explicit value keeps non-selected stops readable on dark themes */
-    color: var(--text, #000000);
+    color: var(--text);
     cursor: pointer;
 }
 
 .dial-stop.active {
-    /* var(--accent) (#2196f3) fails WCAG AA (3.12:1) with white text at this font size;
-       #1565c0 clears it (5.75:1) while staying visibly the same accent blue. */
-    background: #1565c0;
-    color: #ffffff;
-    border-color: #1565c0;
+    /* Use centralized link color and on-accent text color. */
+    background: var(--link);
+    color: var(--on-link);
+    border-color: var(--link);
 }
 
 .dial-figures {

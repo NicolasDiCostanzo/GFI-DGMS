@@ -6,8 +6,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockLocalStorage, FRANCE_FUNDING, GERMANY_FUNDING } from './App.spec.fixtures.ts';
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
-import CountryFundingPanel from './sovereign/infrastructure/ui/components/CountryFundingPanel.vue';
-import EuAmbitionDial from './sovereign/infrastructure/ui/components/EuAmbitionDial.vue';
+import CountryFundingPanel from './sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
+import EuAmbitionDial from './sovereign/infrastructure/ui/components/eu-ambition-dial/EuAmbitionDial.vue';
 import InteractiveMap from './sovereign/infrastructure/ui/components/InteractiveMap.vue';
 
 const findAllMock = vi.fn<() => Promise<CountryFunding[]>>();
@@ -28,6 +28,24 @@ function mountApp(options: Parameters<typeof mount<typeof App>>[1] = {}) {
             stubs: { InteractiveMap: true, CountryFundingPanel: true, EuAmbitionDial: true },
         },
     });
+}
+
+function mountWithTrackingPanel({ count }: { count: () => void }) {
+    const wrapper = mount(App, {
+        global: {
+            stubs: {
+                InteractiveMap: true,
+                EuAmbitionDial: true,
+                CountryFundingPanel: {
+                    template: '<div class="tracked-panel"><slot /></div>',
+                    mounted() {
+                        count();
+                    },
+                },
+            },
+        },
+    });
+    return { wrapper };
 }
 
 describe('App', () => {
@@ -245,6 +263,49 @@ describe('App', () => {
             } finally {
                 vi.unstubAllGlobals();
             }
+        });
+    });
+
+    describe('CountryFundingPanel remounting', () => {
+        beforeEach(() => {
+            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'dark' }));
+        });
+
+        it('remounts the panel when a different country is selected', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING, FRANCE_FUNDING]);
+
+            const mountCount = vi.fn();
+            const { wrapper } = mountWithTrackingPanel({ count: mountCount });
+            await flushPromises();
+
+            const map = wrapper.findComponent(InteractiveMap);
+            map.vm.$emit('country-select', 'Germany');
+            await flushPromises();
+            expect(mountCount).toHaveBeenCalledTimes(1);
+
+            map.vm.$emit('country-select', 'France');
+            await flushPromises();
+            expect(mountCount).toHaveBeenCalledTimes(2);
+        });
+
+        it('remounts the panel after deselect and re-select', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+            const mountCount = vi.fn();
+            const { wrapper } = mountWithTrackingPanel({ count: mountCount });
+            await flushPromises();
+
+            const map = wrapper.findComponent(InteractiveMap);
+            map.vm.$emit('country-select', 'Germany');
+            await flushPromises();
+            expect(mountCount).toHaveBeenCalledTimes(1);
+
+            map.vm.$emit('country-select', null);
+            await flushPromises();
+
+            map.vm.$emit('country-select', 'Germany');
+            await flushPromises();
+            expect(mountCount).toHaveBeenCalledTimes(2);
         });
     });
 

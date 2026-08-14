@@ -124,7 +124,7 @@ function select(value: ThemeMode): void {
     border-radius: 6px;
     padding: 4px;
     min-width: 160px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px var(--panel-shadow);
 }
 
 .theme-toggle-option {

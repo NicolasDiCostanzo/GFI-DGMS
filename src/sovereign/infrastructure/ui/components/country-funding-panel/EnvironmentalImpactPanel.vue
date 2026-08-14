@@ -4,8 +4,8 @@ import { computed } from 'vue';
 import {
     CULTIVATED_LCA_FIGURES,
     PLANT_BASED_LCA_FIGURES,
-} from '../constants/EnvironmentalImpactData';
-import { resolveDominantProductionPillar } from '../utils/resolveDominantProductionPillar';
+} from '../../constants/EnvironmentalImpactData';
+import { resolveDominantProductionPillar } from '../../utils/resolveDominantProductionPillar';
 
 const props = withDefaults(
     defineProps<{
@@ -39,7 +39,7 @@ const sourceText = computed(() =>
 
 <template>
     <section v-if="figures" class="environmental-impact-panel">
-        <h3 class="panel-title">Environmental potential of {{ pillarLabel }}</h3>
+        <h3 class="legend-title">Environmental potential of {{ pillarLabel }}</h3>
         <ul class="figure-list">
             <li v-for="figure in figures" :key="figure.meatType" class="figure-item">
                 <span class="meat-type">{{ figure.meatType }}</span>
@@ -58,15 +58,9 @@ const sourceText = computed(() =>
 
 <style scoped>
 .environmental-impact-panel {
-    border-top: 1px solid rgba(128, 128, 128, 0.3);
+    border-top: 1px solid var(--muted-border);
     padding-top: 12px;
     font-size: 13px;
-}
-
-.panel-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0 0 8px;
 }
 
 .figure-list {

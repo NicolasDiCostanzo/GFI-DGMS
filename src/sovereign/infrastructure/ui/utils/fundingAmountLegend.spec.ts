@@ -1,5 +1,8 @@
+import {
+    COLORBLIND_FUNDING_PROGRESS_COLORS,
+    MapColors,
+} from '@/sovereign/domain/constants/MapColors';
 import { describe, expect, it } from 'vitest';
-import { MapColors } from '@/sovereign/domain/constants/MapColors';
 import { createFundingAmountLegendItems } from './fundingAmountLegend';
 
 describe('createFundingAmountLegendItems', () => {
@@ -33,6 +36,6 @@ describe('createFundingAmountLegendItems', () => {
     it('uses the colorblind-safe palette for colorblind modes', () => {
         const items = createFundingAmountLegendItems([2, 4, 6, 8], 'colorblind-dark');
 
-        expect(items[1].color).toBe('#0072B2');
+        expect(items[1].color).toBe(COLORBLIND_FUNDING_PROGRESS_COLORS[0]);
     });
 });

@@ -59,6 +59,26 @@ export const FRANCE_FUNDING_WITH_UNSAFE_URL = new CountryFunding(CountryName('Fr
     GRANT_THREE,
 ]);
 
+export const GRANT_WITH_LONG_DESCRIPTION = new Grant(
+    GrantId('rec4'),
+    'France',
+    'Long description grant',
+    1_000_000,
+    ['Funder'],
+    'Funder Name',
+    'Recipient',
+    'This is a very long description that definitely exceeds one hundred and twenty characters so that it should be truncated and made expandable in the table view.',
+    'Research & Development',
+    'Research Grant',
+    ['All'],
+    ['2023'],
+    'https://example.com/long',
+);
+
+export const FRANCE_FUNDING_WITH_LONG_DESCRIPTION = new CountryFunding(CountryName('France'), [
+    GRANT_WITH_LONG_DESCRIPTION,
+]);
+
 export const GERMANY_FUNDING = new CountryFunding(CountryName('Germany'), []);
 
 export interface WrapperOptions {
