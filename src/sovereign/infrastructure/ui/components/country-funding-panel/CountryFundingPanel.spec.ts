@@ -326,8 +326,9 @@ describe('CountryFundingPanel', () => {
 
         it.each([['dark'], ['colorblind-dark'], ['light'], ['colorblind-light']] as const)(
             'still applies theme colors when expanded in %s mode',
-            (themeMode) => {
+            async (themeMode) => {
                 const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode });
+                await wrapper.find('.expand-button').trigger('click');
                 const style = wrapper.find('.country-funding-panel').attributes('style');
                 const colors = getThemeColors(themeMode as ThemeMode);
                 expect(style).toContain(`--text: ${colors.TEXT}`);
