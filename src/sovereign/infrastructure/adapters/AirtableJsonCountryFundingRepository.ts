@@ -3,14 +3,6 @@ import { Grant, GrantId } from '../../domain/Grant';
 import { CountryFundingRepository } from '../../domain/repository/CountryFundingRepository';
 import { GrantDataValidationError } from '../errors/GrantDataValidationError';
 
-// grants.json is ~1.2MB (real grant descriptions/funder names for 791 records) — a static
-// import would inline the whole file into the JS bundle (verified: it blew the 120KB gzip
-// budget to 420KB). Vite's library build mode also inlines local asset URLs as base64
-// (verified: `new URL(..., import.meta.url)` made it worse, at 593KB), since a "library"
-// build has no place to emit separate co-located files. Fetching from jsDelivr's GitHub CDN
-// mirror avoids both: the JS bundle stays code-only, and the data refreshes independently
-// whenever the nightly sync workflow commits — see .github/workflows/sync-airtable-grants.yml,
-// which purges this URL from jsDelivr's cache right after pushing so it doesn't lag.
 const GRANT_DATA_URL =
     'https://cdn.jsdelivr.net/gh/NicolasDiCostanzo/GFI-DGMS@main/src/sovereign/infrastructure/data/grants.json';
 
@@ -44,15 +36,11 @@ export interface GrantRecord {
     sourceUrl: string | null;
 }
 
-// Airtable's country name doesn't always match world-atlas's feature.properties.name
-// (see src/sovereign/infrastructure/ui/composables/useCountryDisplay.ts), which the map
-// uses to key country lookups. Reconciles the two so a country resolves under one name.
 const COUNTRY_NAME_ALIASES: Readonly<Record<string, string>> = {
     'United States': 'United States of America',
     'The Netherlands': 'Netherlands',
 };
 
-// Not real countries — grants tagged with these have no single map region to attach to.
 const NON_COUNTRY_VALUES = new Set(['European Union', 'Other']);
 
 function resolveCountryName(rawCountry: string | null): string | null {

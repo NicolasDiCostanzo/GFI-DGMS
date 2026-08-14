@@ -4,11 +4,6 @@ const NON_USD_CURRENCY_PREFIX = /\b(?!USD\b)[A-Z]{3}\s*\$|€|£|¥/;
 const DOLLAR_AMOUNT = /\$\s*([\d,]+(?:\.\d+)?)/;
 const BARE_NUMBER = /^[\d,]+(?:\.\d+)?$/;
 
-/**
- * Parses the free-text "Funding Estimate (USD)" Airtable field into a number.
- * Returns null when the value has no single disclosed USD amount (e.g. "Undisclosed",
- * a range, or a non-USD figure) rather than guessing at an approximation.
- */
 export function parseFundingEstimate(raw) {
     if (raw === null || raw === undefined) {
         return null;

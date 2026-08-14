@@ -4,11 +4,6 @@ import {
     type ThemeMode,
 } from '@/sovereign/domain/constants/MapColors';
 
-/**
- * Buckets a country's total funding into the 5-color accessible palette using thresholds
- * computed by calculateFundingColorThresholds. Zero (no disclosed funding) gets its own
- * "no data" color rather than the lowest funding tier — those are different claims.
- */
 export function getColorForFundingAmount(
     amountUsd: number,
     thresholds: readonly number[],

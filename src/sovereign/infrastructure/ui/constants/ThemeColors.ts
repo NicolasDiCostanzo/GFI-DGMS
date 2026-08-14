@@ -123,12 +123,6 @@ export const INSTRUMENT_FAMILY_COLORS = {
     Other: { light: '#616161', dark: '#bdbdbd' },
 } as const;
 
-/**
- * Selects the theme colors for the specified display mode.
- *
- * @param mode - The theme mode to resolve
- * @returns Dark theme colors for dark modes, or light theme colors for other modes
- */
 export function getThemeColors(mode: ThemeMode): ThemeColors {
     const isDark = mode === 'dark' || mode === 'colorblind-dark';
     return isDark ? DARK_THEME_COLORS : LIGHT_THEME_COLORS;

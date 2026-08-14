@@ -8,7 +8,6 @@ export class MockCountryFundingRepository implements CountryFundingRepository {
         private readonly unattributedGrants: readonly Grant[],
     ) {}
 
-    // GetCountryFundingOverview never calls this — only implemented to satisfy the port.
     findByCountryName(_name: CountryName): Promise<CountryFunding | null> {
         return Promise.resolve(null);
     }

@@ -16,7 +16,6 @@ const FAMILY_ORDER: readonly (keyof typeof INSTRUMENT_FAMILY_COLORS)[] = [
     'Other',
 ];
 
-// Maps each raw instrument value to its family and a cleaned display label.
 const INSTRUMENT_ENTRIES: Readonly<
     Record<
         string,

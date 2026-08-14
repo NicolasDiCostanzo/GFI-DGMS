@@ -23,8 +23,6 @@ describe('hexagonal architecture boundaries (dependency-cruiser rules)', () => {
             path.join(process.cwd(), '.dependency-cruiser.js'),
         );
 
-        // Guard against silent false-green if a rule is ever renamed/removed
-        // from .dependency-cruiser.js without updating this test.
         const loadedRuleNames = new Set(
             (cruiseOptions.ruleSet?.forbidden ?? []).map((rule) => rule.name),
         );
@@ -82,18 +80,6 @@ interface PortUsage {
     file: string;
 }
 
-/**
- * Identifies, per bounded context, which files implement a domain repository
- * port (repository implementations) vs. which files constructor-inject one
- * (use cases). There is no naming convention (no `*UseCase.ts`/`*Repository
- * Impl.ts` suffix) in this codebase, so placement can only be inferred from
- * this structural shape.
- *
- * Known limitations (proportionate to the codebase's current surface area):
- * no import-alias support (`import { X as Y }`), and only single-level
- * `implements`/constructor-parameter matching (no decorators, re-exports, or
- * interface merging).
- */
 function findPortImplementationsAndUseCases(srcDir: string): {
     implementations: PortUsage[];
     useCases: PortUsage[];

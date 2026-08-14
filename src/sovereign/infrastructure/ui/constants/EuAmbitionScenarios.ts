@@ -8,10 +8,6 @@ export interface EuAmbitionScenario {
     readonly publicInvestmentEurBillionsPerYear: number;
 }
 
-// Source: Systemiq (2026), "Seizing the economic opportunity of alternative proteins in
-// Europe" (commissioned by GFI Europe). EU-wide, 2040 figures for the two quantified
-// scenarios — Business as Usual is described only qualitatively in the report, with no
-// published figures, so "Today" (the live funding total) stands in for it here instead.
 export const EU_AMBITION_SCENARIOS: readonly EuAmbitionScenario[] = [
     {
         key: 'moderate',
@@ -33,8 +29,6 @@ export const EU_AMBITION_SCENARIOS: readonly EuAmbitionScenario[] = [
     },
 ];
 
-// EU-27 membership (post-Brexit), using world-atlas's canonical country names — see
-// AirtableJsonCountryFundingRepository's country-name reconciliation for why this matters.
 export const EU_MEMBER_COUNTRY_NAMES: readonly string[] = [
     'Austria',
     'Belgium',

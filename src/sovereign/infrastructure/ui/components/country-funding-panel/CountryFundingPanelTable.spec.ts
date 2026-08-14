@@ -84,7 +84,6 @@ describe('CountryFundingPanelTable', () => {
         });
         const headers = wrapper.findAll('thead th').map((h) => h.text());
         expect(headers.length).toBe(order.length);
-        // basic assertion: header labels match the column keys provided
         expect(headers[0].length).toBeGreaterThan(0);
     });
 

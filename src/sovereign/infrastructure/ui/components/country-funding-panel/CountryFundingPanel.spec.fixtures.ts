@@ -86,12 +86,6 @@ export interface WrapperOptions {
     themeMode?: ThemeMode;
 }
 
-/**
- * Creates a mounted `CountryFundingPanel` wrapper with configurable fixture props.
- *
- * @param options - Optional prop overrides for the mounted component
- * @returns The mounted `CountryFundingPanel` wrapper
- */
 export function createWrapper(options: WrapperOptions = {}) {
     return mount(CountryFundingPanel, {
         props: {

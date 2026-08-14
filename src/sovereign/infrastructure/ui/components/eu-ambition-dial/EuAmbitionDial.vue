@@ -152,13 +152,11 @@ function onStopsKeydown(event: KeyboardEvent): void {
     border: 1px solid var(--muted-border);
     border-radius: 4px;
     background: transparent;
-    /* Buttons don't inherit color; explicit value keeps non-selected stops readable on dark themes */
     color: var(--text);
     cursor: pointer;
 }
 
 .dial-stop.active {
-    /* Use centralized link color and on-accent text color. */
     background: var(--link);
     color: var(--on-link);
     border-color: var(--link);

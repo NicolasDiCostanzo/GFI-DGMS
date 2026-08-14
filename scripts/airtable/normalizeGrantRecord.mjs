@@ -1,10 +1,5 @@
 import { parseFundingEstimate } from './parseFundingEstimate.mjs';
 
-/**
- * Maps a raw Airtable record from the SOGPR Web View table into the clean shape
- * committed to the repo. Airtable omits empty fields from its API response entirely
- * (rather than sending null), so every field is read with a default.
- */
 export function normalizeGrantRecord(record) {
     const fields = record.fields ?? {};
 

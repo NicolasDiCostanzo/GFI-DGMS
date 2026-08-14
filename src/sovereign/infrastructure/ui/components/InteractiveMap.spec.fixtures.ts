@@ -22,10 +22,6 @@ export function buildCountryFunding(countryName: string, amountUsd: number): Cou
 
 export const GERMANY_FUNDING = buildCountryFunding('Germany', 5_000_000);
 
-/**
- * Creates the default state used by the interactive map wrapper: Germany has disclosed
- * funding, France (used throughout as the "no data" case) does not.
- */
 export function createWrapperDefaults() {
     return {
         countryFundings: [GERMANY_FUNDING],

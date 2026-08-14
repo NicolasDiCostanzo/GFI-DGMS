@@ -140,7 +140,6 @@ export default defineComponent({
             segments: ReturnType<typeof getPlatformSegments>;
         };
 
-        // Type-safe cell value extractor to avoid dynamic indexing of Grant by string
         function getCellValue(column: ColumnKey, eg: EnrichedGrant): string {
             const g = eg.grant;
             switch (column) {

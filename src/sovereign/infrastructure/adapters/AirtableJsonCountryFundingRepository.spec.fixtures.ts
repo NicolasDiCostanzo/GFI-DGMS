@@ -23,12 +23,6 @@ export function buildRecord(overrides: Partial<GrantRecord>): GrantRecord {
     return { ...BASE_RECORD, ...overrides };
 }
 
-/**
- * Builds a grant record fixture by applying property overrides to the valid record.
- *
- * @param overrides - Properties to replace in the valid record
- * @returns An array containing the resulting grant record
- */
 export function buildInvalidRecord(overrides: Record<string, unknown>): GrantRecord[] {
     return [buildRecord(overrides as Partial<GrantRecord>)] as unknown as GrantRecord[];
 }

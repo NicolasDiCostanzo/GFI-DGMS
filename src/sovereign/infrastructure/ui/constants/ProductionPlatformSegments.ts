@@ -5,9 +5,6 @@ export interface PlatformSegment {
 
 type PlatformKey = 'PB' | 'CM' | 'FM';
 
-// Every platform value in the tracker is a subset of three pillars: Plant-based (PB),
-// Cultivated (CM), Fermentation (FM). The displayed segments keep the same order in all
-// cells so a country's row reads consistently across the table.
 const PLATFORM_VALUES: Readonly<Record<string, readonly PlatformKey[]>> = {
     'Plant-based': ['PB'],
     'Plant-Based': ['PB'],

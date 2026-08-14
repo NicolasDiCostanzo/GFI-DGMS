@@ -252,11 +252,9 @@ describe('App', () => {
                 await options[2].trigger('click');
                 await flushPromises();
 
-                // The write failure is swallowed so the widget keeps working.
                 expect(capturedErrors.length).toBe(0);
                 expect(setItem).toHaveBeenCalledTimes(1);
 
-                // A second theme change no longer attempts to write.
                 await options[3].trigger('click');
                 await flushPromises();
                 expect(setItem).toHaveBeenCalledTimes(1);

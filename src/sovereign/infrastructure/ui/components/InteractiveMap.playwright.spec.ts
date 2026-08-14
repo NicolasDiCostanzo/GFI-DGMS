@@ -131,16 +131,6 @@ test.describe('InteractiveMap', () => {
     test('the first real Tab key press lands on a focusable country, and Enter opens its sidebar', async ({
         page,
     }) => {
-        // The unit spec only simulates focus/keydown directly on a chosen element
-        // (wrapper.trigger('focus')/'keydown.enter'), which proves the component
-        // reacts correctly to those events but never proves a real Tab key press
-        // actually reaches that element in the browser's computed tab order. Only a
-        // real browser can verify that, which is what this test is for: every
-        // country path has click/keydown listeners (needed so the "no data" ones
-        // stay clickable), and some browsers include listener-bearing elements in
-        // the default tab sequence even without a tabindex attribute — so
-        // non-selectable countries must be explicitly excluded with tabindex="-1"
-        // (see InteractiveMap.vue), not just left without a tabindex.
         await page.keyboard.press('Tab');
 
         const focused = page.locator(':focus');
