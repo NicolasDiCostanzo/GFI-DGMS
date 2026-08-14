@@ -1,6 +1,7 @@
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
+import { getThemeColors } from '../../constants/ThemeColors';
 import {
     basicGrant,
     customDefaultsGrant,
@@ -149,6 +150,22 @@ describe('CountryFundingPanelTable', () => {
         const { columnLabels } = wrapper.vm;
         expect(columnLabels.amountUsd).toBe('Funding estimate');
     });
+
+    it.each([['light'], ['dark'], ['colorblind-light'], ['colorblind-dark']] as const)(
+        'renders instrument chip text color for %s theme',
+        (themeMode) => {
+            const g = makeGrant({ id: 'g-instrument', fundingInstrument: 'Research Grant' });
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: { grants: [g], themeMode },
+            });
+
+            const instrument = wrapper.find('.instrument-chip');
+            expect(instrument.exists()).toBe(true);
+            const isDark = themeMode === 'dark' || themeMode === 'colorblind-dark';
+            const expectedColor = getThemeColors(themeMode)[isDark ? 'ON_LIGHT' : 'ON_ACCENT'];
+            expect(instrument.attributes('style')).toContain(`color: ${expectedColor}`);
+        },
+    );
 
     it('renders aim chip, instrument chip and platform segments when present', () => {
         const g = makeGrant({

@@ -34,7 +34,7 @@ export function getPlatformSegments(
     }
     const present = new Set<PlatformKey>();
     for (const platform of platforms) {
-        const keys = PLATFORM_VALUES.get(platform);
+        const keys = PLATFORM_VALUES[platform];
         if (!keys) {
             continue;
         }
