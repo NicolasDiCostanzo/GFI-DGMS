@@ -31,27 +31,27 @@ describe('EnvironmentalImpactPanel', () => {
             const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
             const ghgCard = wrapper.find('.kpi-card--ghg');
             const ghgText = ghgCard.text().replace(/\u2212/g, '-');
-            expect(ghgText).toContain('-90% (Beef)');
-            expect(ghgText).toContain('-71% (Pork)');
-            expect(ghgText).toContain('-36% (Chicken)');
+            expect(ghgText).toContain('-90% (beef)');
+            expect(ghgText).toContain('-71% (pork)');
+            expect(ghgText).toContain('-36% (chicken)');
         });
 
         it('lists land savings per meat type', () => {
             const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
             const landCard = wrapper.find('.kpi-card--land');
             const landText = landCard.text().replace(/\u2212/g, '-');
-            expect(landText).toContain('-96% (Beef)');
-            expect(landText).toContain('-41% (Pork)');
-            expect(landText).not.toContain('Chicken');
+            expect(landText).toContain('-96% (beef)');
+            expect(landText).toContain('-41% (pork)');
+            expect(landText).not.toContain('chicken');
         });
 
         it('lists water savings per meat type', () => {
             const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
             const waterCard = wrapper.find('.kpi-card--water');
             const waterText = waterCard.text().replace(/\u2212/g, '-');
-            expect(waterText).toContain('-87% (Beef)');
-            expect(waterText).toContain('-81% (Pork)');
-            expect(waterText).toContain('-72% (Chicken)');
+            expect(waterText).toContain('-87% (beef)');
+            expect(waterText).toContain('-81% (pork)');
+            expect(waterText).toContain('-72% (chicken)');
         });
     });
 
@@ -60,9 +60,9 @@ describe('EnvironmentalImpactPanel', () => {
             const wrapper = createWrapper(CULTIVATED_DOMINANT_GRANTS);
             const ghgCard = wrapper.find('.kpi-card--ghg');
             const ghgText = ghgCard.text().replace(/\u2212/g, '-');
-            expect(ghgText).toContain('-98% (Beef)');
-            expect(ghgText).toContain('-80% (Pork)');
-            expect(ghgText).toContain('-75% (Chicken)');
+            expect(ghgText).toContain('-98% (beef)');
+            expect(ghgText).toContain('-80% (pork)');
+            expect(ghgText).toContain('-75% (chicken)');
         });
 
         it('cites the CE Delft LCA source for the cultivated figures', () => {
