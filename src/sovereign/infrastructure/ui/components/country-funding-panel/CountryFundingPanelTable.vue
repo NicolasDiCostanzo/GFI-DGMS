@@ -310,7 +310,6 @@ export default defineComponent({
 </template>
 <style scoped>
 .table-wrapper {
-    overflow-x: auto;
     border: black 2px solid;
 }
 
