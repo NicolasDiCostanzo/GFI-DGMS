@@ -1,11 +1,11 @@
 <template>
-    <header class="country-header">
+    <header class="country-header summary-header">
         <span class="country-name">{{ countryName }}</span>
 
         <div class="total-section">
             <div class="total-value">{{ totalAmountLabel }}</div>
             <div class="total-label">total public R&I funding tracked</div>
-            <div class="disclosure-note">{{ disclosureLabel }}</div>
+            <div class="grant-count">{{ grantCountLabel }}</div>
         </div>
     </header>
 </template>
@@ -14,18 +14,22 @@
 defineProps<{
     countryName?: string;
     totalAmountLabel?: string;
-    disclosureLabel?: string;
+    grantCountLabel?: string;
 }>();
 </script>
 
 <style scoped>
-.country-header {
-    font-size: 18px;
-    font-weight: 600;
+.summary-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
 }
 
-.total-section {
-    text-align: center;
+.country-name {
+    font-size: 18px;
+    font-weight: 600;
 }
 
 .total-value {
@@ -37,9 +41,9 @@ defineProps<{
     font-size: 13px;
 }
 
-.disclosure-note {
+.grant-count {
     font-size: 11px;
     font-style: italic;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 </style>

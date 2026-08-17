@@ -148,19 +148,19 @@ export default defineComponent({
                 case 'recipients':
                     return g.recipients ?? 'Not specified';
                 case 'amountUsd':
-                    return formatGrantAmount((g as any).amountUsd ?? null);
+                    return formatGrantAmount(g.amountUsd ?? null);
                 case 'funderName':
-                    return (g as any).funderName ?? 'Not specified';
+                    return g.funderName ?? 'Not specified';
                 case 'funderAgencies':
-                    return formatList(((g as any).funderAgencies ?? []) as readonly string[]);
+                    return formatList((g.funderAgencies ?? []) as readonly string[]);
                 case 'fundingInstrument':
-                    return String((g as any).fundingInstrument ?? 'Not specified');
+                    return String(g.fundingInstrument ?? 'Not specified');
                 case 'aim':
                     return String(eg.aim ?? 'Not specified');
                 case 'platform':
                     return String(eg.segments ?? 'Not specified');
                 case 'yearsDisbursed':
-                    return String((g as any).yearsDisbursed ?? 'Not specified');
+                    return String(g.yearsDisbursed ?? 'Not specified');
                 case 'description':
                     return g.description ?? 'Not specified';
                 case 'url':

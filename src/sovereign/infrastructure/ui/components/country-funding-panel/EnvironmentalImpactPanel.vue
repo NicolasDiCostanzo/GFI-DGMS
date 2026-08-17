@@ -1,3 +1,44 @@
+<template>
+    <section v-if="figures" class="environmental-impact-panel">
+        <h3 class="legend-title">Environmental potential of {{ pillarLabel }}</h3>
+
+        <div class="kpi-cards">
+            <div class="kpi-card kpi-card--ghg">
+                <div class="kpi-card-title">GHG Reduction</div>
+                <div class="kpi-card-values">
+                    <span v-for="figure in figures" :key="figure.meatType" class="kpi-value">
+                        −{{ figure.ghgReductionPercent }}% ({{ capitalize(figure.meatType) }})
+                    </span>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-card--land">
+                <div class="kpi-card-title">Land Saved</div>
+                <div class="kpi-card-values">
+                    <template v-for="figure in figures" :key="figure.meatType">
+                        <span v-if="figure.landReductionPercent !== null" class="kpi-value">
+                            −{{ figure.landReductionPercent }}% ({{ capitalize(figure.meatType) }})
+                        </span>
+                    </template>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-card--water">
+                <div class="kpi-card-title">Water Saved</div>
+                <div class="kpi-card-values">
+                    <template v-for="figure in figures" :key="figure.meatType">
+                        <span v-if="figure.waterReductionPercent !== null" class="kpi-value">
+                            −{{ figure.waterReductionPercent }}% ({{ capitalize(figure.meatType) }})
+                        </span>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <p class="figure-source">{{ sourceText }}</p>
+    </section>
+</template>
+
 <script setup lang="ts">
 import type { Grant } from '@/sovereign/domain/Grant';
 import { computed } from 'vue';
@@ -35,26 +76,11 @@ const sourceText = computed(() =>
         ? 'vs. conventional meat. General, illustrative technology figures — not specific to this country\'s funding or any single grant. Source: CE Delft, "LCA of Cultivated Meat".'
         : 'vs. conventional meat. General, illustrative technology figures — not specific to this country\'s funding or any single grant. Source: GFI, "Environmental benefits of alternative proteins".',
 );
-</script>
 
-<template>
-    <section v-if="figures" class="environmental-impact-panel">
-        <h3 class="legend-title">Environmental potential of {{ pillarLabel }}</h3>
-        <ul class="figure-list">
-            <li v-for="figure in figures" :key="figure.meatType" class="figure-item">
-                <span class="meat-type">{{ figure.meatType }}</span>
-                <span class="figure-value">up to -{{ figure.ghgReductionPercent }}% GHG</span>
-                <span v-if="figure.landReductionPercent !== null" class="figure-value">
-                    up to -{{ figure.landReductionPercent }}% land</span
-                >
-                <span v-if="figure.waterReductionPercent !== null" class="figure-value">
-                    up to -{{ figure.waterReductionPercent }}% water</span
-                >
-            </li>
-        </ul>
-        <p class="figure-source">{{ sourceText }}</p>
-    </section>
-</template>
+function capitalize(value: string): string {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+}
+</script>
 
 <style scoped>
 .environmental-impact-panel {
@@ -63,30 +89,42 @@ const sourceText = computed(() =>
     font-size: 13px;
 }
 
-.figure-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.kpi-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.kpi-card {
+    background: var(--muted-bg);
+    border: 1px solid var(--muted-border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.kpi-card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.kpi-card-values {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.figure-item {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.meat-type {
+.kpi-value {
+    font-size: 13px;
     font-weight: 600;
-    text-transform: capitalize;
-    min-width: 60px;
 }
 
 .figure-source {
     font-size: 11px;
     font-style: italic;
-    margin: 8px 0 0;
+    margin-top: 8px;
 }
 </style>

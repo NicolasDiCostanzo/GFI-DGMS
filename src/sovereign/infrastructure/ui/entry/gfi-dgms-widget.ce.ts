@@ -4,17 +4,16 @@ import { defineCustomElement } from 'vue';
 export const GFI_DGMS_WIDGET_TAG = 'gfi-dgms-widget';
 
 export function polyfillProcessEnv(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const g = globalThis as any;
-    if (typeof g.process === 'undefined') {
-        g.process = {};
+    const globalObj = globalThis as unknown as Record<string, unknown>;
+    const proc = (globalObj['process'] as Record<string, unknown> | undefined) ?? {};
+    if (typeof proc.env === 'undefined') {
+        (proc as Record<string, unknown>).env = {};
     }
-    if (typeof g.process.env === 'undefined') {
-        g.process.env = {};
+    const env = (proc as Record<string, unknown>).env as Record<string, unknown>;
+    if (env.NODE_ENV === undefined) {
+        env.NODE_ENV = 'production';
     }
-    if (g.process.env.NODE_ENV === undefined) {
-        g.process.env.NODE_ENV = 'production';
-    }
+    globalObj['process'] = proc;
 }
 
 polyfillProcessEnv();
