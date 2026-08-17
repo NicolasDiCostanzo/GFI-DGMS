@@ -132,7 +132,7 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 - **Contents**:
     - `use-cases/` - Application use cases (e.g., `LoadGeoData`, `CalculateROI`)
     - `services/` - Application services
-- **Rules**: Depends only on domain abstractions (ports), not infrastructure
+- **Rules**: Depends on domain abstractions (ports) and `src/shared/`, not infrastructure
 
 ### `src/<bounded-context>/infrastructure/`
 
