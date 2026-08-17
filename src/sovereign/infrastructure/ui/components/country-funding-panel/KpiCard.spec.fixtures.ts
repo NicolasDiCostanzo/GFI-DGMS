@@ -24,6 +24,38 @@ interface KpiFigure {
     readonly value: number | null;
 }
 
+export interface KpiCardCase {
+    readonly title: string;
+    readonly figures: readonly KpiFigure[];
+    readonly count: number;
+    readonly expected: readonly string[];
+    readonly omitted: string | null;
+}
+
+export const KPI_CASES: readonly KpiCardCase[] = [
+    {
+        title: 'GHG Reduction',
+        figures: GHG_FIGURES,
+        count: 3,
+        expected: ['-90% (Beef)', '-71% (Pork)', '-36% (Chicken)'],
+        omitted: null,
+    },
+    {
+        title: 'Land Saved',
+        figures: LAND_FIGURES,
+        count: 2,
+        expected: ['-96% (Beef)', '-41% (Pork)'],
+        omitted: 'Chicken',
+    },
+    {
+        title: 'Water Saved',
+        figures: WATER_FIGURES,
+        count: 3,
+        expected: [],
+        omitted: null,
+    },
+];
+
 export function createWrapper(props: {
     title: string;
     figures: readonly KpiFigure[];

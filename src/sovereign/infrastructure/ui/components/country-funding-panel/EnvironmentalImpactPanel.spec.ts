@@ -3,6 +3,7 @@ import {
     createWrapper,
     CULTIVATED_DOMINANT_GRANTS,
     PLANT_BASED_DOMINANT_GRANTS,
+    PLANT_BASED_KPI_CASES,
     TIED_GRANTS,
 } from './EnvironmentalImpactPanel.spec.fixtures';
 
@@ -27,32 +28,22 @@ describe('EnvironmentalImpactPanel', () => {
             expect(wrapper.findAll('.kpi-card')).toHaveLength(3);
         });
 
-        it('lists GHG reductions per meat type', () => {
-            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
-            const ghgCard = wrapper.find('.kpi-card--ghg');
-            const ghgText = ghgCard.text().replace(/\u2212/g, '-');
-            expect(ghgText).toContain('-90% (beef)');
-            expect(ghgText).toContain('-71% (pork)');
-            expect(ghgText).toContain('-36% (chicken)');
-        });
-
-        it('lists land savings per meat type', () => {
-            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
-            const landCard = wrapper.find('.kpi-card--land');
-            const landText = landCard.text().replace(/\u2212/g, '-');
-            expect(landText).toContain('-96% (beef)');
-            expect(landText).toContain('-41% (pork)');
-            expect(landText).not.toContain('chicken');
-        });
-
-        it('lists water savings per meat type', () => {
-            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
-            const waterCard = wrapper.find('.kpi-card--water');
-            const waterText = waterCard.text().replace(/\u2212/g, '-');
-            expect(waterText).toContain('-87% (beef)');
-            expect(waterText).toContain('-81% (pork)');
-            expect(waterText).toContain('-72% (chicken)');
-        });
+        it.each(PLANT_BASED_KPI_CASES)(
+            'lists savings per meat type for $selector',
+            ({ selector, expected, omitted }) => {
+                const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
+                const text = wrapper
+                    .find(selector)
+                    .text()
+                    .replace(/\u2212/g, '-');
+                for (const value of expected) {
+                    expect(text).toContain(value);
+                }
+                if (omitted !== null) {
+                    expect(text).not.toContain(omitted);
+                }
+            },
+        );
     });
 
     describe('with a cultivated-dominant mix', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createWrapper, GHG_FIGURES, LAND_FIGURES, WATER_FIGURES } from './KpiCard.spec.fixtures';
+import { createWrapper, GHG_FIGURES, KPI_CASES } from './KpiCard.spec.fixtures';
 
 describe('KpiCard', () => {
     it('renders the title', () => {
@@ -7,37 +7,27 @@ describe('KpiCard', () => {
         expect(wrapper.find('.kpi-card-title').text()).toBe('GHG Reduction');
     });
 
-    it('renders a value for each non-null figure', () => {
-        const wrapper = createWrapper({ title: 'GHG Reduction', figures: GHG_FIGURES });
-        const values = wrapper.findAll('.kpi-value');
-        expect(values).toHaveLength(3);
-        const text = wrapper
-            .find('.kpi-card-values')
-            .text()
-            .replace(/\u2212/g, '-');
-        expect(text).toContain('-90% (Beef)');
-        expect(text).toContain('-71% (Pork)');
-        expect(text).toContain('-36% (Chicken)');
-    });
+    it.each(KPI_CASES)(
+        'renders a value for each figure in $title',
+        ({ title, figures, count, expected, omitted }) => {
+            const wrapper = createWrapper({ title, figures });
+            const values = wrapper.findAll('.kpi-value');
+            expect(values).toHaveLength(count);
 
-    it('skips figures with null values', () => {
-        const wrapper = createWrapper({ title: 'Land Saved', figures: LAND_FIGURES });
-        const values = wrapper.findAll('.kpi-value');
-        expect(values).toHaveLength(2);
-        const text = wrapper
-            .find('.kpi-card-values')
-            .text()
-            .replace(/\u2212/g, '-');
-        expect(text).toContain('-96% (Beef)');
-        expect(text).toContain('-41% (Pork)');
-        expect(text).not.toContain('Chicken');
-    });
-
-    it('renders all figures when none are null', () => {
-        const wrapper = createWrapper({ title: 'Water Saved', figures: WATER_FIGURES });
-        const values = wrapper.findAll('.kpi-value');
-        expect(values).toHaveLength(3);
-    });
+            if (expected.length > 0 || omitted !== null) {
+                const text = wrapper
+                    .find('.kpi-card-values')
+                    .text()
+                    .replace(/\u2212/g, '-');
+                for (const value of expected) {
+                    expect(text).toContain(value);
+                }
+                if (omitted !== null) {
+                    expect(text).not.toContain(omitted);
+                }
+            }
+        },
+    );
 
     it('applies the variant modifier class when provided', () => {
         const wrapper = createWrapper({
