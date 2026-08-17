@@ -1,21 +1,32 @@
-import { onUnmounted, ref } from 'vue';
+import { onUnmounted, ref, type Ref } from 'vue';
 
 export const MIN_PANEL_WIDTH = 320;
-export function getMaxPanelWidth(): number {
-    const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
-    return Math.max(Math.floor(vw), MIN_PANEL_WIDTH);
-}
 
-export function usePanelResize(onWidthChange: (width: number) => void) {
+export function usePanelResize(
+    containerRef: Ref<HTMLElement | null>,
+    onWidthChange: (width: number) => void,
+) {
     const isResizing = ref(false);
 
+    function getMaxWidth(): number {
+        const container = containerRef.value;
+        const width = container?.getBoundingClientRect().width ?? 0;
+        if (width <= 0) {
+            return Number.POSITIVE_INFINITY;
+        }
+        return Math.max(Math.floor(width), MIN_PANEL_WIDTH);
+    }
+
     function clamp(value: number): number {
-        const max = getMaxPanelWidth();
-        return Math.min(Math.max(value, MIN_PANEL_WIDTH), max);
+        return Math.min(Math.max(value, MIN_PANEL_WIDTH), getMaxWidth());
     }
 
     function handleMove(event: MouseEvent): void {
-        onWidthChange(clamp(window.innerWidth - event.clientX));
+        const container = containerRef.value;
+        if (!container) {
+            return;
+        }
+        onWidthChange(clamp(container.getBoundingClientRect().right - event.clientX));
     }
 
     function stopResize(): void {
@@ -41,5 +52,6 @@ export function usePanelResize(onWidthChange: (width: number) => void) {
         isResizing,
         startResize,
         clamp,
+        getMaxWidth,
     };
 }

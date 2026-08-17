@@ -1,5 +1,5 @@
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { AIM_PALETTES, getThemeColors } from '../../constants/ThemeColors';
 import {
@@ -252,19 +252,16 @@ describe('CountryFundingPanel', () => {
     });
 
     describe('resizable sidebar width', () => {
-        let originalInnerWidth: number;
-
-        beforeEach(() => {
-            originalInnerWidth = window.innerWidth;
-        });
+        function mockContainerWidth(container: HTMLElement, width: number): void {
+            vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+                width,
+                right: width,
+            } as DOMRect);
+        }
 
         afterEach(() => {
             window.dispatchEvent(new MouseEvent('mouseup'));
-            Object.defineProperty(window, 'innerWidth', {
-                writable: true,
-                configurable: true,
-                value: originalInnerWidth,
-            });
+            vi.restoreAllMocks();
         });
 
         it('renders a drag handle on the collapsed panel', () => {
@@ -276,13 +273,25 @@ describe('CountryFundingPanel', () => {
             );
         });
 
+        it('computes the drag width from the panel container, not the browser window', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const container = wrapper.element.parentElement as HTMLElement;
+            // Simulate an embed frame whose right edge sits well inside a wider window.
+            mockContainerWidth(container, 500);
+
+            await wrapper.find('.resize-handle').trigger('mousedown', { button: 0 });
+            window.dispatchEvent(new MouseEvent('mousemove', { clientX: 400 }));
+            await nextTick();
+
+            expect(wrapper.find('.country-funding-panel').attributes('style')).toContain(
+                'width: 320px',
+            );
+        });
+
         it('restores the default collapsed width when the panel is collapsed again', async () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            Object.defineProperty(window, 'innerWidth', {
-                writable: true,
-                configurable: true,
-                value: 1024,
-            });
+            const container = wrapper.element.parentElement as HTMLElement;
+            mockContainerWidth(container, 1024);
 
             await wrapper.find('.resize-handle').trigger('mousedown', { button: 0 });
             window.dispatchEvent(new MouseEvent('mousemove', { clientX: 600 }));
@@ -296,11 +305,8 @@ describe('CountryFundingPanel', () => {
 
         it('treats a resize to the max width as an expanded panel', async () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            Object.defineProperty(window, 'innerWidth', {
-                writable: true,
-                configurable: true,
-                value: 1024,
-            });
+            const container = wrapper.element.parentElement as HTMLElement;
+            mockContainerWidth(container, 1024);
 
             await wrapper.find('.resize-handle').trigger('mousedown', { button: 0 });
             window.dispatchEvent(new MouseEvent('mousemove', { clientX: 1 }));

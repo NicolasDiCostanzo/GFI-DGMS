@@ -2,7 +2,7 @@
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { computed, ref } from 'vue';
-import { getMaxPanelWidth, usePanelResize } from '../../composables/usePanelResize';
+import { usePanelResize } from '../../composables/usePanelResize';
 import { getThemeColors } from '../../constants/ThemeColors.ts';
 import { formatInvestment } from '../../utils/formatInvestment.ts';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
@@ -100,11 +100,17 @@ const cssVars = computed(() => {
     } as Record<string, string>;
 });
 
+const panelEl = ref<HTMLElement | null>(null);
+const containerEl = computed(() => panelEl.value?.parentElement ?? null);
+
 const DEFAULT_PANEL_WIDTH = 380;
-const panelWidth = ref(Math.min(DEFAULT_PANEL_WIDTH, getMaxPanelWidth()));
-const { startResize, isResizing, clamp } = usePanelResize((width: number) => {
-    panelWidth.value = clamp(width);
-});
+const panelWidth = ref(DEFAULT_PANEL_WIDTH);
+const { startResize, isResizing, clamp, getMaxWidth } = usePanelResize(
+    containerEl,
+    (width: number) => {
+        panelWidth.value = clamp(width);
+    },
+);
 
 function toggleExpanded(): void {
     isExpanded.value = !shouldShowExpandedState.value;
@@ -114,7 +120,7 @@ function toggleExpanded(): void {
     }
 }
 
-const isMaxWidthExpanded = computed(() => panelWidth.value >= getMaxPanelWidth() - 1);
+const isMaxWidthExpanded = computed(() => panelWidth.value >= getMaxWidth() - 1);
 const shouldShowExpandedState = computed(() => isExpanded.value || isMaxWidthExpanded.value);
 
 const panelStyle = computed(() => {
@@ -131,7 +137,7 @@ const panelClasses = computed(() => ({
 </script>
 
 <template>
-    <aside class="country-funding-panel" :class="panelClasses" :style="panelStyle">
+    <aside ref="panelEl" class="country-funding-panel" :class="panelClasses" :style="panelStyle">
         <button
             v-if="!shouldShowExpandedState"
             class="resize-handle"
