@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { computed, ref } from 'vue';
+import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
 import { usePanelResize } from '@/sovereign/infrastructure/ui/composables/usePanelResize';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors.ts';
 import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment.ts';
+import { computed, ref } from 'vue';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
 import CountryHeader from './CountryHeader.vue';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
@@ -112,6 +113,8 @@ const { startResize, isResizing, clamp, getMaxWidth } = usePanelResize(
     },
 );
 
+const isMobile = useMediaQuery('(max-width: 768px)');
+
 function toggleExpanded(): void {
     isExpanded.value = !shouldShowExpandedState.value;
 
@@ -121,7 +124,9 @@ function toggleExpanded(): void {
 }
 
 const isMaxWidthExpanded = computed(() => panelWidth.value >= getMaxWidth() - 1);
-const shouldShowExpandedState = computed(() => isExpanded.value || isMaxWidthExpanded.value);
+const shouldShowExpandedState = computed(
+    () => isExpanded.value || isMaxWidthExpanded.value || isMobile.value,
+);
 
 const panelStyle = computed(() => {
     if (shouldShowExpandedState.value) {
@@ -139,13 +144,14 @@ const panelClasses = computed(() => ({
 <template>
     <aside ref="panelEl" class="country-funding-panel" :class="panelClasses" :style="panelStyle">
         <button
-            v-if="!shouldShowExpandedState"
+            v-if="!shouldShowExpandedState && !isMobile"
             class="resize-handle"
             type="button"
             aria-label="Resize panel width"
             @mousedown="startResize"
         />
         <button
+            v-if="!isMobile"
             class="expand-button"
             type="button"
             :aria-label="shouldShowExpandedState ? 'Restore panel' : 'Expand panel'"
