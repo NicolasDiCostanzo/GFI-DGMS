@@ -1,5 +1,6 @@
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import { AIM_PALETTES, getThemeColors } from '../../constants/ThemeColors';
 import {
     createWrapper,
@@ -44,12 +45,19 @@ describe('CountryFundingPanel', () => {
             expect(wrapper.find('.total-value').text()).toBe('$5M');
         });
 
-        it('displays the disclosure note', () => {
+        it('displays the grant-count stat', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
 
-            expect(wrapper.find('.disclosure-note').text()).toBe(
-                '1 of 2 grants have a disclosed amount',
-            );
+            expect(wrapper.find('.grant-count').text()).toBe('1/2 grants');
+        });
+
+        it('renders a centered summary header', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            const header = wrapper.find('.country-header');
+            expect(header.classes()).toContain('summary-header');
+            expect(wrapper.find('.country-name').text()).toBe('France');
+            expect(wrapper.find('.total-value').text()).toBe('$5M');
         });
     });
 
@@ -240,6 +248,72 @@ describe('CountryFundingPanel', () => {
             const wrapper = createWrapper({ countryFunding: GERMANY_FUNDING });
 
             expect(wrapper.find('.table-legends').exists()).toBe(false);
+        });
+    });
+
+    describe('resizable sidebar width', () => {
+        function mockContainerWidth(container: HTMLElement, width: number): void {
+            vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+                width,
+                right: width,
+            } as DOMRect);
+        }
+
+        afterEach(() => {
+            window.dispatchEvent(new MouseEvent('mouseup'));
+            vi.restoreAllMocks();
+        });
+
+        it('renders a drag handle on the collapsed panel', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            expect(wrapper.find('.resize-handle').exists()).toBe(true);
+            expect(wrapper.find('.resize-handle').attributes('aria-label')).toBe(
+                'Resize panel width',
+            );
+        });
+
+        it('computes the drag width from the panel container, not the browser window', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const container = wrapper.element.parentElement as HTMLElement;
+            // Simulate an embed frame whose right edge sits well inside a wider window.
+            mockContainerWidth(container, 500);
+
+            await wrapper.find('.resize-handle').trigger('mousedown', { button: 0 });
+            window.dispatchEvent(new MouseEvent('mousemove', { clientX: 400 }));
+            await nextTick();
+
+            expect(wrapper.find('.country-funding-panel').attributes('style')).toContain(
+                'width: 320px',
+            );
+        });
+
+        it('restores the default collapsed width when the panel is collapsed again', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const container = wrapper.element.parentElement as HTMLElement;
+            mockContainerWidth(container, 1024);
+
+            await wrapper.find('.resize-handle').trigger('mousedown', { button: 0 });
+            window.dispatchEvent(new MouseEvent('mousemove', { clientX: 600 }));
+            await wrapper.find('.expand-button').trigger('click');
+            await wrapper.find('.expand-button').trigger('click');
+
+            expect(wrapper.find('.country-funding-panel').attributes('style')).toContain(
+                'width: 380px',
+            );
+        });
+
+        it('treats a resize to the max width as an expanded panel', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const container = wrapper.element.parentElement as HTMLElement;
+            mockContainerWidth(container, 1024);
+
+            await wrapper.find('.resize-handle').trigger('mousedown', { button: 0 });
+            window.dispatchEvent(new MouseEvent('mousemove', { clientX: 1 }));
+            await nextTick();
+
+            expect(wrapper.find('.country-funding-panel').classes()).toContain('is-expanded');
+            expect(wrapper.find('.expand-button').attributes('aria-expanded')).toBe('true');
         });
     });
 

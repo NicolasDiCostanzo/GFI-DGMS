@@ -1,3 +1,17 @@
+<template>
+    <section v-if="figures.length" class="environmental-impact-panel">
+        <h3 class="legend-title">Environmental potential of {{ pillarLabel }}</h3>
+
+        <div class="kpi-cards">
+            <KpiCard variant="ghg" title="GHG Reduction" :figures="ghgFigures" />
+            <KpiCard variant="land" title="Land Saved" :figures="landFigures" />
+            <KpiCard variant="water" title="Water Saved" :figures="waterFigures" />
+        </div>
+
+        <p class="figure-source">{{ sourceText }}</p>
+    </section>
+</template>
+
 <script setup lang="ts">
 import type { Grant } from '@/sovereign/domain/Grant';
 import { computed } from 'vue';
@@ -6,6 +20,7 @@ import {
     PLANT_BASED_LCA_FIGURES,
 } from '../../constants/EnvironmentalImpactData';
 import { resolveDominantProductionPillar } from '../../utils/resolveDominantProductionPillar';
+import KpiCard from './KpiCard.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -21,7 +36,7 @@ const dominantPillar = computed(() => resolveDominantProductionPillar(props.gran
 const figures = computed(() => {
     if (dominantPillar.value === 'Plant-based') return PLANT_BASED_LCA_FIGURES;
     if (dominantPillar.value === 'Cultivated') return CULTIVATED_LCA_FIGURES;
-    return null;
+    return [];
 });
 
 const pillarLabel = computed(() =>
@@ -35,26 +50,28 @@ const sourceText = computed(() =>
         ? 'vs. conventional meat. General, illustrative technology figures — not specific to this country\'s funding or any single grant. Source: CE Delft, "LCA of Cultivated Meat".'
         : 'vs. conventional meat. General, illustrative technology figures — not specific to this country\'s funding or any single grant. Source: GFI, "Environmental benefits of alternative proteins".',
 );
-</script>
 
-<template>
-    <section v-if="figures" class="environmental-impact-panel">
-        <h3 class="legend-title">Environmental potential of {{ pillarLabel }}</h3>
-        <ul class="figure-list">
-            <li v-for="figure in figures" :key="figure.meatType" class="figure-item">
-                <span class="meat-type">{{ figure.meatType }}</span>
-                <span class="figure-value">up to -{{ figure.ghgReductionPercent }}% GHG</span>
-                <span v-if="figure.landReductionPercent !== null" class="figure-value">
-                    up to -{{ figure.landReductionPercent }}% land</span
-                >
-                <span v-if="figure.waterReductionPercent !== null" class="figure-value">
-                    up to -{{ figure.waterReductionPercent }}% water</span
-                >
-            </li>
-        </ul>
-        <p class="figure-source">{{ sourceText }}</p>
-    </section>
-</template>
+const ghgFigures = computed(() =>
+    figures.value.map((figure) => ({
+        label: figure.meatType,
+        value: figure.ghgReductionPercent,
+    })),
+);
+
+const landFigures = computed(() =>
+    figures.value.map((figure) => ({
+        label: figure.meatType,
+        value: figure.landReductionPercent,
+    })),
+);
+
+const waterFigures = computed(() =>
+    figures.value.map((figure) => ({
+        label: figure.meatType,
+        value: figure.waterReductionPercent,
+    })),
+);
+</script>
 
 <style scoped>
 .environmental-impact-panel {
@@ -63,30 +80,16 @@ const sourceText = computed(() =>
     font-size: 13px;
 }
 
-.figure-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.figure-item {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.meat-type {
-    font-weight: 600;
-    text-transform: capitalize;
-    min-width: 60px;
+.kpi-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
 }
 
 .figure-source {
     font-size: 11px;
     font-style: italic;
-    margin: 8px 0 0;
+    margin-top: 8px;
 }
 </style>
