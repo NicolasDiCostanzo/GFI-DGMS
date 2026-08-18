@@ -123,6 +123,12 @@ export const INSTRUMENT_FAMILY_COLORS = {
     Other: { light: '#616161', dark: '#bdbdbd' },
 } as const;
 
+export const ENVIRONMENTAL_METRIC_COLORS = {
+    ghg: '#a1662f',
+    land: '#43a047',
+    water: '#2196f3',
+} as const;
+
 export function getThemeColors(mode: ThemeMode): ThemeColors {
     const isDark = mode === 'dark' || mode === 'colorblind-dark';
     return isDark ? DARK_THEME_COLORS : LIGHT_THEME_COLORS;
