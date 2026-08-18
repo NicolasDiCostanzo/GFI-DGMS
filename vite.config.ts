@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import istanbul from 'vite-plugin-istanbul';
 import { fileURLToPath, URL } from 'node:url';
+import { defineConfig } from 'vite';
+import istanbul from 'vite-plugin-istanbul';
 
 export default defineConfig(({ command }) => ({
     plugins: [
@@ -26,7 +26,6 @@ export default defineConfig(({ command }) => ({
                 '**/InteractiveMap.vue',
                 '**/CountryFundingPanel.vue',
                 '**/CountryFundingPanelTable.vue',
-                '**/EuAmbitionDial.vue',
             ],
             extension: ['.vue', '.ts'],
             requireEnv: true,

@@ -7,7 +7,6 @@ import { createMockLocalStorage, FRANCE_FUNDING, GERMANY_FUNDING } from './App.s
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
 import CountryFundingPanel from './sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
-import EuAmbitionDial from './sovereign/infrastructure/ui/components/eu-ambition-dial/EuAmbitionDial.vue';
 import InteractiveMap from './sovereign/infrastructure/ui/components/InteractiveMap.vue';
 
 const findAllMock = vi.fn<() => Promise<CountryFunding[]>>();
@@ -25,7 +24,7 @@ function mountApp(options: Parameters<typeof mount<typeof App>>[1] = {}) {
         ...options,
         global: {
             ...options.global,
-            stubs: { InteractiveMap: true, CountryFundingPanel: true, EuAmbitionDial: true },
+            stubs: { InteractiveMap: true, CountryFundingPanel: true },
         },
     });
 }
@@ -35,7 +34,6 @@ function mountWithTrackingPanel({ count }: { count: () => void }) {
         global: {
             stubs: {
                 InteractiveMap: true,
-                EuAmbitionDial: true,
                 CountryFundingPanel: {
                     template: '<div class="tracked-panel"><slot /></div>',
                     mounted() {
@@ -65,23 +63,6 @@ describe('App', () => {
             GERMANY_FUNDING,
             FRANCE_FUNDING,
         ]);
-        expect(wrapper.findComponent(EuAmbitionDial).props('countryFundings')).toEqual([
-            GERMANY_FUNDING,
-            FRANCE_FUNDING,
-        ]);
-    });
-
-    it('passes unattributed grants down to the EU dial', async () => {
-        const unattributed: Grant[] = [];
-        findAllMock.mockResolvedValue([]);
-        findUnattributedGrantsMock.mockResolvedValue(unattributed);
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        expect(wrapper.findComponent(EuAmbitionDial).props('unattributedGrants')).toEqual(
-            unattributed,
-        );
     });
 
     it('displays error message when loading country fundings fails', async () => {

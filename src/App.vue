@@ -12,7 +12,6 @@ import {
 } from '@/sovereign/infrastructure/adapters/AirtableJsonCountryFundingRepository';
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
 import CountryFundingPanel from '@/sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
-import EuAmbitionDial from '@/sovereign/infrastructure/ui/components/eu-ambition-dial/EuAmbitionDial.vue';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
@@ -202,11 +201,6 @@ function handleSidebarClosing(): void {
                 :theme-mode="themeMode"
                 @country-select="handleCountrySelect"
             />
-            <EuAmbitionDial
-                class="eu-dial-overlay"
-                :country-fundings="countryFundings"
-                :unattributed-grants="unattributedGrants"
-            />
             <Transition name="slide">
                 <CountryFundingPanel
                     v-if="selectedCountryName"
@@ -251,15 +245,6 @@ function handleSidebarClosing(): void {
     top: 0;
     height: 100%;
     z-index: 10;
-}
-
-.eu-dial-overlay {
-    position: absolute;
-    top: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 5;
-    width: 280px;
 }
 
 .slide-enter-active,
