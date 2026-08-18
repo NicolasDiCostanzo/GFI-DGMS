@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type ThemeIconName, THEME_ICONS } from '../utils/themeIcons';
+import { type ThemeIconName, THEME_ICONS } from '@/sovereign/infrastructure/ui/utils/themeIcons';
 
 const props = defineProps<{
     name: ThemeIconName;

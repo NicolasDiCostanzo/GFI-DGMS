@@ -1,7 +1,7 @@
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import { getThemeColors } from '../../constants/ThemeColors';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import {
     basicGrant,
     customDefaultsGrant,

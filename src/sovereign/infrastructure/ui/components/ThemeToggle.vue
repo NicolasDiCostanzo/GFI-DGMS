@@ -3,9 +3,9 @@ import { computed, ref } from 'vue';
 import {
     COLORBLIND_FUNDING_PROGRESS_COLORS,
     type ThemeMode,
-} from '../../../domain/constants/MapColors';
-import { getThemeColors } from '../constants/ThemeColors';
-import type { ThemeIconName } from '../utils/themeIcons';
+} from '@/sovereign/domain/constants/MapColors';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import type { ThemeIconName } from '@/sovereign/infrastructure/ui/utils/themeIcons';
 import ThemeIcon from './ThemeIcon.vue';
 
 const props = defineProps<{

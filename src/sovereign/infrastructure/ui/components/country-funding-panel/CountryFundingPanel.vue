@@ -2,9 +2,9 @@
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { computed, ref } from 'vue';
-import { usePanelResize } from '../../composables/usePanelResize';
-import { getThemeColors } from '../../constants/ThemeColors.ts';
-import { formatInvestment } from '../../utils/formatInvestment.ts';
+import { usePanelResize } from '@/sovereign/infrastructure/ui/composables/usePanelResize';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors.ts';
+import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment.ts';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
 import CountryHeader from './CountryHeader.vue';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';

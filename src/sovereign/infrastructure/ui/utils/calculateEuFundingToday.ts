@@ -1,6 +1,6 @@
 import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { Grant } from '@/sovereign/domain/Grant';
-import { EU_MEMBER_COUNTRY_NAMES } from '../constants/EuAmbitionScenarios';
+import { EU_MEMBER_COUNTRY_NAMES } from '@/sovereign/infrastructure/ui/constants/EuAmbitionScenarios';
 
 export function calculateEuFundingTodayUsd(
     countryFundings: readonly CountryFunding[],

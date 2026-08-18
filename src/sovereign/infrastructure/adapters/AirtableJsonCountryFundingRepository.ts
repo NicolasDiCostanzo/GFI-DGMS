@@ -1,7 +1,7 @@
-import { CountryFunding, CountryName } from '../../domain/CountryFunding';
-import { Grant, GrantId } from '../../domain/Grant';
-import { CountryFundingRepository } from '../../domain/repository/CountryFundingRepository';
-import { GrantDataValidationError } from '../errors/GrantDataValidationError';
+import { CountryFunding, CountryName } from '@/sovereign/domain/CountryFunding';
+import { Grant, GrantId } from '@/sovereign/domain/Grant';
+import { CountryFundingRepository } from '@/sovereign/domain/repository/CountryFundingRepository';
+import { GrantDataValidationError } from '@/sovereign/infrastructure/errors/GrantDataValidationError';
 
 const GRANT_DATA_URL =
     'https://cdn.jsdelivr.net/gh/NicolasDiCostanzo/GFI-DGMS@main/src/sovereign/infrastructure/data/grants.json';

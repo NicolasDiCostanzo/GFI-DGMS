@@ -1,7 +1,7 @@
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { AIM_PALETTES, getThemeColors } from '../../constants/ThemeColors';
+import { AIM_PALETTES, getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import {
     createWrapper,
     FRANCE_FUNDING,

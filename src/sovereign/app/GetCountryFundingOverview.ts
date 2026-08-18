@@ -1,6 +1,6 @@
-import { CountryFunding } from '../domain/CountryFunding';
-import { Grant } from '../domain/Grant';
-import { CountryFundingRepository } from '../domain/repository/CountryFundingRepository';
+import { CountryFunding } from '@/sovereign/domain/CountryFunding';
+import { Grant } from '@/sovereign/domain/Grant';
+import { CountryFundingRepository } from '@/sovereign/domain/repository/CountryFundingRepository';
 
 export interface CountryFundingOverview {
     readonly countryFundings: CountryFunding[];

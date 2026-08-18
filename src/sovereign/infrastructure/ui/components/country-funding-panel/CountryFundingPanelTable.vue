@@ -2,11 +2,11 @@
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import type { Grant } from '@/sovereign/domain/Grant';
 import { computed, defineComponent, PropType, ref } from 'vue';
-import { getAimDisplay } from '../../constants/AimDisplay';
-import { getFundingInstrumentDisplay } from '../../constants/FundingInstrumentDisplay';
-import { getPlatformSegments } from '../../constants/ProductionPlatformSegments';
-import { getThemeColors } from '../../constants/ThemeColors';
-import { formatInvestment } from '../../utils/formatInvestment';
+import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
+import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
+import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment';
 
 const DEFAULT_COLUMN_ORDER = [
     'projectTitle',

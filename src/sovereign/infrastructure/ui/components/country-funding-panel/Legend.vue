@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAimLegend } from '../../constants/AimDisplay';
+import { getAimLegend } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 
 const legend = getAimLegend('dark');
 </script>

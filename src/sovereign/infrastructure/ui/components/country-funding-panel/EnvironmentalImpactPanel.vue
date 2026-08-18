@@ -18,8 +18,8 @@ import { computed } from 'vue';
 import {
     CULTIVATED_LCA_FIGURES,
     PLANT_BASED_LCA_FIGURES,
-} from '../../constants/EnvironmentalImpactData';
-import { resolveDominantProductionPillar } from '../../utils/resolveDominantProductionPillar';
+} from '@/sovereign/infrastructure/ui/constants/EnvironmentalImpactData';
+import { resolveDominantProductionPillar } from '@/sovereign/infrastructure/ui/utils/resolveDominantProductionPillar';
 import KpiCard from './KpiCard.vue';
 
 const props = withDefaults(
