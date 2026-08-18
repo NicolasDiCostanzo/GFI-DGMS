@@ -14,12 +14,12 @@
 
 <script setup lang="ts">
 import type { Grant } from '@/sovereign/domain/Grant';
-import { computed } from 'vue';
 import {
     CULTIVATED_LCA_FIGURES,
     PLANT_BASED_LCA_FIGURES,
 } from '@/sovereign/infrastructure/ui/constants/EnvironmentalImpactData';
 import { resolveDominantProductionPillar } from '@/sovereign/infrastructure/ui/utils/resolveDominantProductionPillar';
+import { computed } from 'vue';
 import KpiCard from './KpiCard.vue';
 
 const props = withDefaults(

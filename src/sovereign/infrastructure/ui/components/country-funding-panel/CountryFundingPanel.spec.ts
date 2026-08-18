@@ -1,7 +1,7 @@
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { AIM_PALETTES, getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { AIM_PALETTES, getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import {
     createWrapper,
     FRANCE_FUNDING,
@@ -223,7 +223,7 @@ describe('CountryFundingPanel', () => {
     describe('legends', () => {
         it('renders an aim legend with one swatch per aim', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const swatches = wrapper.findAll('.aim-legend .legend-swatch');
+            const swatches = wrapper.findAll('.legend-card .legend-swatch');
 
             expect(swatches).toHaveLength(3);
             expect(swatches.map((s) => s.text())).toEqual([
