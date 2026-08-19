@@ -89,5 +89,5 @@ export const multipleGrants = [
 export const sampleColumnOrders: ReadonlyArray<ReadonlyArray<string>> = [
     ['projectTitle', 'url', 'amountUsd'],
     ['amountUsd', 'projectTitle', 'recipients', 'url'],
-    ['aim', 'platform', 'projectTitle', 'url'],
+    ['platform', 'projectTitle', 'url'],
 ];

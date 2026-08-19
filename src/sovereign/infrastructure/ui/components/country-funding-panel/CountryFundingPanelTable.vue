@@ -1,12 +1,12 @@
 <script lang="ts">
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import type { Grant } from '@/sovereign/domain/Grant';
-import { computed, defineComponent, PropType, ref } from 'vue';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment';
+import { computed, defineComponent, PropType, ref } from 'vue';
 
 const DEFAULT_COLUMN_ORDER = [
     'projectTitle',
@@ -15,7 +15,6 @@ const DEFAULT_COLUMN_ORDER = [
     'funderName',
     'funderAgencies',
     'fundingInstrument',
-    'aim',
     'platform',
     'yearsDisbursed',
     'description',
@@ -118,7 +117,6 @@ export default defineComponent({
             amountUsd: 'Funding estimate',
             funderName: 'Funder name',
             fundingInstrument: 'Funding instrument',
-            aim: 'Aim',
             platform: 'Platform',
             funderAgencies: 'Funder agency',
             description: 'Description',
@@ -135,7 +133,6 @@ export default defineComponent({
         type EnrichedGrant = {
             grant: Grant;
             sourceUrl: string | null;
-            aim: ReturnType<typeof getAimDisplay>;
             instrument: ReturnType<typeof getFundingInstrumentDisplay>;
             segments: ReturnType<typeof getPlatformSegments>;
         };
@@ -155,8 +152,6 @@ export default defineComponent({
                     return formatList((g.funderAgencies ?? []) as readonly string[]);
                 case 'fundingInstrument':
                     return String(g.fundingInstrument ?? 'Not specified');
-                case 'aim':
-                    return String(eg.aim ?? 'Not specified');
                 case 'platform':
                     return String(eg.segments ?? 'Not specified');
                 case 'yearsDisbursed':
@@ -210,17 +205,7 @@ export default defineComponent({
                     "
                 >
                     <template v-for="col in columns" :key="col">
-                        <td v-if="col === 'aim'" class="aim-cell">
-                            <span
-                                v-if="row.aim"
-                                class="aim-chip"
-                                :style="{ color: row.aim?.textColor }"
-                                >{{ row.aim?.shortLabel }}</span
-                            >
-                            <span v-else class="aim-chip aim-chip--none">—</span>
-                        </td>
-
-                        <td v-else-if="col === 'fundingInstrument'" class="instrument-cell">
+                        <td v-if="col === 'fundingInstrument'" class="instrument-cell">
                             <span
                                 class="instrument-chip"
                                 :style="{
@@ -337,7 +322,6 @@ export default defineComponent({
     border-left-color: inherit;
 }
 
-.aim-chip,
 .instrument-chip {
     display: inline-block;
     padding: 2px 6px;
@@ -345,10 +329,6 @@ export default defineComponent({
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;
-}
-
-.aim-chip--none {
-    color: var(--muted);
 }
 
 .platform-segment {

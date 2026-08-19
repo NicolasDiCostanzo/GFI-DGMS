@@ -1,7 +1,7 @@
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import {
     basicGrant,
     customDefaultsGrant,
@@ -101,19 +101,6 @@ describe('CountryFundingPanelTable', () => {
         expect(cell.text().trim()).toBe('—');
     });
 
-    it('shows aim placeholder when aim is not present', () => {
-        const wrapper = mount(CountryFundingPanelTable, {
-            props: {
-                grants: [basicGrant],
-                themeMode: 'light' as ThemeMode,
-                columnOrder: ['aim'] as unknown as ReadonlyArray<ColumnKey>,
-            },
-        });
-        const aimChip = wrapper.find('.aim-chip.aim-chip--none');
-        expect(aimChip.exists()).toBe(true);
-        expect(aimChip.text()).toBe('—');
-    });
-
     it('getCellValue returns strings for all known column keys', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: { grants: [basicGrant], themeMode: 'light' as ThemeMode },
@@ -128,7 +115,6 @@ describe('CountryFundingPanelTable', () => {
             'funderName',
             'funderAgencies',
             'fundingInstrument',
-            'aim',
             'platform',
             'yearsDisbursed',
             'description',
@@ -166,7 +152,7 @@ describe('CountryFundingPanelTable', () => {
         },
     );
 
-    it('renders aim chip, instrument chip and platform segments when present', () => {
+    it('renders the aim-tinted row, instrument chip and platform segments when present', () => {
         const g = makeGrant({
             id: 'g-aim',
             aim: 'Research & Development',

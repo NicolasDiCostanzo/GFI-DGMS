@@ -67,7 +67,6 @@ const tableColumnOrder = [
     'funderName',
     'funderAgencies',
     'fundingInstrument',
-    'aim',
     'platform',
     'yearsDisbursed',
     'description',
