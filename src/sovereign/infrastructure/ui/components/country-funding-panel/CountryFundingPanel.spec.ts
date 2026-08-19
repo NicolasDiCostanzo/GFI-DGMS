@@ -235,7 +235,7 @@ describe('CountryFundingPanel', () => {
 
         it('renders a production platform legend with the three segments', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const segments = wrapper.findAll('.platform-legend .platform-segment');
+            const segments = wrapper.findAll('.legend-platform-segment');
 
             expect(segments.map((s) => s.text())).toEqual([
                 'PB = Plant-based',
