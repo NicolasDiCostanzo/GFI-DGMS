@@ -29,8 +29,8 @@
             </svg>
             <span class="metric-ring-value">−{{ value }}%</span>
         </div>
-        <span class="metric-ring-label">{{ label }}</span>
         <span v-if="icon" class="metric-ring-icon">{{ icon }}</span>
+        <span class="metric-ring-label">{{ label }}</span>
     </div>
 </template>
 
@@ -62,8 +62,8 @@ const gradientId = `metric-ring-gradient-${useId()}`;
 
 .metric-ring-circle {
     position: relative;
-    width: 72px;
-    height: 72px;
+    width: 68px;
+    height: 68px;
 }
 
 .metric-ring-svg {
@@ -79,7 +79,7 @@ const gradientId = `metric-ring-gradient-${useId()}`;
 }
 
 .metric-ring-track {
-    opacity: 0.2;
+    opacity: 0.15;
 }
 
 .metric-ring-fill {
@@ -92,20 +92,20 @@ const gradientId = `metric-ring-gradient-${useId()}`;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
+    font-size: 0.85rem;
     font-weight: 700;
     color: var(--text);
 }
 
 .metric-ring-label {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 500;
     color: var(--text);
     text-align: center;
 }
 
 .metric-ring-icon {
-    font-size: 14px;
+    font-size: 0.85rem;
     line-height: 1;
 }
 </style>

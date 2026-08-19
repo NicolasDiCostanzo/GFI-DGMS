@@ -221,9 +221,15 @@ describe('CountryFundingPanel', () => {
     });
 
     describe('legends', () => {
+        it('labels the legends', () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            expect(wrapper.find('.legend-label').text()).toBe('Legend:');
+        });
+
         it('renders an aim legend with one swatch per aim', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const swatches = wrapper.findAll('.legend-card .legend-swatch');
+            const swatches = wrapper.findAll('.legend-card')[0]?.findAll('.legend-item') ?? [];
 
             expect(swatches).toHaveLength(3);
             expect(swatches.map((s) => s.text())).toEqual([
@@ -235,13 +241,9 @@ describe('CountryFundingPanel', () => {
 
         it('renders a production platform legend with the three segments', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const segments = wrapper.findAll('.legend-platform-segment');
+            const segments = wrapper.findAll('.legend-card .badge');
 
-            expect(segments.map((s) => s.text())).toEqual([
-                'PB = Plant-based',
-                'CM = Cultivated',
-                'FM = Fermentation',
-            ]);
+            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
         });
 
         it('does not render legends when there are no grants', () => {
@@ -320,8 +322,9 @@ describe('CountryFundingPanel', () => {
     describe('2040 projection', () => {
         it('shows the published projection for a covered country', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const values = wrapper.findAll('.projection-card .metric-value');
 
-            expect(wrapper.find('.projection-value').text()).toBe('€18bn/year GVA, 64,000 jobs');
+            expect(values.map((value) => value.text())).toEqual(['€18B', '64,000']);
         });
 
         it('does not show a projection for an uncovered country', () => {

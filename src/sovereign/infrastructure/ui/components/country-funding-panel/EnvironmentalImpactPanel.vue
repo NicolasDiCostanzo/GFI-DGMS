@@ -1,12 +1,14 @@
 <template>
     <section v-if="figures.length" class="environmental-impact-panel">
-        <h3 class="legend-title">Environmental potential of {{ pillarLabel }}</h3>
+        <h3 class="panel-title">Environmental impact: {{ pillarLabel }} vs. conventional meat</h3>
 
-        <div class="meat-type-tabs">
+        <div class="meat-type-tabs" role="tablist" aria-label="Select meat type for comparison">
             <button
                 v-for="type in MEAT_TYPES"
                 :key="type"
                 type="button"
+                role="tab"
+                :aria-selected="type === selectedMeatType"
                 class="meat-type-tab"
                 :class="{ 'meat-type-tab--active': type === selectedMeatType }"
                 @click="selectedMeatType = type"
@@ -21,11 +23,11 @@
                     selectedFigure?.ghgReductionPercent !== undefined &&
                     selectedFigure?.ghgReductionPercent !== null
                 "
-                class="metric-ring-slot metric-ring-slot--ghg"
+                class="metric-ring-slot"
             >
                 <EnvironmentalMetricRing
                     :value="selectedFigure?.ghgReductionPercent"
-                    label="GHG Reduction"
+                    label="GHG emissions"
                     :color="ENVIRONMENTAL_METRIC_COLORS.ghg"
                     icon="🏭"
                 />
@@ -35,11 +37,11 @@
                     selectedFigure?.landReductionPercent !== undefined &&
                     selectedFigure?.landReductionPercent !== null
                 "
-                class="metric-ring-slot metric-ring-slot--land"
+                class="metric-ring-slot"
             >
                 <EnvironmentalMetricRing
                     :value="selectedFigure?.landReductionPercent"
-                    label="Land"
+                    label="Land use"
                     :color="ENVIRONMENTAL_METRIC_COLORS.land"
                     icon="🌱"
                 />
@@ -49,11 +51,11 @@
                     selectedFigure?.waterReductionPercent !== undefined &&
                     selectedFigure?.waterReductionPercent !== null
                 "
-                class="metric-ring-slot metric-ring-slot--water"
+                class="metric-ring-slot"
             >
                 <EnvironmentalMetricRing
                     :value="selectedFigure?.waterReductionPercent"
-                    label="Water"
+                    label="Water use"
                     :color="ENVIRONMENTAL_METRIC_COLORS.water"
                     icon="💧"
                 />
@@ -109,31 +111,38 @@ const selectedFigure = computed(
 
 const pillarLabel = computed(() =>
     dominantPillar.value === 'Cultivated'
-        ? 'cultivated meat (produced with renewable energy)'
+        ? 'cultivated meat (renewable energy)'
         : 'plant-based meat',
 );
 
-const sourceText = computed(() =>
-    dominantPillar.value === 'Cultivated'
-        ? 'vs. conventional meat. General, illustrative technology figures — not specific to this country\'s funding or any single grant. Source: CE Delft, "LCA of Cultivated Meat".'
-        : 'vs. conventional meat. General, illustrative technology figures — not specific to this country\'s funding or any single grant. Source: GFI, "Environmental benefits of alternative proteins".',
-);
+const sourceText = computed(() => {
+    const commonText =
+        'Savings compared to conventional meat production; not tied to specific grants.';
+    return dominantPillar.value === 'Cultivated'
+        ? `${commonText} Source: CE Delft.`
+        : `${commonText} Source: GFI.`;
+});
 </script>
 
 <style scoped>
 .environmental-impact-panel {
-    border-top: 1px solid var(--muted-border);
-    padding-top: 12px;
-    font-size: 13px;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
+}
+
+.panel-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
 }
 
 .meat-type-tabs {
     display: flex;
-    background: var(--muted-bg);
-    border: 1px solid var(--muted-border);
-    border-radius: 999px;
-    padding: 4px;
-    margin-top: 12px;
+    border: 1px solid #333333;
+    border-radius: 9999px;
+    padding: 3px;
 }
 
 .meat-type-tab {
@@ -141,29 +150,41 @@ const sourceText = computed(() =>
     border: none;
     background: transparent;
     color: var(--text);
-    font: inherit;
+    font-size: 0.75rem;
     font-weight: 600;
     padding: 6px 12px;
-    border-radius: 999px;
+    border-radius: 9999px;
     cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.meat-type-tab:hover {
+    color: var(--text);
 }
 
 .meat-type-tab--active {
-    background: var(--accent);
-    color: var(--on-accent);
+    background: #1c92ff;
+    color: var(--text);
 }
 
 .metric-rings {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     align-items: start;
-    gap: 12px;
-    margin-top: 16px;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.metric-ring-slot {
+    display: flex;
+    justify-content: center;
 }
 
 .figure-source {
-    font-size: 11px;
-    font-style: italic;
-    margin-top: 8px;
+    font-size: 0.7rem;
+    color: var(--text);
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    line-height: 1.3;
 }
 </style>

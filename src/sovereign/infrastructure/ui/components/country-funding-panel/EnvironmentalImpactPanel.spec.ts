@@ -14,8 +14,16 @@ async function selectTab(wrapper: ReturnType<typeof createWrapper>, tabLabel: st
 }
 
 function ringValue(wrapper: ReturnType<typeof createWrapper>, variant: string) {
-    const value = wrapper.find(`.metric-ring-slot--${variant} .metric-ring-value`);
-    return value.exists() ? value.text().replace(/−/g, '-') : null;
+    const labels: Record<string, string> = {
+        ghg: 'GHG emissions',
+        land: 'Land use',
+        water: 'Water use',
+    };
+    const slot = wrapper
+        .findAll('.metric-ring-slot')
+        .find((candidate) => candidate.find('.metric-ring-label').text() === labels[variant]);
+    const value = slot?.find('.metric-ring-value');
+    return value?.exists() ? value.text().replace(/−/g, '-') : null;
 }
 
 describe('EnvironmentalImpactPanel', () => {
@@ -39,8 +47,8 @@ describe('EnvironmentalImpactPanel', () => {
             const tabs = wrapper.findAll('.meat-type-tab');
             expect(tabs.map((tab) => tab.text())).toEqual(['Beef', 'Pork', 'Chicken']);
             expect(tabs[0]?.classes()).toContain('meat-type-tab--active');
-            expect(wrapper.find('.legend-title').text()).toBe(
-                'Environmental potential of plant-based meat',
+            expect(wrapper.find('.panel-title').text()).toBe(
+                'Environmental impact: plant-based meat vs. conventional meat',
             );
         });
 
@@ -69,9 +77,17 @@ describe('EnvironmentalImpactPanel', () => {
             const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
 
             const expectGradientColor = (variant: string, color: string) => {
-                const stops = wrapper.findAll(`.metric-ring-slot--${variant} stop`);
-                expect(stops[0]?.attributes('style')).toContain(color);
-                expect(stops[1]?.attributes('style')).toContain(color);
+                const labels: Record<string, string> = {
+                    ghg: 'GHG emissions',
+                    land: 'Land use',
+                    water: 'Water use',
+                };
+                const stops = wrapper
+                    .findAll('.metric-ring-slot')
+                    .find((slot) => slot.find('.metric-ring-label').text() === labels[variant])
+                    ?.findAll('stop');
+                expect(stops?.[0]?.attributes('style')).toContain(color);
+                expect(stops?.[1]?.attributes('style')).toContain(color);
             };
 
             expectGradientColor('ghg', ENVIRONMENTAL_METRIC_COLORS.ghg);
@@ -93,8 +109,8 @@ describe('EnvironmentalImpactPanel', () => {
 
         it('cites the CE Delft LCA source for the cultivated figures', () => {
             const wrapper = createWrapper(CULTIVATED_DOMINANT_GRANTS);
-            expect(wrapper.find('.figure-source').text()).toContain(
-                'CE Delft, "LCA of Cultivated Meat"',
+            expect(wrapper.find('.figure-source').text()).toBe(
+                'Savings compared to conventional meat production; not tied to specific grants. Source: CE Delft.',
             );
         });
 
@@ -111,10 +127,9 @@ describe('EnvironmentalImpactPanel', () => {
     describe('sourcing', () => {
         it('cites the GFI plant-based source when plant-based is dominant', () => {
             const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
-            expect(wrapper.find('.figure-source').text()).toContain(
-                'Environmental benefits of alternative proteins',
+            expect(wrapper.find('.figure-source').text()).toBe(
+                'Savings compared to conventional meat production; not tied to specific grants. Source: GFI.',
             );
-            expect(wrapper.find('.figure-source').text()).toContain('not specific to this');
         });
     });
 });

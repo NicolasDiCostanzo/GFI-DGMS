@@ -214,9 +214,12 @@ const panelClasses = computed(() => ({
                 :grant-count-label="grantCountLabel"
             />
             <ProjectionSection v-if="projection" :projection="projection" />
-            <EnvironmentalImpactPanel :grants="grants" />
-            <Legend />
-            <PlatformLegend />
+            <div class="sub-header-wrapper">
+                <EnvironmentalImpactPanel :grants="grants" />
+                <h2 class="legend-label">Legend:</h2>
+                <Legend />
+                <PlatformLegend />
+            </div>
             <CountryFundingPanelTable
                 v-if="grants.length"
                 :grants="grants"
@@ -231,8 +234,10 @@ const panelClasses = computed(() => ({
 
 <style>
 .legend-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.85rem;
     font-weight: 600;
-    margin-right: 4px;
+    color: var(--text);
 }
 
 .panel-content {
@@ -243,7 +248,39 @@ const panelClasses = computed(() => ({
     gap: 16px;
 }
 
+.legend-label {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 12px;
+}
+
+.sub-header-wrapper {
+    display: grid;
+    grid-template-areas:
+        'environmental-impact environmental-impact'
+        'legend-label legend-label'
+        'legend platform-legend';
+    gap: 8px;
+}
+
+.sub-header-wrapper > :nth-child(1) {
+    grid-area: environmental-impact;
+}
+
+.sub-header-wrapper > :nth-child(2) {
+    grid-area: legend-label;
+}
+
+.sub-header-wrapper > :nth-child(3) {
+    grid-area: legend;
+}
+
+.sub-header-wrapper > :nth-child(4) {
+    grid-area: platform-legend;
+}
+
 .country-funding-panel {
+    container: country-funding-panel / inline-size;
     position: absolute;
     top: 0;
     right: 0;
