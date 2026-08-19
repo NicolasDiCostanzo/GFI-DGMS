@@ -8,10 +8,7 @@
         <div class="projection-metrics">
             <div class="metric-item">
                 <span class="metric-value">€{{ projection.gvaEurBillions }}B</span>
-                <span class="metric-label">
-                    Annual GVA
-                    <span class="tooltip-icon" title="Gross Value Added to the economy">ⓘ</span>
-                </span>
+                <span class="metric-label"> Annual Gross Value Added </span>
             </div>
 
             <div class="metric-divider"></div>
@@ -97,12 +94,6 @@ defineProps<{
     display: flex;
     align-items: center;
     gap: 4px;
-}
-
-.tooltip-icon {
-    font-size: 0.7rem;
-    color: var(--text);
-    cursor: help;
 }
 
 .metric-divider {

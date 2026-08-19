@@ -183,205 +183,251 @@ export default defineComponent({
 </script>
 
 <template>
-    <div v-if="grants.length" class="table-wrapper">
-        <table class="grant-table">
-            <thead>
-                <tr>
-                    <th v-for="col in columns" :key="col">{{ columnLabels[col] ?? col }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="row in enrichedGrants"
-                    :key="row.grant.id"
-                    class="grant-item"
-                    :style="
-                        row.aim
-                            ? {
-                                  'background-color': row.aim.backgroundColor,
-                                  'border-color': row.aim.borderColor,
-                              }
-                            : {}
-                    "
-                >
-                    <template v-for="col in columns" :key="col">
-                        <td v-if="col === 'fundingInstrument'" class="instrument-cell">
-                            <span
-                                class="instrument-chip"
-                                :style="{
-                                    backgroundColor: row.instrument.color,
-                                    color: instrumentTextColor,
-                                }"
-                                >{{ row.instrument.label }}</span
-                            >
-                        </td>
-
-                        <td v-else-if="col === 'platform'" class="platform-cell">
-                            <span
-                                v-for="segment in row.segments ?? []"
-                                :key="segment.label"
-                                class="platform-segment"
-                                :class="{ 'is-active': segment.active }"
-                                >{{ segment.label }}</span
-                            >
-                        </td>
-
-                        <td v-else-if="col === 'funderAgencies'">
-                            {{ formatList(row.grant.funderAgencies) }}
-                        </td>
-
-                        <td v-else-if="col === 'funderName'">
-                            {{ row.grant.funderName ?? 'Not specified' }}
-                        </td>
-
-                        <td v-else-if="col === 'recipients'">
-                            {{ row.grant.recipients ?? 'Not specified' }}
-                        </td>
-
-                        <td v-else-if="col === 'projectTitle'">
-                            {{ row.grant.projectTitle ?? 'Untitled grant' }}
-                        </td>
-
-                        <td v-else-if="col === 'description'" class="description-cell">
-                            <template v-if="isDescriptionExpanded(row.grant.id)">
-                                {{ row.grant.description ?? 'Not specified' }}
-                                <button
-                                    class="description-toggle"
-                                    type="button"
-                                    @click="toggleDescription(row.grant.id)"
+    <div v-if="grants.length" class="table-card">
+        <div class="table-scroll-container">
+            <table class="grant-table">
+                <thead>
+                    <tr>
+                        <th v-for="col in columns" :key="col">{{ columnLabels[col] ?? col }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="row in enrichedGrants"
+                        :key="row.grant.id"
+                        class="grant-row grant-item"
+                        :style="
+                            row.aim
+                                ? {
+                                      'background-color': row.aim.backgroundColor,
+                                      'border-color': row.aim.borderColor,
+                                  }
+                                : {}
+                        "
+                    >
+                        <template v-for="col in columns" :key="col">
+                            <td v-if="col === 'fundingInstrument'" class="instrument-cell">
+                                <span
+                                    class="instrument-chip"
+                                    :style="{
+                                        backgroundColor: row.instrument.color,
+                                        color: instrumentTextColor,
+                                    }"
                                 >
-                                    Show less
-                                </button>
-                            </template>
-                            <template v-else>
-                                {{ truncatedDescription(row.grant.description) }}
-                                <button
-                                    v-if="isDescriptionTruncated(row.grant.description)"
-                                    class="description-toggle"
-                                    type="button"
-                                    @click="toggleDescription(row.grant.id)"
+                                    {{ row.instrument.label }}
+                                </span>
+                            </td>
+
+                            <td v-else-if="col === 'platform'" class="platform-cell">
+                                <span
+                                    v-for="segment in row.segments ?? []"
+                                    :key="segment.label"
+                                    class="platform-segment"
+                                    :class="{ 'is-active': segment.active }"
                                 >
-                                    Show more
-                                </button>
-                            </template>
-                        </td>
+                                    {{ segment.label }}
+                                </span>
+                            </td>
 
-                        <td v-else-if="col === 'amountUsd'">
-                            {{ formatGrantAmount(row.grant.amountUsd) }}
-                        </td>
+                            <td v-else-if="col === 'funderAgencies'">
+                                {{ formatList(row.grant.funderAgencies) }}
+                            </td>
 
-                        <td v-else-if="col === 'yearsDisbursed'">
-                            {{ formatList(row.grant.yearsDisbursed) }}
-                        </td>
+                            <td v-else-if="col === 'funderName'">
+                                {{ row.grant.funderName ?? 'Not specified' }}
+                            </td>
 
-                        <td v-else-if="col === 'url'" class="url-cell">
-                            <a
-                                v-if="row.sourceUrl"
-                                class="grant-link"
-                                :href="row.sourceUrl"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                >View announcement</a
-                            >
-                            <span v-else class="no-url">—</span>
-                        </td>
+                            <td v-else-if="col === 'recipients'">
+                                {{ row.grant.recipients ?? 'Not specified' }}
+                            </td>
 
-                        <td v-else>{{ row.grant[col] ?? '—' }}</td>
-                    </template>
-                </tr>
-            </tbody>
-        </table>
+                            <td v-else-if="col === 'projectTitle'" class="title-cell">
+                                {{ row.grant.projectTitle ?? 'Untitled grant' }}
+                            </td>
+
+                            <td v-else-if="col === 'description'" class="description-cell">
+                                <template v-if="isDescriptionExpanded(row.grant.id)">
+                                    {{ row.grant.description ?? 'Not specified' }}
+                                    <button
+                                        class="description-toggle"
+                                        type="button"
+                                        @click="toggleDescription(row.grant.id)"
+                                    >
+                                        Show less
+                                    </button>
+                                </template>
+                                <template v-else>
+                                    {{ truncatedDescription(row.grant.description) }}
+                                    <button
+                                        v-if="isDescriptionTruncated(row.grant.description)"
+                                        class="description-toggle"
+                                        type="button"
+                                        @click="toggleDescription(row.grant.id)"
+                                    >
+                                        Show more
+                                    </button>
+                                </template>
+                            </td>
+
+                            <td v-else-if="col === 'amountUsd'" class="amount-cell">
+                                {{ formatGrantAmount(row.grant.amountUsd) }}
+                            </td>
+
+                            <td v-else-if="col === 'yearsDisbursed'">
+                                {{ formatList(row.grant.yearsDisbursed) }}
+                            </td>
+
+                            <td v-else-if="col === 'url'" class="url-cell">
+                                <a
+                                    v-if="row.sourceUrl"
+                                    class="grant-link"
+                                    :href="row.sourceUrl"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View announcement
+                                </a>
+                                <span v-else class="no-url">—</span>
+                            </td>
+
+                            <td v-else>{{ row.grant[col] ?? '—' }}</td>
+                        </template>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </template>
+
 <style scoped>
-.table-wrapper {
-    border: black 2px solid;
+.table-card {
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 1px solid var(--accent-color);
+    overflow: hidden;
+}
+
+.table-scroll-container {
+    width: 100%;
+    overflow-x: auto;
 }
 
 .grant-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 12px;
+    font-size: 0.75rem;
+    color: var(--text-color);
+    text-align: left;
 }
 
 .grant-table th {
-    text-align: left;
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--muted-border);
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--accent-color);
+    font-size: 0.72rem;
     font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
 }
 
 .grant-table td {
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--muted-light);
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--accent-color);
     vertical-align: top;
+    line-height: 1.4;
 }
 
-.grant-item td:first-child {
-    border-left: 4px solid;
-    border-left-color: inherit;
+.grant-row {
+    border-left: 4px solid transparent;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.grant-row:hover {
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+}
+
+.grant-row:last-child td {
+    border-bottom: none;
+}
+
+.title-cell {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.amount-cell {
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
 }
 
 .instrument-chip {
     display: inline-block;
-    padding: 2px 6px;
+    padding: 2px 8px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 0.7rem;
     font-weight: 600;
     white-space: nowrap;
 }
 
 .platform-segment {
-    display: inline-block;
-    width: 24px;
-    text-align: center;
-    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 4px;
+    border: 1px solid var(--accent-color);
+    color: var(--text-color);
     font-weight: 600;
-    color: var(--muted);
-    border: 1px solid var(--muted-border);
-    border-radius: 3px;
-    margin-right: 2px;
+    font-size: 0.68rem;
+    margin-right: 4px;
+
+    &:last-child {
+        margin-right: 0;
+    }
 }
 
 .platform-segment.is-active {
-    color: var(--text);
-    background-color: var(--muted-bg);
+    color: var(--text-color);
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
 }
 
 .description-cell {
-    max-width: 240px;
+    min-width: 200px;
+    max-width: 280px;
     word-break: break-word;
 }
 
 .description-toggle {
-    margin-left: 6px;
-    font-size: 11px;
-    color: var(--link);
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 0.7rem;
+    color: var(--text-color);
     background: none;
     border: none;
+    padding: 0;
     cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-}
 
-.no-url {
-    color: var(--muted);
-}
-
-.grant-link,
-.source-link {
-    color: var(--link);
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .grant-link {
-    display: inline-block;
-    font-size: 12px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
-.grant-link:hover,
-.source-link:hover {
-    opacity: 0.7;
+.no-url {
+    color: var(--text-color);
 }
 </style>
