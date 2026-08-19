@@ -44,6 +44,7 @@ const emit = defineEmits<{
 }>();
 
 const isExpanded = ref(false);
+const isLegendExpanded = ref(false);
 
 const countryName = computed(() => props.countryFunding?.countryName ?? '');
 const grants = computed(() => props.countryFunding?.grants ?? []);
@@ -215,9 +216,21 @@ const panelClasses = computed(() => ({
             <ProjectionSection v-if="projection" :projection="projection" />
             <div class="sub-header-wrapper">
                 <EnvironmentalImpactPanel :grants="grants" />
-                <h2 class="legend-label">Legend:</h2>
-                <Legend />
-                <PlatformLegend />
+                <button
+                    class="legend-label"
+                    type="button"
+                    :aria-expanded="isLegendExpanded"
+                    @click="isLegendExpanded = !isLegendExpanded"
+                >
+                    Legend:
+                    <span class="legend-chevron" :class="{ 'is-collapsed': !isLegendExpanded }"
+                        >▾</span
+                    >
+                </button>
+                <template v-if="isLegendExpanded">
+                    <Legend />
+                    <PlatformLegend />
+                </template>
             </div>
             <CountryFundingPanelTable
                 v-if="grants.length"
@@ -234,7 +247,7 @@ const panelClasses = computed(() => ({
 <style>
 .legend-title {
     margin: 0 0 0.75rem 0;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
@@ -250,6 +263,25 @@ const panelClasses = computed(() => ({
     font-size: 16px;
     font-weight: 600;
     margin-top: 12px;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-align: left;
+}
+
+.legend-chevron {
+    display: inline-block;
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.legend-chevron.is-collapsed {
+    transform: rotate(-90deg);
 }
 
 .sub-header-wrapper {

@@ -18,9 +18,9 @@ const legend = getAimLegend('dark');
 
 <style scoped>
 .legend-card {
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 8px;
-    border: 1px solid #2a2a2a;
+    box-shadow: 0 2px 4px rgba(127, 127, 127, 0.6);
 }
 
 .legend-content {
@@ -32,7 +32,7 @@ const legend = getAimLegend('dark');
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     padding: 0.25rem 0;
 }
 

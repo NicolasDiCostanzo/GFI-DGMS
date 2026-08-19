@@ -216,11 +216,27 @@ describe('CountryFundingPanel', () => {
         it('labels the legends', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
 
-            expect(wrapper.find('.legend-label').text()).toBe('Legend:');
+            expect(wrapper.find('.legend-label').text()).toContain('Legend:');
         });
 
-        it('renders an aim legend with one swatch per aim', () => {
+        it("doesn't render the legend cards expanded by default", () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('false');
+            expect(wrapper.findAll('.legend-card')).toHaveLength(0);
+        });
+
+        it('renders the legend cards when the label is clicked', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            await wrapper.find('.legend-label').trigger('click');
+
+            expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('true');
+            expect(wrapper.findAll('.legend-card')).toHaveLength(2);
+            const segments = wrapper.findAll('.legend-card .badge');
+
+            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+
             const swatches = wrapper.findAll('.legend-card')[0]?.findAll('.legend-item') ?? [];
 
             expect(swatches).toHaveLength(3);
@@ -231,11 +247,14 @@ describe('CountryFundingPanel', () => {
             ]);
         });
 
-        it('renders a production platform legend with the three segments', () => {
+        it('re-collapse the legend cards when the label is clicked again', async () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const segments = wrapper.findAll('.legend-card .badge');
 
-            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+            await wrapper.find('.legend-label').trigger('click');
+            await wrapper.find('.legend-label').trigger('click');
+
+            expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('false');
+            expect(wrapper.findAll('.legend-card')).toHaveLength(0);
         });
 
         it('does not render legends when there are no grants', () => {
