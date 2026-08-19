@@ -37,28 +37,17 @@ export const TIED_GRANTS = [
     buildGrantWithPlatforms(['Cultivated']),
 ];
 
-interface PlantBasedKpiCase {
-    readonly selector: string;
-    readonly expected: readonly string[];
-    readonly omitted: string | null;
+interface MeatTypeCase {
+    readonly tabLabel: string;
+    readonly ghg: string;
+    readonly land: string | null;
+    readonly water: string;
 }
 
-export const PLANT_BASED_KPI_CASES: readonly PlantBasedKpiCase[] = [
-    {
-        selector: '.kpi-card--ghg',
-        expected: ['-90% (beef)', '-71% (pork)', '-36% (chicken)'],
-        omitted: null,
-    },
-    {
-        selector: '.kpi-card--land',
-        expected: ['-96% (beef)', '-41% (pork)'],
-        omitted: 'chicken',
-    },
-    {
-        selector: '.kpi-card--water',
-        expected: ['-87% (beef)', '-81% (pork)', '-72% (chicken)'],
-        omitted: null,
-    },
+export const PLANT_BASED_MEAT_TYPE_CASES: readonly MeatTypeCase[] = [
+    { tabLabel: 'Beef', ghg: '-90%', land: '-96%', water: '-87%' },
+    { tabLabel: 'Pork', ghg: '-71%', land: '-41%', water: '-81%' },
+    { tabLabel: 'Chicken', ghg: '-36%', land: null, water: '-72%' },
 ];
 
 export function createWrapper(grants?: readonly Grant[]) {

@@ -1,5 +1,6 @@
 import { ENVIRONMENTAL_METRIC_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
+import { defineComponent, h } from 'vue';
 import EnvironmentalMetricRing from './EnvironmentalMetricRing.vue';
 
 export interface RingCase {
@@ -35,4 +36,22 @@ export function createWrapper(props: {
     icon?: string;
 }) {
     return mount(EnvironmentalMetricRing, { props });
+}
+
+export function createDoubleWrapper() {
+    const HostComponent = defineComponent({
+        render: () => [
+            h(EnvironmentalMetricRing, {
+                value: 90,
+                label: 'GHG Reduction',
+                color: ENVIRONMENTAL_METRIC_COLORS.ghg,
+            }),
+            h(EnvironmentalMetricRing, {
+                value: 96,
+                label: 'Land',
+                color: ENVIRONMENTAL_METRIC_COLORS.land,
+            }),
+        ],
+    });
+    return mount(HostComponent);
 }

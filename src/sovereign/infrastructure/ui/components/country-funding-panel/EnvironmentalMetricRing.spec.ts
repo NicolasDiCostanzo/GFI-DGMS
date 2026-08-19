@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { ENVIRONMENTAL_METRIC_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
-import { createWrapper, RING_CASES } from './EnvironmentalMetricRing.spec.fixtures';
+import {
+    createDoubleWrapper,
+    createWrapper,
+    RING_CASES,
+} from './EnvironmentalMetricRing.spec.fixtures';
 
 describe('EnvironmentalMetricRing', () => {
     it('renders nothing when value is null', () => {
@@ -13,7 +17,7 @@ describe('EnvironmentalMetricRing', () => {
     });
 
     it.each(RING_CASES)(
-        'renders the value, label, and ring fill for $name',
+        'renders the value, label, and gradient ring fill for $name',
         ({ value, label, color }) => {
             const wrapper = createWrapper({ value, label, color });
 
@@ -23,9 +27,28 @@ describe('EnvironmentalMetricRing', () => {
 
             const fill = wrapper.find('.metric-ring-fill');
             expect(fill.attributes('stroke-dasharray')).toBe(`${value!} ${100 - value!}`);
-            expect(fill.attributes('style')).toContain(color);
+
+            const gradientId = wrapper.find('linearGradient').attributes('id');
+            expect(fill.attributes('style')).toContain(`url(#${gradientId})`);
+
+            const stops = wrapper.findAll('stop');
+            expect(stops).toHaveLength(2);
+            expect(stops[0]?.attributes('style')).toContain(color);
+            expect(stops[1]?.attributes('style')).toContain(color);
         },
     );
+
+    it('uses a unique gradient per instance so multiple rings do not collide', () => {
+        const wrapper = createDoubleWrapper();
+        const gradientIds = wrapper
+            .findAll('linearGradient')
+            .map((gradient) => gradient.attributes('id'));
+
+        expect(new Set(gradientIds).size).toBe(2);
+        wrapper.findAll('.metric-ring-fill').forEach((fill, index) => {
+            expect(fill.attributes('style')).toContain(`url(#${gradientIds[index]})`);
+        });
+    });
 
     it('renders the icon when provided', () => {
         const wrapper = createWrapper({

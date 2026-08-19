@@ -2,6 +2,15 @@
     <div v-if="value !== null" class="metric-ring">
         <div class="metric-ring-circle">
             <svg class="metric-ring-svg" viewBox="0 0 36 36">
+                <defs>
+                    <linearGradient :id="gradientId" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" :style="{ stopColor: color }" />
+                        <stop
+                            offset="100%"
+                            :style="{ stopColor: `color-mix(in srgb, ${color} 80%, black)` }"
+                        />
+                    </linearGradient>
+                </defs>
                 <circle
                     class="metric-ring-track"
                     cx="18"
@@ -15,7 +24,7 @@
                     cy="18"
                     r="15.9155"
                     :stroke-dasharray="`${value} ${100 - value}`"
-                    :style="{ stroke: color }"
+                    :style="{ stroke: `url(#${gradientId})` }"
                 />
             </svg>
             <span class="metric-ring-value">−{{ value }}%</span>
@@ -26,6 +35,8 @@
 </template>
 
 <script setup lang="ts">
+import { useId } from 'vue';
+
 withDefaults(
     defineProps<{
         value: number | null;
@@ -37,6 +48,8 @@ withDefaults(
         icon: undefined,
     },
 );
+
+const gradientId = `metric-ring-gradient-${useId()}`;
 </script>
 
 <style scoped>
@@ -87,7 +100,7 @@ withDefaults(
 .metric-ring-label {
     font-size: 12px;
     font-weight: 600;
-    color: var(--muted);
+    color: var(--text);
     text-align: center;
 }
 

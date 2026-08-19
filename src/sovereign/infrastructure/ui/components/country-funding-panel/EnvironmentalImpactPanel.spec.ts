@@ -1,11 +1,22 @@
+import { ENVIRONMENTAL_METRIC_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { describe, expect, it } from 'vitest';
 import {
     createWrapper,
     CULTIVATED_DOMINANT_GRANTS,
     PLANT_BASED_DOMINANT_GRANTS,
-    PLANT_BASED_KPI_CASES,
+    PLANT_BASED_MEAT_TYPE_CASES,
     TIED_GRANTS,
 } from './EnvironmentalImpactPanel.spec.fixtures';
+
+async function selectTab(wrapper: ReturnType<typeof createWrapper>, tabLabel: string) {
+    const tab = wrapper.findAll('.meat-type-tab').find((button) => button.text() === tabLabel);
+    await tab?.trigger('click');
+}
+
+function ringValue(wrapper: ReturnType<typeof createWrapper>, variant: string) {
+    const value = wrapper.find(`.metric-ring-slot--${variant} .metric-ring-value`);
+    return value.exists() ? value.text().replace(/−/g, '-') : null;
+}
 
 describe('EnvironmentalImpactPanel', () => {
     describe('with no grants', () => {
@@ -23,37 +34,61 @@ describe('EnvironmentalImpactPanel', () => {
     });
 
     describe('with a plant-based-dominant mix', () => {
-        it('renders three KPI cards', () => {
+        it('renders a tab for each meat type with Beef selected by default', () => {
             const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
-            expect(wrapper.findAll('.kpi-card')).toHaveLength(3);
+            const tabs = wrapper.findAll('.meat-type-tab');
+            expect(tabs.map((tab) => tab.text())).toEqual(['Beef', 'Pork', 'Chicken']);
+            expect(tabs[0]?.classes()).toContain('meat-type-tab--active');
+            expect(wrapper.find('.legend-title').text()).toBe(
+                'Environmental potential of plant-based meat',
+            );
         });
 
-        it.each(PLANT_BASED_KPI_CASES)(
-            'lists savings per meat type for $selector',
-            ({ selector, expected, omitted }) => {
+        it('renders no metrics when no figure matches the selected meat type', async () => {
+            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
+            const vm = wrapper.vm as unknown as { selectedMeatType: string };
+            vm.selectedMeatType = 'unknown';
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.find('.metric-rings').text()).toBe('');
+        });
+
+        it.each(PLANT_BASED_MEAT_TYPE_CASES)(
+            'shows $tabLabel figures when its tab is selected',
+            async ({ tabLabel, ghg, land, water }) => {
                 const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
-                const text = wrapper
-                    .find(selector)
-                    .text()
-                    .replace(/\u2212/g, '-');
-                for (const value of expected) {
-                    expect(text).toContain(value);
-                }
-                if (omitted !== null) {
-                    expect(text).not.toContain(omitted);
-                }
+                await selectTab(wrapper, tabLabel);
+
+                expect(ringValue(wrapper, 'ghg')).toBe(ghg);
+                expect(ringValue(wrapper, 'land')).toBe(land);
+                expect(ringValue(wrapper, 'water')).toBe(water);
             },
         );
+
+        it('applies the GHG, Land, and Water metric colors to their rings', () => {
+            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
+
+            const expectGradientColor = (variant: string, color: string) => {
+                const stops = wrapper.findAll(`.metric-ring-slot--${variant} stop`);
+                expect(stops[0]?.attributes('style')).toContain(color);
+                expect(stops[1]?.attributes('style')).toContain(color);
+            };
+
+            expectGradientColor('ghg', ENVIRONMENTAL_METRIC_COLORS.ghg);
+            expectGradientColor('land', ENVIRONMENTAL_METRIC_COLORS.land);
+            expectGradientColor('water', ENVIRONMENTAL_METRIC_COLORS.water);
+
+            const gradientIds = wrapper
+                .findAll('linearGradient')
+                .map((gradient) => gradient.attributes('id'));
+            expect(new Set(gradientIds).size).toBe(3);
+        });
     });
 
     describe('with a cultivated-dominant mix', () => {
-        it('lists cultivated GHG reductions per meat type', () => {
+        it('shows the cultivated GHG reduction for the default Beef tab', () => {
             const wrapper = createWrapper(CULTIVATED_DOMINANT_GRANTS);
-            const ghgCard = wrapper.find('.kpi-card--ghg');
-            const ghgText = ghgCard.text().replace(/\u2212/g, '-');
-            expect(ghgText).toContain('-98% (beef)');
-            expect(ghgText).toContain('-80% (pork)');
-            expect(ghgText).toContain('-75% (chicken)');
+            expect(ringValue(wrapper, 'ghg')).toBe('-98%');
         });
 
         it('cites the CE Delft LCA source for the cultivated figures', () => {
@@ -61,6 +96,15 @@ describe('EnvironmentalImpactPanel', () => {
             expect(wrapper.find('.figure-source').text()).toContain(
                 'CE Delft, "LCA of Cultivated Meat"',
             );
+        });
+
+        it('omits metrics whose cultivated figure is unavailable', async () => {
+            const wrapper = createWrapper(CULTIVATED_DOMINANT_GRANTS);
+            await selectTab(wrapper, 'Pork');
+
+            expect(ringValue(wrapper, 'ghg')).toBe('-80%');
+            expect(ringValue(wrapper, 'land')).toBe('-70%');
+            expect(ringValue(wrapper, 'water')).toBeNull();
         });
     });
 
