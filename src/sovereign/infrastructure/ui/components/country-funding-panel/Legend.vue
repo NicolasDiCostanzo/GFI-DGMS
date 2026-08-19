@@ -46,6 +46,5 @@ const legend = getAimLegend('dark');
 .swatch-label {
     white-space: nowrap;
     font-size: 0.8rem;
-    color: var(--text);
 }
 </style>

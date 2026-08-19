@@ -48,7 +48,6 @@ defineProps<{
     margin: 0 0 0.85rem 0;
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--text);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -83,13 +82,11 @@ defineProps<{
 .metric-value {
     font-size: 1.15rem;
     font-weight: 700;
-    color: var(--text);
     line-height: 1.2;
 }
 
 .metric-label {
     font-size: 0.75rem;
-    color: var(--text);
     margin-top: 2px;
     display: flex;
     align-items: center;
@@ -104,14 +101,12 @@ defineProps<{
 
 .projection-note {
     font-size: 0.72rem;
-    color: var(--text);
     margin: 0.75rem 0 0 0;
     line-height: 1.3;
 }
 
 .projection-source {
     font-size: 0.7rem;
-    color: var(--text);
     margin: 0.25rem 0 0 0;
     font-style: italic;
 }

@@ -94,13 +94,11 @@ const gradientId = `metric-ring-gradient-${useId()}`;
     justify-content: center;
     font-size: 0.85rem;
     font-weight: 700;
-    color: var(--text);
 }
 
 .metric-ring-label {
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--text);
     text-align: center;
 }
 

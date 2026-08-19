@@ -236,7 +236,6 @@ const panelClasses = computed(() => ({
     margin: 0 0 0.75rem 0;
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--text);
 }
 
 .panel-content {
@@ -285,16 +284,12 @@ const panelClasses = computed(() => ({
     right: 0;
     bottom: 0;
     box-sizing: border-box;
-    width: 380px;
-    max-width: none;
+    width: 375px;
     height: 100%;
     background: var(--sidebar-bg);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    padding: 10px;
     box-shadow: -8px 0 8px var(--panel-shadow);
-    color: var(--text);
+
     overflow: hidden;
     transition:
         width 0.35s ease-in-out,

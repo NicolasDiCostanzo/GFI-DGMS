@@ -135,7 +135,6 @@ const sourceText = computed(() => {
     margin: 0 0 0.75rem 0;
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--text);
 }
 
 .meat-type-tabs {
@@ -158,13 +157,8 @@ const sourceText = computed(() => {
     transition: all 0.15s ease-in-out;
 }
 
-.meat-type-tab:hover {
-    color: var(--text);
-}
-
 .meat-type-tab--active {
     background: #1c92ff;
-    color: var(--text);
 }
 
 .metric-rings {
@@ -182,7 +176,6 @@ const sourceText = computed(() => {
 
 .figure-source {
     font-size: 0.7rem;
-    color: var(--text);
     margin-top: 0.75rem;
     margin-bottom: 0;
     line-height: 1.3;

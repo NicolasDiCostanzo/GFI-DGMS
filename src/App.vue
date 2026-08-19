@@ -232,6 +232,7 @@ function handleSidebarClosing(): void {
         Arial,
         sans-serif
     );
+    color: var(--text);
 }
 
 .sr-only {

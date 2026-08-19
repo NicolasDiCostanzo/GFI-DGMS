@@ -47,7 +47,6 @@ const PLATFORM_SEGMENTS = [
     padding: 0 4px;
     border-radius: 4px;
     border: 1px solid #3a3a3a;
-    color: var(--text);
     font-weight: 600;
     font-size: 0.7rem;
     flex-shrink: 0;
@@ -56,6 +55,5 @@ const PLATFORM_SEGMENTS = [
 .swatch-label {
     white-space: nowrap;
     font-size: 0.8rem;
-    color: var(--text);
 }
 </style>
