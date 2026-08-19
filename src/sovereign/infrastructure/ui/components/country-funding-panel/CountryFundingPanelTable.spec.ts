@@ -11,7 +11,9 @@ import {
     multipleGrants,
     sampleColumnOrders,
 } from './CountryFundingPanelTable.fixtures';
+import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import CountryFundingPanelTable, { ColumnKey } from './CountryFundingPanelTable.vue';
+import GrantDetailsModal from './GrantDetailsModal.vue';
 
 describe('CountryFundingPanelTable', () => {
     it('renders rows for grants and shows link for valid URL', () => {
@@ -36,26 +38,34 @@ describe('CountryFundingPanelTable', () => {
         expect(wrapper.find('.no-url').exists()).toBe(true);
     });
 
-    it('toggles long descriptions with Show more / Show less', async () => {
+    it('shows a View details button for long descriptions that opens the details modal', async () => {
         const g = longDescriptionGrant;
         const wrapper = mount(CountryFundingPanelTable, {
             props: { grants: [g], themeMode: 'light' as ThemeMode },
         });
 
-        const moreBtn = wrapper.find('button.description-toggle');
-        expect(moreBtn.exists()).toBe(true);
-        expect(moreBtn.text()).toMatch(/Show more/i);
+        const viewDetailsBtn = wrapper.find('button.description-toggle');
+        expect(viewDetailsBtn.exists()).toBe(true);
+        expect(viewDetailsBtn.text()).toMatch(/View details/i);
 
-        await moreBtn.trigger('click');
-        const lessBtn = wrapper.find('button.description-toggle');
-        expect(lessBtn.exists()).toBe(true);
-        expect(lessBtn.text()).toMatch(/Show less/i);
-        expect(wrapper.text()).toContain((longDescriptionGrant.description ?? '').slice(0, 20));
+        const modal = wrapper.findComponent(GrantDetailsModal);
+        expect(modal.props('open')).toBe(false);
 
-        await lessBtn.trigger('click');
-        const moreBtnAgain = wrapper.find('button.description-toggle');
-        expect(moreBtnAgain.exists()).toBe(true);
-        expect(moreBtnAgain.text()).toMatch(/Show more/i);
+        await viewDetailsBtn.trigger('click');
+        expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(true);
+        expect(modal.props('description')).toBe(g.description);
+        expect(modal.props('funderName')).toBe(g.funderName);
+
+        await modal.vm.$emit('close');
+        expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(false);
+    });
+
+    it('always shows a View details button, even for a null description', () => {
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: { grants: [basicGrant], themeMode: 'light' as ThemeMode },
+        });
+
+        expect(wrapper.find('button.description-toggle').exists()).toBe(true);
     });
 
     it('respects custom columnOrder prop', () => {
@@ -185,6 +195,31 @@ describe('CountryFundingPanelTable', () => {
         const agenciesCell = cells.map((c) => c.text()).find((t) => t.includes('Not specified'));
         expect(agenciesCell).toBeDefined();
         expect(wrapper.text()).toContain('2019');
+    });
+
+    it('renders a compact card per grant alongside the table, with matching props', () => {
+        const g = makeGrant({
+            id: 'g-card',
+            aim: 'Research & Development',
+            fundingInstrument: 'Research Grant',
+            productionPlatforms: ['Plant-based'],
+        });
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: { grants: [g], themeMode: 'dark' as ThemeMode },
+        });
+
+        const cards = wrapper.findAllComponents(CountryFundingPanelCard);
+        expect(cards).toHaveLength(1);
+
+        const card = cards[0];
+        const eg = wrapper.vm.enrichedGrants[0];
+        expect(card.props('grant')).toEqual(g);
+        expect(card.props('sourceUrl')).toBe(eg.sourceUrl);
+        expect(card.props('aim')).toEqual(eg.aim);
+        expect(card.props('instrument')).toEqual(eg.instrument);
+        expect(card.props('segments')).toEqual(eg.segments);
+        expect(card.props('instrumentTextColor')).toBe(wrapper.vm.instrumentTextColor);
+        expect(card.props('themeMode')).toBe('dark');
     });
 
     it('renders custom funderName and recipients overrides', () => {

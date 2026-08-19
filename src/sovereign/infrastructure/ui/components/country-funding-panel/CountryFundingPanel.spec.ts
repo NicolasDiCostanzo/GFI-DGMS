@@ -9,6 +9,7 @@ import {
     FRANCE_FUNDING_WITH_UNSAFE_URL,
     GERMANY_FUNDING,
 } from './CountryFundingPanel.spec.fixtures';
+import GrantDetailsModal from './GrantDetailsModal.vue';
 
 describe('CountryFundingPanel', () => {
     describe('with no countryFunding', () => {
@@ -157,58 +158,62 @@ describe('CountryFundingPanel', () => {
     });
 
     describe('description expansion', () => {
-        it('shows a short description without a toggle', () => {
+        it('shows a short description with a View details button', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
             const row = wrapper.findAll('.grant-item')[0];
 
             expect(row.find('.description-cell').text()).toContain(
                 'Funding to scale up bioreactor capacity.',
             );
-            expect(row.find('.description-toggle').exists()).toBe(false);
+            expect(row.find('.description-toggle').exists()).toBe(true);
         });
 
-        it('shows a truncated preview with a toggle for a long description', () => {
+        it('shows a truncated preview with a View details button for a long description', () => {
             const wrapper = createWrapper({
                 countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
             });
             const row = wrapper.findAll('.grant-item')[0];
 
             expect(row.find('.description-toggle').exists()).toBe(true);
-            expect(row.find('.description-toggle').text()).toBe('Show more');
+            expect(row.find('.description-toggle').text()).toBe('View details');
         });
 
-        it('expands the description when the toggle is clicked', async () => {
+        it('opens the details modal with the full description when View details is clicked', async () => {
             const wrapper = createWrapper({
                 countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
             });
             const row = wrapper.findAll('.grant-item')[0];
 
+            const modal = wrapper.findComponent(GrantDetailsModal);
+            expect(modal.props('open')).toBe(false);
+
             await row.find('.description-toggle').trigger('click');
 
-            expect(row.find('.description-cell').text()).toContain(
+            expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(true);
+            expect(wrapper.findComponent(GrantDetailsModal).props('description')).toContain(
                 'This is a very long description that definitely exceeds one hundred and twenty characters so that it should be truncated and made expandable in the table view.',
             );
-            expect(row.find('.description-toggle').text()).toBe('Show less');
         });
 
-        it('collapses the description when the toggle is clicked again', async () => {
+        it('closes the details modal when it emits close', async () => {
             const wrapper = createWrapper({
                 countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
             });
             const row = wrapper.findAll('.grant-item')[0];
 
             await row.find('.description-toggle').trigger('click');
-            await row.find('.description-toggle').trigger('click');
+            wrapper.findComponent(GrantDetailsModal).vm.$emit('close');
+            await nextTick();
 
-            expect(row.find('.description-toggle').text()).toBe('Show more');
+            expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(false);
         });
 
-        it('shows Not specified for a null description without a toggle', () => {
+        it('shows Not specified with a View details button for a null description', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
             const row = wrapper.findAll('.grant-item')[1];
 
             expect(row.find('.description-cell').text()).toContain('Not specified');
-            expect(row.find('.description-toggle').exists()).toBe(false);
+            expect(row.find('.description-toggle').exists()).toBe(true);
         });
     });
 

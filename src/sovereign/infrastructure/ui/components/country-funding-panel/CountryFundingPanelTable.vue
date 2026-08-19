@@ -5,8 +5,10 @@ import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDispla
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
-import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment';
+import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
 import { computed, defineComponent, PropType, ref } from 'vue';
+import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
+import GrantDetailsModal from './GrantDetailsModal.vue';
 
 const DEFAULT_COLUMN_ORDER = [
     'projectTitle',
@@ -23,6 +25,10 @@ const DEFAULT_COLUMN_ORDER = [
 export type ColumnKey = (typeof DEFAULT_COLUMN_ORDER)[number];
 
 export default defineComponent({
+    components: {
+        CountryFundingPanelCard,
+        GrantDetailsModal,
+    },
     props: {
         grants: {
             type: Array as PropType<ReadonlyArray<Grant>>,
@@ -39,9 +45,7 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const DESCRIPTION_PREVIEW_LENGTH = 120;
-
-        const expandedDescriptions = ref(new Set<string>());
+        const openDetailsModalGrantIds = ref(new Set<string>());
 
         function isValidHttpUrl(value: string): boolean {
             try {
@@ -72,37 +76,20 @@ export default defineComponent({
             })),
         );
 
-        function formatGrantAmount(amountUsd: number | null): string {
-            return amountUsd === null ? 'Undisclosed' : formatInvestment(amountUsd / 1_000_000);
-        }
-
         function formatList(values: readonly string[]): string {
             return values.length > 0 ? values.join(', ') : 'Not specified';
         }
 
-        function isDescriptionExpanded(grantId: string): boolean {
-            return expandedDescriptions.value.has(grantId);
+        function isDetailsModalOpen(grantId: string): boolean {
+            return openDetailsModalGrantIds.value.has(grantId);
         }
 
-        function toggleDescription(grantId: string): void {
-            if (expandedDescriptions.value.has(grantId)) {
-                expandedDescriptions.value.delete(grantId);
-            } else {
-                expandedDescriptions.value.add(grantId);
-            }
+        function openDetailsModal(grantId: string): void {
+            openDetailsModalGrantIds.value.add(grantId);
         }
 
-        function truncatedDescription(description: string | null): string {
-            if (description === null) {
-                return 'Not specified';
-            }
-            return description.length <= DESCRIPTION_PREVIEW_LENGTH
-                ? description
-                : `${description.slice(0, DESCRIPTION_PREVIEW_LENGTH)}…`;
-        }
-
-        function isDescriptionTruncated(description: string | null): boolean {
-            return description !== null && description.length > DESCRIPTION_PREVIEW_LENGTH;
+        function closeDetailsModal(grantId: string): void {
+            openDetailsModalGrantIds.value.delete(grantId);
         }
 
         const instrumentTextColor = computed(() => {
@@ -169,10 +156,9 @@ export default defineComponent({
             enrichedGrants,
             formatGrantAmount,
             formatList,
-            isDescriptionExpanded,
-            toggleDescription,
-            truncatedDescription,
-            isDescriptionTruncated,
+            isDetailsModalOpen,
+            openDetailsModal,
+            closeDetailsModal,
             columns,
             columnLabels,
             getCellValue,
@@ -184,7 +170,7 @@ export default defineComponent({
 
 <template>
     <div v-if="grants.length" class="table-card">
-        <div class="table-scroll-container">
+        <div class="table-scroll-container" tabindex="0" aria-label="Funding grants table">
             <table class="grant-table">
                 <thead>
                     <tr>
@@ -230,43 +216,49 @@ export default defineComponent({
                             </td>
 
                             <td v-else-if="col === 'funderAgencies'">
-                                {{ formatList(row.grant.funderAgencies) }}
+                                <div class="clamped-text">
+                                    {{ formatList(row.grant.funderAgencies) }}
+                                </div>
                             </td>
 
                             <td v-else-if="col === 'funderName'">
-                                {{ row.grant.funderName ?? 'Not specified' }}
+                                <div class="clamped-text">
+                                    {{ row.grant.funderName ?? 'Not specified' }}
+                                </div>
                             </td>
 
                             <td v-else-if="col === 'recipients'">
-                                {{ row.grant.recipients ?? 'Not specified' }}
+                                <div class="clamped-text">
+                                    {{ row.grant.recipients ?? 'Not specified' }}
+                                </div>
                             </td>
 
                             <td v-else-if="col === 'projectTitle'" class="title-cell">
-                                {{ row.grant.projectTitle ?? 'Untitled grant' }}
+                                <div class="clamped-text">
+                                    {{ row.grant.projectTitle ?? 'Untitled grant' }}
+                                </div>
                             </td>
 
                             <td v-else-if="col === 'description'" class="description-cell">
-                                <template v-if="isDescriptionExpanded(row.grant.id)">
+                                <div class="clamped-text">
                                     {{ row.grant.description ?? 'Not specified' }}
-                                    <button
-                                        class="description-toggle"
-                                        type="button"
-                                        @click="toggleDescription(row.grant.id)"
-                                    >
-                                        Show less
-                                    </button>
-                                </template>
-                                <template v-else>
-                                    {{ truncatedDescription(row.grant.description) }}
-                                    <button
-                                        v-if="isDescriptionTruncated(row.grant.description)"
-                                        class="description-toggle"
-                                        type="button"
-                                        @click="toggleDescription(row.grant.id)"
-                                    >
-                                        Show more
-                                    </button>
-                                </template>
+                                </div>
+                                <button
+                                    class="description-toggle"
+                                    type="button"
+                                    @click="openDetailsModal(row.grant.id)"
+                                >
+                                    View details
+                                </button>
+                                <GrantDetailsModal
+                                    :open="isDetailsModalOpen(row.grant.id)"
+                                    :title="row.grant.projectTitle ?? 'Untitled grant'"
+                                    :funder-name="row.grant.funderName"
+                                    :description="row.grant.description"
+                                    :source-url="row.sourceUrl"
+                                    :theme-mode="themeMode"
+                                    @close="closeDetailsModal(row.grant.id)"
+                                />
                             </td>
 
                             <td v-else-if="col === 'amountUsd'" class="amount-cell">
@@ -274,7 +266,9 @@ export default defineComponent({
                             </td>
 
                             <td v-else-if="col === 'yearsDisbursed'">
-                                {{ formatList(row.grant.yearsDisbursed) }}
+                                <div class="clamped-text">
+                                    {{ formatList(row.grant.yearsDisbursed) }}
+                                </div>
                             </td>
 
                             <td v-else-if="col === 'url'" class="url-cell">
@@ -295,6 +289,19 @@ export default defineComponent({
                     </tr>
                 </tbody>
             </table>
+        </div>
+        <div class="grant-card-list">
+            <CountryFundingPanelCard
+                v-for="row in enrichedGrants"
+                :key="row.grant.id"
+                :grant="row.grant"
+                :source-url="row.sourceUrl"
+                :aim="row.aim"
+                :instrument="row.instrument"
+                :segments="row.segments"
+                :instrument-text-color="instrumentTextColor"
+                :theme-mode="themeMode"
+            />
         </div>
     </div>
 </template>
@@ -330,15 +337,31 @@ export default defineComponent({
 }
 
 .grant-table td {
+    height: 56px;
+    box-sizing: border-box;
     padding: 10px 12px;
     border-bottom: 1px solid var(--accent-color);
     vertical-align: top;
     line-height: 1.4;
 }
 
+.clamped-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.description-cell .clamped-text {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+}
+
 .grant-row {
     border-left: 4px solid transparent;
     transition: background-color 0.15s ease-in-out;
+    box-shadow: 0 2px 4px rgba(127, 127, 127, 0.15);
 }
 
 .grant-row:hover {
@@ -369,6 +392,11 @@ export default defineComponent({
     white-space: nowrap;
 }
 
+.platform-cell {
+    display: flex;
+    gap: 8px;
+}
+
 .platform-segment {
     display: inline-flex;
     align-items: center;
@@ -377,21 +405,16 @@ export default defineComponent({
     height: 18px;
     padding: 0 4px;
     border-radius: 4px;
-    border: 1px solid var(--accent-color);
-    color: var(--text-color);
+    border: 1px solid var(--border);
+    color: var(--text);
     font-weight: 600;
     font-size: 0.68rem;
-    margin-right: 4px;
-
-    &:last-child {
-        margin-right: 0;
-    }
 }
 
 .platform-segment.is-active {
-    color: var(--text-color);
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
+    color: var(--text);
+    background-color: var(--accent);
+    border-color: var(--accent);
 }
 
 .description-cell {
@@ -401,13 +424,13 @@ export default defineComponent({
 }
 
 .description-toggle {
-    display: inline-block;
-    margin-left: 4px;
-    font-size: 0.7rem;
-    color: var(--text-color);
+    align-self: flex-start;
     background: none;
     border: none;
     padding: 0;
+    color: var(--link);
+    font-size: 0.75rem;
+    font-weight: 500;
     cursor: pointer;
 
     &:hover {
@@ -429,5 +452,22 @@ export default defineComponent({
 
 .no-url {
     color: var(--text-color);
+}
+
+.grant-card-list {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+}
+
+@container country-funding-panel (max-width: 599px) {
+    .table-scroll-container {
+        display: none;
+    }
+
+    .grant-card-list {
+        display: flex;
+    }
 }
 </style>
