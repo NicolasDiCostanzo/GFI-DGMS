@@ -97,6 +97,7 @@ defineProps<{
     width: 1px;
     height: 28px;
     margin: 0 1rem;
+    background-color: var(--text);
 }
 
 .projection-note {

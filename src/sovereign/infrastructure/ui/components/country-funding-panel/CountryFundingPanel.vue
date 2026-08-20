@@ -228,8 +228,8 @@ const panelClasses = computed(() => ({
                     >
                 </button>
                 <template v-if="isLegendExpanded">
-                    <Legend />
-                    <PlatformLegend />
+                    <Legend class="legend-grid-area" />
+                    <PlatformLegend class="platform-legend-grid-area" />
                 </template>
             </div>
             <CountryFundingPanelTable
@@ -293,19 +293,19 @@ const panelClasses = computed(() => ({
     gap: 8px;
 }
 
-.sub-header-wrapper > :nth-child(1) {
+.sub-header-wrapper > .environmental-impact-panel {
     grid-area: environmental-impact;
 }
 
-.sub-header-wrapper > :nth-child(2) {
+.sub-header-wrapper > .legend-label {
     grid-area: legend-label;
 }
 
-.sub-header-wrapper > :nth-child(3) {
+.sub-header-wrapper > .legend-grid-area {
     grid-area: legend;
 }
 
-.sub-header-wrapper > :nth-child(4) {
+.sub-header-wrapper > .platform-legend-grid-area {
     grid-area: platform-legend;
 }
 
