@@ -55,8 +55,21 @@ function handleEscape(event: KeyboardEvent): void {
     }
 }
 
-onMounted(() => window.addEventListener('keydown', handleEscape));
-onUnmounted(() => window.removeEventListener('keydown', handleEscape));
+onMounted(() => {
+    window.addEventListener('keydown', handleEscape);
+    if (props.open) {
+        previouslyFocused.value = document.activeElement as HTMLElement | null;
+        dialogEl.value?.focus();
+    }
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleEscape);
+    if (props.open) {
+        previouslyFocused.value?.focus?.();
+        previouslyFocused.value = null;
+    }
+});
 </script>
 
 <template>

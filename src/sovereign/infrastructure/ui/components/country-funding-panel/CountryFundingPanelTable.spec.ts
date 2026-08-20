@@ -61,6 +61,31 @@ describe('CountryFundingPanelTable', () => {
         expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
     });
 
+    it('moves focus into the modal on open and restores it to the trigger on close', async () => {
+        const g = longDescriptionGrant;
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: { grants: [g], themeMode: 'light' as ThemeMode },
+            attachTo: document.body,
+        });
+
+        const viewDetailsBtn = wrapper.find('button.description-toggle')
+            .element as HTMLButtonElement;
+        viewDetailsBtn.focus();
+        expect(document.activeElement).toBe(viewDetailsBtn);
+
+        await wrapper.find('button.description-toggle').trigger('click');
+        expect(document.activeElement).toBe(document.body.querySelector('.grant-modal'));
+
+        const closeButton = document.body.querySelector('.grant-modal-close-button') as HTMLElement;
+        closeButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
+        expect(document.activeElement).toBe(viewDetailsBtn);
+
+        wrapper.unmount();
+    });
+
     it('always shows a View details button, even for a null description', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: { grants: [basicGrant], themeMode: 'light' as ThemeMode },
