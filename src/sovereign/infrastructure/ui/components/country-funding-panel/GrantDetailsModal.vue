@@ -160,9 +160,9 @@ onUnmounted(() => window.removeEventListener('keydown', handleEscape));
 }
 
 .grant-modal-link {
-    color: var(--link);
     font-weight: 500;
     font-size: 13px;
+    color: var(--link);
 }
 
 .grant-modal-no-url {

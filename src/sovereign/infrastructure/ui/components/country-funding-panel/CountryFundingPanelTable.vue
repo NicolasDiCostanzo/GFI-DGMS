@@ -435,6 +435,7 @@ export default defineComponent({
     font-size: 0.75rem;
     font-weight: 500;
     white-space: nowrap;
+    color: var(--link);
 
     &:hover {
         text-decoration: underline;
