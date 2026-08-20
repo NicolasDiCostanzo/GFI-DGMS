@@ -1,7 +1,7 @@
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { AIM_PALETTES, getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { AIM_PALETTES, getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import {
     createWrapper,
     FRANCE_FUNDING,
@@ -9,6 +9,7 @@ import {
     FRANCE_FUNDING_WITH_UNSAFE_URL,
     GERMANY_FUNDING,
 } from './CountryFundingPanel.spec.fixtures';
+import GrantDetailsModal from './GrantDetailsModal.vue';
 
 describe('CountryFundingPanel', () => {
     describe('with no countryFunding', () => {
@@ -78,7 +79,6 @@ describe('CountryFundingPanel', () => {
             expect(text).toContain('Bpifrance and the European Commission');
             expect(text).toContain('Gourmey');
             expect(text).toContain('Funding to scale up bioreactor capacity.');
-            expect(text).toContain('Comm.');
             expect(text).toContain('CM');
             expect(text).toContain('2024, 2025');
         });
@@ -88,13 +88,6 @@ describe('CountryFundingPanel', () => {
             const row = wrapper.findAll('.grant-item')[0];
 
             expect(row.find('.instrument-chip').text()).toBe('Business Grant');
-        });
-
-        it('renders the aim chip with the short label', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const row = wrapper.findAll('.grant-item')[0];
-
-            expect(row.find('.aim-chip').text()).toBe('Comm.');
         });
 
         it('renders the production platform segments in PB, CM, FM order', () => {
@@ -165,65 +158,92 @@ describe('CountryFundingPanel', () => {
     });
 
     describe('description expansion', () => {
-        it('shows a short description without a toggle', () => {
+        it('shows a short description with a View details button', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
             const row = wrapper.findAll('.grant-item')[0];
 
             expect(row.find('.description-cell').text()).toContain(
                 'Funding to scale up bioreactor capacity.',
             );
-            expect(row.find('.description-toggle').exists()).toBe(false);
+            expect(row.find('.description-toggle').exists()).toBe(true);
         });
 
-        it('shows a truncated preview with a toggle for a long description', () => {
+        it('shows a truncated preview with a View details button for a long description', () => {
             const wrapper = createWrapper({
                 countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
             });
             const row = wrapper.findAll('.grant-item')[0];
 
             expect(row.find('.description-toggle').exists()).toBe(true);
-            expect(row.find('.description-toggle').text()).toBe('Show more');
+            expect(row.find('.description-toggle').text()).toBe('View details');
         });
 
-        it('expands the description when the toggle is clicked', async () => {
+        it('opens the details modal with the full description when View details is clicked', async () => {
             const wrapper = createWrapper({
                 countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
             });
             const row = wrapper.findAll('.grant-item')[0];
 
+            expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
+
             await row.find('.description-toggle').trigger('click');
 
-            expect(row.find('.description-cell').text()).toContain(
+            const modal = wrapper.findComponent(GrantDetailsModal);
+            expect(modal.exists()).toBe(true);
+            expect(modal.props('open')).toBe(true);
+            expect(modal.props('description')).toContain(
                 'This is a very long description that definitely exceeds one hundred and twenty characters so that it should be truncated and made expandable in the table view.',
             );
-            expect(row.find('.description-toggle').text()).toBe('Show less');
         });
 
-        it('collapses the description when the toggle is clicked again', async () => {
+        it('closes the details modal when it emits close', async () => {
             const wrapper = createWrapper({
                 countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
             });
             const row = wrapper.findAll('.grant-item')[0];
 
             await row.find('.description-toggle').trigger('click');
-            await row.find('.description-toggle').trigger('click');
+            wrapper.findComponent(GrantDetailsModal).vm.$emit('close');
+            await nextTick();
 
-            expect(row.find('.description-toggle').text()).toBe('Show more');
+            expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
         });
 
-        it('shows Not specified for a null description without a toggle', () => {
+        it('shows Not specified with a View details button for a null description', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
             const row = wrapper.findAll('.grant-item')[1];
 
             expect(row.find('.description-cell').text()).toContain('Not specified');
-            expect(row.find('.description-toggle').exists()).toBe(false);
+            expect(row.find('.description-toggle').exists()).toBe(true);
         });
     });
 
     describe('legends', () => {
-        it('renders an aim legend with one swatch per aim', () => {
+        it('labels the legends', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const swatches = wrapper.findAll('.aim-legend .legend-swatch');
+
+            expect(wrapper.find('.legend-label').text()).toContain('Legend:');
+        });
+
+        it("doesn't render the legend cards expanded by default", () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('false');
+            expect(wrapper.findAll('.legend-card')).toHaveLength(0);
+        });
+
+        it('renders the legend cards when the label is clicked', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+
+            await wrapper.find('.legend-label').trigger('click');
+
+            expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('true');
+            expect(wrapper.findAll('.legend-card')).toHaveLength(2);
+            const segments = wrapper.findAll('.legend-card .badge');
+
+            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+
+            const swatches = wrapper.findAll('.legend-card')[0]?.findAll('.legend-item') ?? [];
 
             expect(swatches).toHaveLength(3);
             expect(swatches.map((s) => s.text())).toEqual([
@@ -233,15 +253,14 @@ describe('CountryFundingPanel', () => {
             ]);
         });
 
-        it('renders a production platform legend with the three segments', () => {
+        it('re-collapse the legend cards when the label is clicked again', async () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const segments = wrapper.findAll('.platform-legend .platform-segment');
 
-            expect(segments.map((s) => s.text())).toEqual([
-                'PB = Plant-based',
-                'CM = Cultivated',
-                'FM = Fermentation',
-            ]);
+            await wrapper.find('.legend-label').trigger('click');
+            await wrapper.find('.legend-label').trigger('click');
+
+            expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('false');
+            expect(wrapper.findAll('.legend-card')).toHaveLength(0);
         });
 
         it('does not render legends when there are no grants', () => {
@@ -320,8 +339,9 @@ describe('CountryFundingPanel', () => {
     describe('2040 projection', () => {
         it('shows the published projection for a covered country', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            const values = wrapper.findAll('.projection-card .metric-value');
 
-            expect(wrapper.find('.projection-value').text()).toBe('€18bn/year GVA, 64,000 jobs');
+            expect(values.map((value) => value.text())).toEqual(['€18B', '64,000']);
         });
 
         it('does not show a projection for an uncovered country', () => {

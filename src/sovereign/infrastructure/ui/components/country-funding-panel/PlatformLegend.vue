@@ -1,32 +1,59 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const PLATFORM_SEGMENTS = [
+    { code: 'PB', name: 'Plant-based' },
+    { code: 'CM', name: 'Cultivated' },
+    { code: 'FM', name: 'Fermentation' },
+] as const;
+</script>
 
 <template>
-    <div class="legend platform-legend">
-        <span class="legend-title">Production platform</span>
-        <span class="platform-segment">PB = Plant-based</span>
-        <span class="platform-segment">CM = Cultivated</span>
-        <span class="platform-segment">FM = Fermentation</span>
+    <div class="legend-card">
+        <h4 class="legend-title">Technology platform</h4>
+        <div class="legend-content">
+            <div v-for="platform in PLATFORM_SEGMENTS" :key="platform.code" class="legend-item">
+                <span class="badge">{{ platform.code }}</span>
+                <span class="swatch-label">{{ platform.name }}</span>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
-.platform-legend {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+.legend-card {
+    padding: 0.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(127, 127, 127, 0.6);
 }
 
-.platform-segment {
+.legend-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+}
+
+.badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 28px;
-    height: 20px;
-    padding: 0 6px;
-    border-radius: 2px;
-    background: var(--legend-bg);
-    color: var(--legend-text);
+    min-width: 24px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 4px;
+    border: 1px solid #3a3a3a;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+}
+
+.swatch-label {
+    white-space: nowrap;
+    font-size: 0.8rem;
 }
 </style>

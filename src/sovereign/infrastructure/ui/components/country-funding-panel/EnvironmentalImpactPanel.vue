@@ -1,11 +1,65 @@
 <template>
     <section v-if="figures.length" class="environmental-impact-panel">
-        <h3 class="legend-title">Environmental potential of {{ pillarLabel }}</h3>
+        <h3 class="panel-title">Environmental impact: {{ pillarLabel }} vs. conventional meat</h3>
 
-        <div class="kpi-cards">
-            <KpiCard variant="ghg" title="GHG Reduction" :figures="ghgFigures" />
-            <KpiCard variant="land" title="Land Saved" :figures="landFigures" />
-            <KpiCard variant="water" title="Water Saved" :figures="waterFigures" />
+        <div class="meat-type-tabs" role="tablist" aria-label="Select meat type for comparison">
+            <button
+                v-for="type in MEAT_TYPES"
+                :key="type"
+                type="button"
+                role="tab"
+                :aria-selected="type === selectedMeatType"
+                class="meat-type-tab"
+                :class="{ 'meat-type-tab--active': type === selectedMeatType }"
+                @click="selectedMeatType = type"
+            >
+                {{ MEAT_TYPE_LABELS[type] }}
+            </button>
+        </div>
+
+        <div class="metric-rings">
+            <div
+                v-if="
+                    selectedFigure?.ghgReductionPercent !== undefined &&
+                    selectedFigure?.ghgReductionPercent !== null
+                "
+                class="metric-ring-slot"
+            >
+                <EnvironmentalMetricRing
+                    :value="selectedFigure?.ghgReductionPercent"
+                    label="GHG emissions"
+                    :color="ENVIRONMENTAL_METRIC_COLORS.ghg"
+                    icon="🏭"
+                />
+            </div>
+            <div
+                v-if="
+                    selectedFigure?.landReductionPercent !== undefined &&
+                    selectedFigure?.landReductionPercent !== null
+                "
+                class="metric-ring-slot"
+            >
+                <EnvironmentalMetricRing
+                    :value="selectedFigure?.landReductionPercent"
+                    label="Land use"
+                    :color="ENVIRONMENTAL_METRIC_COLORS.land"
+                    icon="🌱"
+                />
+            </div>
+            <div
+                v-if="
+                    selectedFigure?.waterReductionPercent !== undefined &&
+                    selectedFigure?.waterReductionPercent !== null
+                "
+                class="metric-ring-slot"
+            >
+                <EnvironmentalMetricRing
+                    :value="selectedFigure?.waterReductionPercent"
+                    label="Water use"
+                    :color="ENVIRONMENTAL_METRIC_COLORS.water"
+                    icon="💧"
+                />
+            </div>
         </div>
 
         <p class="figure-source">{{ sourceText }}</p>
@@ -14,13 +68,23 @@
 
 <script setup lang="ts">
 import type { Grant } from '@/sovereign/domain/Grant';
-import { computed } from 'vue';
 import {
     CULTIVATED_LCA_FIGURES,
     PLANT_BASED_LCA_FIGURES,
 } from '@/sovereign/infrastructure/ui/constants/EnvironmentalImpactData';
+import { ENVIRONMENTAL_METRIC_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { resolveDominantProductionPillar } from '@/sovereign/infrastructure/ui/utils/resolveDominantProductionPillar';
-import KpiCard from './KpiCard.vue';
+import { computed, ref } from 'vue';
+import EnvironmentalMetricRing from './EnvironmentalMetricRing.vue';
+
+const MEAT_TYPES = ['beef', 'pork', 'chicken'] as const;
+type MeatType = (typeof MEAT_TYPES)[number];
+
+const MEAT_TYPE_LABELS: Record<MeatType, string> = {
+    beef: 'Beef',
+    pork: 'Pork',
+    chicken: 'Chicken',
+};
 
 const props = withDefaults(
     defineProps<{
@@ -31,6 +95,8 @@ const props = withDefaults(
     },
 );
 
+const selectedMeatType = ref<MeatType>('beef');
+
 const dominantPillar = computed(() => resolveDominantProductionPillar(props.grants));
 
 const figures = computed(() => {
@@ -39,57 +105,79 @@ const figures = computed(() => {
     return [];
 });
 
+const selectedFigure = computed(
+    () => figures.value.find((figure) => figure.meatType === selectedMeatType.value) ?? null,
+);
+
 const pillarLabel = computed(() =>
     dominantPillar.value === 'Cultivated'
-        ? 'cultivated meat (produced with renewable energy)'
+        ? 'cultivated meat (renewable energy)'
         : 'plant-based meat',
 );
 
-const sourceText = computed(() =>
-    dominantPillar.value === 'Cultivated'
-        ? 'vs. conventional meat. General, illustrative technology figures — not specific to this country\'s funding or any single grant. Source: CE Delft, "LCA of Cultivated Meat".'
-        : 'vs. conventional meat. General, illustrative technology figures — not specific to this country\'s funding or any single grant. Source: GFI, "Environmental benefits of alternative proteins".',
-);
-
-const ghgFigures = computed(() =>
-    figures.value.map((figure) => ({
-        label: figure.meatType,
-        value: figure.ghgReductionPercent,
-    })),
-);
-
-const landFigures = computed(() =>
-    figures.value.map((figure) => ({
-        label: figure.meatType,
-        value: figure.landReductionPercent,
-    })),
-);
-
-const waterFigures = computed(() =>
-    figures.value.map((figure) => ({
-        label: figure.meatType,
-        value: figure.waterReductionPercent,
-    })),
-);
+const sourceText = computed(() => {
+    const commonText =
+        'Savings compared to conventional meat production; not tied to specific grants.';
+    return dominantPillar.value === 'Cultivated'
+        ? `${commonText} Source: CE Delft.`
+        : `${commonText} Source: GFI.`;
+});
 </script>
 
 <style scoped>
 .environmental-impact-panel {
-    border-top: 1px solid var(--muted-border);
-    padding-top: 12px;
-    font-size: 13px;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
 }
 
-.kpi-cards {
+.panel-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.meat-type-tabs {
+    display: flex;
+    border: 1px solid #333333;
+    border-radius: 9999px;
+    padding: 3px;
+}
+
+.meat-type-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.meat-type-tab--active {
+    background: #1c92ff;
+}
+
+.metric-rings {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 12px;
+    align-items: start;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.metric-ring-slot {
+    display: flex;
+    justify-content: center;
 }
 
 .figure-source {
-    font-size: 11px;
-    font-style: italic;
-    margin-top: 8px;
+    font-size: 0.7rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    line-height: 1.3;
 }
 </style>

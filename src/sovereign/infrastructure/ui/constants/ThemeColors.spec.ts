@@ -11,7 +11,7 @@ describe('ThemeColors', () => {
             expect(colorblindLightColors.OCEAN).toBe('#e8f4f8');
             expect(colorblindLightColors.BORDER).toBe('#000000');
             expect(colorblindLightColors.TOOLTIP_BG).toBe('rgba(0, 0, 0, 0.8)');
-            expect(colorblindLightColors.SIDEBAR_BG).toBe('#ffffff');
+            expect(colorblindLightColors.SIDEBAR_BG).toBe('white');
         });
 
         it('returns dark theme colors for dark and colorblind-dark modes', () => {
@@ -19,7 +19,7 @@ describe('ThemeColors', () => {
             const colorblindDarkColors = getThemeColors('colorblind-dark');
             expect(colorblindDarkColors).toEqual(darkColors);
             expect(colorblindDarkColors.OCEAN).toBe('#1a2634');
-            expect(colorblindDarkColors.BORDER).toBe('#ffffff');
+            expect(colorblindDarkColors.BORDER).toBe('white');
             expect(colorblindDarkColors.TOOLTIP_BG).toBe('rgba(0, 0, 0, 0.9)');
             expect(colorblindDarkColors.SIDEBAR_BG).toBe('#121212');
         });
