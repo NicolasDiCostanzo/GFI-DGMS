@@ -313,7 +313,6 @@ export default defineComponent({
 .table-card {
     flex-shrink: 0;
     border-radius: 8px;
-    border: 1px solid var(--accent-color);
     overflow: hidden;
 }
 
@@ -326,16 +325,13 @@ export default defineComponent({
     width: 100%;
     border-collapse: collapse;
     font-size: 0.75rem;
-    color: var(--text-color);
     text-align: left;
 }
 
 .grant-table th {
     padding: 10px 12px;
-    border-bottom: 1px solid var(--accent-color);
     font-size: 0.72rem;
     font-weight: 600;
-    color: var(--text-color);
     white-space: nowrap;
 }
 
@@ -343,7 +339,6 @@ export default defineComponent({
     height: 56px;
     box-sizing: border-box;
     padding: 10px 12px;
-    border-bottom: 1px solid var(--accent-color);
     vertical-align: top;
     line-height: 1.4;
 }
@@ -367,22 +362,16 @@ export default defineComponent({
     box-shadow: 0 2px 4px rgba(127, 127, 127, 0.15);
 }
 
-.grant-row:hover {
-    background-color: rgba(var(--accent-color-rgb), 0.1);
-}
-
 .grant-row:last-child td {
     border-bottom: none;
 }
 
 .title-cell {
     font-weight: 600;
-    color: var(--text-color);
 }
 
 .amount-cell {
     font-weight: 600;
-    color: var(--text-color);
     white-space: nowrap;
 }
 
@@ -442,7 +431,6 @@ export default defineComponent({
 }
 
 .grant-link {
-    color: var(--text-color);
     text-decoration: none;
     font-size: 0.75rem;
     font-weight: 500;
@@ -451,10 +439,6 @@ export default defineComponent({
     &:hover {
         text-decoration: underline;
     }
-}
-
-.no-url {
-    color: var(--text-color);
 }
 
 .grant-card-list {
