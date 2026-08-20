@@ -184,13 +184,14 @@ describe('CountryFundingPanel', () => {
             });
             const row = wrapper.findAll('.grant-item')[0];
 
-            const modal = wrapper.findComponent(GrantDetailsModal);
-            expect(modal.props('open')).toBe(false);
+            expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
 
             await row.find('.description-toggle').trigger('click');
 
-            expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(true);
-            expect(wrapper.findComponent(GrantDetailsModal).props('description')).toContain(
+            const modal = wrapper.findComponent(GrantDetailsModal);
+            expect(modal.exists()).toBe(true);
+            expect(modal.props('open')).toBe(true);
+            expect(modal.props('description')).toContain(
                 'This is a very long description that definitely exceeds one hundred and twenty characters so that it should be truncated and made expandable in the table view.',
             );
         });
@@ -205,7 +206,7 @@ describe('CountryFundingPanel', () => {
             wrapper.findComponent(GrantDetailsModal).vm.$emit('close');
             await nextTick();
 
-            expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(false);
+            expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
         });
 
         it('shows Not specified with a View details button for a null description', () => {

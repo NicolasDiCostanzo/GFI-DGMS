@@ -7,7 +7,6 @@ import {
     NULL_FIELDS_GRANT,
     THEME_MODE,
 } from './CountryFundingPanelCard.spec.fixtures';
-import GrantDetailsModal from './GrantDetailsModal.vue';
 
 describe('CountryFundingPanelCard', () => {
     it('renders with makeGrant defaults when mounted without overrides', () => {
@@ -67,23 +66,14 @@ describe('CountryFundingPanelCard', () => {
         expect(style).not.toContain('background-color');
     });
 
-    it('opens the details modal when the trigger button is clicked, and closes it on close', async () => {
+    it('emits open-details when the trigger button is clicked', async () => {
         const wrapper = mountCard({
             funderName: 'Green Fund',
             description: 'Full description text',
             sourceUrl: 'https://example.com',
         });
-        const modal = wrapper.findComponent(GrantDetailsModal);
-        expect(modal.props('open')).toBe(false);
 
         await wrapper.find('.grant-card-details-trigger').trigger('click');
-        expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(true);
-        expect(modal.props('funderName')).toBe('Green Fund');
-        expect(modal.props('description')).toBe('Full description text');
-        expect(modal.props('sourceUrl')).toBe('https://example.com');
-        expect(modal.props('themeMode')).toBe(THEME_MODE);
-
-        await modal.vm.$emit('close');
-        expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(false);
+        expect(wrapper.emitted('open-details')).toHaveLength(1);
     });
 });

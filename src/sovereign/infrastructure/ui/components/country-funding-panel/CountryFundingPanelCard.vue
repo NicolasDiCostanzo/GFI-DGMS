@@ -5,8 +5,7 @@ import type { AimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisp
 import type { FundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import type { PlatformSegment } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
 import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
-import { computed, ref } from 'vue';
-import GrantDetailsModal from './GrantDetailsModal.vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
     grant: Grant;
@@ -18,7 +17,9 @@ const props = defineProps<{
     themeMode: ThemeMode;
 }>();
 
-const isModalOpen = ref(false);
+const emit = defineEmits<{
+    'open-details': [];
+}>();
 
 const cardStyle = computed(() =>
     props.aim
@@ -56,19 +57,10 @@ const amountLabel = computed(() => formatGrantAmount(props.grant.amountUsd));
             class="grant-card-details-trigger"
             type="button"
             :aria-label="`View details for ${grant.projectTitle ?? 'Untitled grant'}`"
-            @click="isModalOpen = true"
+            @click="emit('open-details')"
         >
             View details
         </button>
-        <GrantDetailsModal
-            :open="isModalOpen"
-            :title="grant.projectTitle ?? 'Untitled grant'"
-            :funder-name="grant.funderName"
-            :description="grant.description"
-            :source-url="sourceUrl"
-            :theme-mode="themeMode"
-            @close="isModalOpen = false"
-        />
     </div>
 </template>
 

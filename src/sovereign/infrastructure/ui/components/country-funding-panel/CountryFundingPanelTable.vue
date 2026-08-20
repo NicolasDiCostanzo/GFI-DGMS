@@ -45,7 +45,7 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const openDetailsModalGrantIds = ref(new Set<string>());
+        const selectedGrantId = ref<string | null>(null);
 
         function isValidHttpUrl(value: string): boolean {
             try {
@@ -80,16 +80,17 @@ export default defineComponent({
             return values.length > 0 ? values.join(', ') : 'Not specified';
         }
 
-        function isDetailsModalOpen(grantId: string): boolean {
-            return openDetailsModalGrantIds.value.has(grantId);
-        }
+        const selectedGrant = computed(
+            () =>
+                enrichedGrants.value.find((row) => row.grant.id === selectedGrantId.value) ?? null,
+        );
 
         function openDetailsModal(grantId: string): void {
-            openDetailsModalGrantIds.value.add(grantId);
+            selectedGrantId.value = grantId;
         }
 
-        function closeDetailsModal(grantId: string): void {
-            openDetailsModalGrantIds.value.delete(grantId);
+        function closeDetailsModal(): void {
+            selectedGrantId.value = null;
         }
 
         const instrumentTextColor = computed(() => {
@@ -156,7 +157,7 @@ export default defineComponent({
             enrichedGrants,
             formatGrantAmount,
             formatList,
-            isDetailsModalOpen,
+            selectedGrant,
             openDetailsModal,
             closeDetailsModal,
             columns,
@@ -250,15 +251,6 @@ export default defineComponent({
                                 >
                                     View details
                                 </button>
-                                <GrantDetailsModal
-                                    :open="isDetailsModalOpen(row.grant.id)"
-                                    :title="row.grant.projectTitle ?? 'Untitled grant'"
-                                    :funder-name="row.grant.funderName"
-                                    :description="row.grant.description"
-                                    :source-url="row.sourceUrl"
-                                    :theme-mode="themeMode"
-                                    @close="closeDetailsModal(row.grant.id)"
-                                />
                             </td>
 
                             <td v-else-if="col === 'amountUsd'" class="amount-cell">
@@ -301,8 +293,19 @@ export default defineComponent({
                 :segments="row.segments"
                 :instrument-text-color="instrumentTextColor"
                 :theme-mode="themeMode"
+                @open-details="openDetailsModal(row.grant.id)"
             />
         </div>
+        <GrantDetailsModal
+            v-if="selectedGrant"
+            :open="true"
+            :title="selectedGrant.grant.projectTitle ?? 'Untitled grant'"
+            :funder-name="selectedGrant.grant.funderName"
+            :description="selectedGrant.grant.description"
+            :source-url="selectedGrant.sourceUrl"
+            :theme-mode="themeMode"
+            @close="closeDetailsModal"
+        />
     </div>
 </template>
 

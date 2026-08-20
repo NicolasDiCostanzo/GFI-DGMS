@@ -2,6 +2,7 @@ import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
+import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import {
     basicGrant,
     customDefaultsGrant,
@@ -11,7 +12,6 @@ import {
     multipleGrants,
     sampleColumnOrders,
 } from './CountryFundingPanelTable.fixtures';
-import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import CountryFundingPanelTable, { ColumnKey } from './CountryFundingPanelTable.vue';
 import GrantDetailsModal from './GrantDetailsModal.vue';
 
@@ -48,16 +48,17 @@ describe('CountryFundingPanelTable', () => {
         expect(viewDetailsBtn.exists()).toBe(true);
         expect(viewDetailsBtn.text()).toMatch(/View details/i);
 
-        const modal = wrapper.findComponent(GrantDetailsModal);
-        expect(modal.props('open')).toBe(false);
+        expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
 
         await viewDetailsBtn.trigger('click');
-        expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(true);
+        const modal = wrapper.findComponent(GrantDetailsModal);
+        expect(modal.exists()).toBe(true);
+        expect(modal.props('open')).toBe(true);
         expect(modal.props('description')).toBe(g.description);
         expect(modal.props('funderName')).toBe(g.funderName);
 
         await modal.vm.$emit('close');
-        expect(wrapper.findComponent(GrantDetailsModal).props('open')).toBe(false);
+        expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
     });
 
     it('always shows a View details button, even for a null description', () => {
