@@ -31,9 +31,9 @@ test.describe('InteractiveMap', () => {
         await checkA11y(page);
     });
 
-    test('country paths have black border stroke', async ({ page }) => {
+    test('country paths have the theme border stroke', async ({ page }) => {
         const firstPath = page.locator('path.country-path').first();
-        await expect(firstPath).toHaveCSS('stroke', toRGB(BORDER_COLOR));
+        await expect(firstPath).toHaveAttribute('stroke', BORDER_COLOR);
         await expect(firstPath).toHaveCSS('stroke-opacity', '0.35');
     });
 

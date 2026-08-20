@@ -1,6 +1,6 @@
-import { CountryFunding, CountryName } from '../domain/CountryFunding';
-import { Grant, GrantId } from '../domain/Grant';
-import { CountryFundingRepository } from '../domain/repository/CountryFundingRepository';
+import { CountryFunding, CountryName } from '@/sovereign/domain/CountryFunding';
+import { Grant, GrantId } from '@/sovereign/domain/Grant';
+import { CountryFundingRepository } from '@/sovereign/domain/repository/CountryFundingRepository';
 
 export class MockCountryFundingRepository implements CountryFundingRepository {
     constructor(

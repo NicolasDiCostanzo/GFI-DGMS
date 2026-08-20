@@ -6,14 +6,14 @@ import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import { computed, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
-import { MapColors, type ThemeMode } from '../../../domain/constants/MapColors';
-import { useCountryDisplay } from '../composables/useCountryDisplay';
-import { useMapDrag } from '../composables/useMapDrag';
-import { useMapTooltip } from '../composables/useMapTooltip';
-import { useMapZoom } from '../composables/useMapZoom';
-import { getThemeColors } from '../constants/ThemeColors';
-import { calculateFundingColorThresholds } from '../utils/calculateFundingColorThresholds';
-import { createFundingAmountLegendItems } from '../utils/fundingAmountLegend';
+import { MapColors, type ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { useCountryDisplay } from '@/sovereign/infrastructure/ui/composables/useCountryDisplay';
+import { useMapDrag } from '@/sovereign/infrastructure/ui/composables/useMapDrag';
+import { useMapTooltip } from '@/sovereign/infrastructure/ui/composables/useMapTooltip';
+import { useMapZoom } from '@/sovereign/infrastructure/ui/composables/useMapZoom';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { calculateFundingColorThresholds } from '@/sovereign/infrastructure/ui/utils/calculateFundingColorThresholds';
+import { createFundingAmountLegendItems } from '@/sovereign/infrastructure/ui/utils/fundingAmountLegend';
 
 const props = defineProps<{
     countryFundings: readonly CountryFunding[];

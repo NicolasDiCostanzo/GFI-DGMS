@@ -35,16 +35,15 @@ describe('gfi-dgms-widget custom element entry', () => {
 });
 
 describe('polyfillProcessEnv', () => {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const g = globalThis as any;
-    const hadProcess = 'process' in g;
-    const originalProcess = g.process;
+    const globalObj = globalThis as unknown as Record<string, unknown>;
+    const hadProcess = Object.prototype.hasOwnProperty.call(globalObj, 'process');
+    const originalProcess = globalObj['process'];
 
     afterEach(() => {
         if (hadProcess) {
-            g.process = originalProcess;
+            globalObj['process'] = originalProcess;
         } else {
-            delete g.process;
+            delete globalObj['process'];
         }
     });
 
@@ -52,14 +51,14 @@ describe('polyfillProcessEnv', () => {
         {
             name: 'when process is undefined',
             setup: () => {
-                delete g.process;
+                delete globalObj['process'];
             },
             expected: { env: { NODE_ENV: 'production' } },
         },
         {
             name: 'when process.env is undefined',
             setup: () => {
-                g.process = { env: undefined };
+                globalObj['process'] = { env: undefined };
             },
             expected: { env: { NODE_ENV: 'production' } },
         },
@@ -68,15 +67,14 @@ describe('polyfillProcessEnv', () => {
 
         polyfillProcessEnv();
 
-        expect(g.process).toEqual(expected);
+        expect(globalObj['process']).toEqual(expected);
     });
 
     it('does not overwrite an existing process and env', () => {
-        g.process = { env: { NODE_ENV: 'production' } };
+        globalObj['process'] = { env: { NODE_ENV: 'production' } };
 
         polyfillProcessEnv();
 
-        expect(g.process).toEqual({ env: { NODE_ENV: 'production' } });
+        expect(globalObj['process']).toEqual({ env: { NODE_ENV: 'production' } });
     });
-    /* eslint-enable @typescript-eslint/no-explicit-any */
 });

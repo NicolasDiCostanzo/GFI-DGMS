@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
+import { usePanelResize } from '@/sovereign/infrastructure/ui/composables/usePanelResize';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors.ts';
+import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment.ts';
 import { computed, ref } from 'vue';
-import { getThemeColors } from '../../constants/ThemeColors.ts';
-import { formatInvestment } from '../../utils/formatInvestment.ts';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
 import CountryHeader from './CountryHeader.vue';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
@@ -42,6 +44,7 @@ const emit = defineEmits<{
 }>();
 
 const isExpanded = ref(false);
+const isLegendExpanded = ref(false);
 
 const countryName = computed(() => props.countryFunding?.countryName ?? '');
 const grants = computed(() => props.countryFunding?.grants ?? []);
@@ -50,10 +53,10 @@ const totalAmountLabel = computed(() =>
     props.countryFunding ? formatInvestment(props.countryFunding.totalAmountUsd / 1_000_000) : '',
 );
 
-const disclosureLabel = computed(() => {
+const grantCountLabel = computed(() => {
     if (!props.countryFunding) return '';
     const { disclosedGrantCount, grants: countryGrants } = props.countryFunding;
-    return `${disclosedGrantCount} of ${countryGrants.length} grants have a disclosed amount`;
+    return `${disclosedGrantCount}/${countryGrants.length} grants`;
 });
 
 const projection = computed(() => COUNTRY_2040_PROJECTIONS[countryName.value] ?? null);
@@ -65,7 +68,6 @@ const tableColumnOrder = [
     'funderName',
     'funderAgencies',
     'fundingInstrument',
-    'aim',
     'platform',
     'yearsDisbursed',
     'description',
@@ -98,19 +100,66 @@ const cssVars = computed(() => {
         '--on-accent': colors.ON_ACCENT,
     } as Record<string, string>;
 });
+
+const panelEl = ref<HTMLElement | null>(null);
+const containerEl = computed(() => panelEl.value?.parentElement ?? null);
+
+const DEFAULT_PANEL_WIDTH = 380;
+const panelWidth = ref(DEFAULT_PANEL_WIDTH);
+const { startResize, isResizing, clamp, getMaxWidth } = usePanelResize(
+    containerEl,
+    (width: number) => {
+        panelWidth.value = clamp(width);
+    },
+);
+
+const isMobile = useMediaQuery('(max-width: 768px)');
+
+function toggleExpanded(): void {
+    isExpanded.value = !shouldShowExpandedState.value;
+
+    if (!isExpanded.value) {
+        panelWidth.value = clamp(DEFAULT_PANEL_WIDTH);
+    }
+}
+
+const isMaxWidthExpanded = computed(() => panelWidth.value >= getMaxWidth() - 1);
+const shouldShowExpandedState = computed(
+    () => isExpanded.value || isMaxWidthExpanded.value || isMobile.value,
+);
+
+const panelStyle = computed(() => {
+    if (shouldShowExpandedState.value) {
+        return cssVars.value;
+    }
+    return { ...cssVars.value, width: `${panelWidth.value}px` };
+});
+
+const panelClasses = computed(() => ({
+    'is-expanded': shouldShowExpandedState.value,
+    'is-resizing': isResizing.value,
+}));
 </script>
 
 <template>
-    <aside class="country-funding-panel" :class="{ 'is-expanded': isExpanded }" :style="cssVars">
+    <aside ref="panelEl" class="country-funding-panel" :class="panelClasses" :style="panelStyle">
         <button
+            v-if="!shouldShowExpandedState && !isMobile"
+            class="resize-handle"
+            type="button"
+            aria-label="Resize panel width"
+            @mousedown="startResize"
+        />
+        <button
+            v-if="!isMobile"
             class="expand-button"
             type="button"
-            :aria-label="isExpanded ? 'Restore panel' : 'Expand panel'"
-            :aria-expanded="isExpanded"
-            @click="isExpanded = !isExpanded"
+            :aria-label="shouldShowExpandedState ? 'Restore panel' : 'Expand panel'"
+            :aria-expanded="shouldShowExpandedState"
+            @click="toggleExpanded"
         >
             <svg
-                v-if="!isExpanded"
+                v-if="!shouldShowExpandedState"
                 width="16"
                 height="16"
                 viewBox="0 0 16 16"
@@ -162,12 +211,27 @@ const cssVars = computed(() => {
             <CountryHeader
                 :country-name="countryName"
                 :total-amount-label="totalAmountLabel"
-                :disclosure-label="disclosureLabel"
+                :grant-count-label="grantCountLabel"
             />
             <ProjectionSection v-if="projection" :projection="projection" />
-            <EnvironmentalImpactPanel :grants="grants" />
-            <Legend />
-            <PlatformLegend />
+            <div class="sub-header-wrapper">
+                <EnvironmentalImpactPanel :grants="grants" />
+                <button
+                    class="legend-label"
+                    type="button"
+                    :aria-expanded="isLegendExpanded"
+                    @click="isLegendExpanded = !isLegendExpanded"
+                >
+                    Legend:
+                    <span class="legend-chevron" :class="{ 'is-collapsed': !isLegendExpanded }"
+                        >▾</span
+                    >
+                </button>
+                <template v-if="isLegendExpanded">
+                    <Legend class="legend-grid-area" />
+                    <PlatformLegend class="platform-legend-grid-area" />
+                </template>
+            </div>
             <CountryFundingPanelTable
                 v-if="grants.length"
                 :grants="grants"
@@ -182,8 +246,9 @@ const cssVars = computed(() => {
 
 <style>
 .legend-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.75rem;
     font-weight: 600;
-    margin-right: 4px;
 }
 
 .panel-content {
@@ -194,26 +259,77 @@ const cssVars = computed(() => {
     gap: 16px;
 }
 
+.legend-label {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 12px;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-align: left;
+}
+
+.legend-chevron {
+    display: inline-block;
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.legend-chevron.is-collapsed {
+    transform: rotate(-90deg);
+}
+
+.sub-header-wrapper {
+    display: grid;
+    grid-template-areas:
+        'environmental-impact environmental-impact'
+        'legend-label legend-label'
+        'legend platform-legend';
+    gap: 8px;
+}
+
+.sub-header-wrapper > .environmental-impact-panel {
+    grid-area: environmental-impact;
+}
+
+.sub-header-wrapper > .legend-label {
+    grid-area: legend-label;
+}
+
+.sub-header-wrapper > .legend-grid-area {
+    grid-area: legend;
+}
+
+.sub-header-wrapper > .platform-legend-grid-area {
+    grid-area: platform-legend;
+}
+
 .country-funding-panel {
+    container: country-funding-panel / inline-size;
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     box-sizing: border-box;
-    width: 380px;
-    max-width: none;
+    width: 375px;
     height: 100%;
     background: var(--sidebar-bg);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    padding: 10px;
     box-shadow: -8px 0 8px var(--panel-shadow);
-    color: var(--text);
+
     overflow: hidden;
     transition:
         width 0.35s ease-in-out,
         box-shadow 0.35s ease-in-out;
+}
+
+.country-funding-panel.is-resizing {
+    transition: box-shadow 0.35s ease-in-out;
 }
 
 .country-funding-panel.is-expanded {
@@ -262,6 +378,23 @@ const cssVars = computed(() => {
 }
 
 .close-button:hover {
+    background: var(--muted-light);
+}
+
+.resize-handle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    cursor: col-resize;
+    z-index: 20;
+}
+
+.resize-handle:hover {
     background: var(--muted-light);
 }
 </style>

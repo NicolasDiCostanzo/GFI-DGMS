@@ -14,12 +14,14 @@ defineProps<{
 
 <style scoped>
 .panel-footer {
-    font-size: 11px;
+    font-size: 10px;
     text-align: center;
+    color: var(--muted);
+    margin-top: auto;
 }
 
 .source-link {
-    color: var(--link);
+    color: var(--muted);
     text-decoration: underline;
     text-underline-offset: 2px;
 }

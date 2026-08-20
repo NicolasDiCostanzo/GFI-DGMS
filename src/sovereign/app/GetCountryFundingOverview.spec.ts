@@ -1,4 +1,4 @@
-import { CountryName } from '../domain/CountryFunding';
+import { CountryName } from '@/sovereign/domain/CountryFunding';
 import { describe, expect, it } from 'vitest';
 import { GetCountryFundingOverview } from './GetCountryFundingOverview';
 import {

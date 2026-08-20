@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CountryName } from '../../domain/CountryFunding';
-import grantsData from '../data/grants.json';
-import { GrantDataValidationError } from '../errors/GrantDataValidationError';
+import { CountryName } from '@/sovereign/domain/CountryFunding';
+import grantsData from '@/sovereign/infrastructure/data/grants.json';
+import { GrantDataValidationError } from '@/sovereign/infrastructure/errors/GrantDataValidationError';
 import {
     AirtableJsonCountryFundingRepository,
     loadGrantRecords,

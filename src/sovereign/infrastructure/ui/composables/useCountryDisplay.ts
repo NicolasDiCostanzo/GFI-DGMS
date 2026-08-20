@@ -1,9 +1,9 @@
 import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { computed, type Ref } from 'vue';
-import type { ThemeMode } from '../../../domain/constants/MapColors';
-import { calculateFundingColorThresholds } from '../utils/calculateFundingColorThresholds';
-import { formatInvestment } from '../utils/formatInvestment';
-import { getColorForFundingAmount } from '../utils/getColorForFundingAmount';
+import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { calculateFundingColorThresholds } from '@/sovereign/infrastructure/ui/utils/calculateFundingColorThresholds';
+import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment';
+import { getColorForFundingAmount } from '@/sovereign/infrastructure/ui/utils/getColorForFundingAmount';
 
 export function useCountryDisplay(
     countryFundings: Ref<readonly CountryFunding[]>,

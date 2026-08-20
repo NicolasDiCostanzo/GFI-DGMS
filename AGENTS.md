@@ -8,7 +8,7 @@ The GoodFoodInstitute ROI is a web component for visualizing and calculating reg
 
 ## Business Context & Scientific Foundation
 
-The system helps global advocacy teams at the Good Food Institute (GFI) engage with policymakers and treasury officials by providing an interactive map and dashboard interface. This interface simulates how public funding shifts into the alternative protein sector translate into tangible regional and national returns. 
+The system helps global advocacy teams at the Good Food Institute (GFI) engage with policymakers and treasury officials by providing an interactive map and dashboard interface. This interface simulates how public funding shifts into the alternative protein sector translate into tangible regional and national returns.
 
 The application core maps budget adjustments against localized economic growth, Gross Value Added (GVA), and environmental yields by 2040. To maintain absolute credibility with government ministries, the underlying simulation models are anchored strictly in peer-reviewed scientific, macroeconomic, and lifecycle assessment (LCA) data pools.
 
@@ -16,8 +16,8 @@ The application core maps budget adjustments against localized economic growth, 
 
 The internal domain service calculations and static database adapters are structured around the frameworks established in these core reports:
 
-1. **Economic & Job Projections:** Grounded in the *Systemiq & GFI Europe (2026)* macroeconomic impact study: *["Seizing the economic opportunity of alternative proteins in Europe"](https://www.systemiq.earth/wp-content/uploads/2026/01/Seizing-the-economic-opportunity-of-alternative-proteins-in-Europe-report.pdf)*. This research models employment returns, supply chain job creation, and industry value baselines under targeted public funding scenarios across primary European markets (including Germany, France, Spain, and Italy).
-2. **Environmental & Carbon Multipliers:** Sourced from the *CE Delft Ex-Ante Lifecycle Assessment (LCA)* framework: *["LCA of Cultivated Meat Report"](https://gfieurope.org/wp-content/uploads/2022/04/CE_Delft_190107_LCA_of_cultivated_meat_Def.pdf)*. This research provides the greenhouse gas footprint reduction baselines ($CO_2e$ offsets) achieved when diversified alternative proteins displace conventional livestock operations under regional energy grid conditions.
+1. **Economic & Job Projections:** Grounded in the _Systemiq & GFI Europe (2026)_ macroeconomic impact study: _["Seizing the economic opportunity of alternative proteins in Europe"](https://www.systemiq.earth/wp-content/uploads/2026/01/Seizing-the-economic-opportunity-of-alternative-proteins-in-Europe-report.pdf)_. This research models employment returns, supply chain job creation, and industry value baselines under targeted public funding scenarios across primary European markets (including Germany, France, Spain, and Italy).
+2. **Environmental & Carbon Multipliers:** Sourced from the _CE Delft Ex-Ante Lifecycle Assessment (LCA)_ framework: _["LCA of Cultivated Meat Report"](https://gfieurope.org/wp-content/uploads/2022/04/CE_Delft_190107_LCA_of_cultivated_meat_Def.pdf)_. This research provides the greenhouse gas footprint reduction baselines ($CO_2e$ offsets) achieved when diversified alternative proteins displace conventional livestock operations under regional energy grid conditions.
 
 When implementing or updating domain rules, ensure changes directly map to the verified dataset thresholds contained within these source publications.
 
@@ -65,12 +65,12 @@ Based on [Alistair Cockburn's Hexagonal Architecture](https://medium.com/ssense-
 
 These rules are enforced by `dependency-cruiser` (run `npm run depcruise`):
 
-| From Layer | Must NOT Import From | MAY Import From |
-|------------|---------------------|-----------------|
-| `src/<bounded-context>/domain/` | `src/<bounded-context>/infrastructure/`, `src/<bounded-context>/app/`, `vue` | `src/shared/` |
-| `src/<bounded-context>/app/` | `src/<bounded-context>/infrastructure/` | `src/<bounded-context>/domain/`, `src/shared/` |
-| `src/<bounded-context>/infrastructure/` | - | `src/<bounded-context>/domain/`, `src/<bounded-context>/app/`, `src/shared/` |
-| `src/shared/` | - | `src/shared/` (self) |
+| From Layer                              | Must NOT Import From                                                         | MAY Import From                                                              |
+| --------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `src/<bounded-context>/domain/`         | `src/<bounded-context>/infrastructure/`, `src/<bounded-context>/app/`, `vue` | `src/shared/`                                                                |
+| `src/<bounded-context>/app/`            | `src/<bounded-context>/infrastructure/`                                      | `src/<bounded-context>/domain/`, `src/shared/`                               |
+| `src/<bounded-context>/infrastructure/` | -                                                                            | `src/<bounded-context>/domain/`, `src/<bounded-context>/app/`, `src/shared/` |
+| `src/shared/`                           | -                                                                            | `src/shared/` (self)                                                         |
 
 ### Two Sides of the Architecture
 
@@ -101,19 +101,19 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 
 ## Tech Stack
 
-| Category | Technology | Version |
-|----------|------------|---------|
-| Framework | Vue | ^3.5.40 (peer) |
-| Language | TypeScript | ^5.9.3 |
-| Build | Vite | ^8.1.5 |
-| Visualization | d3-geo | ^3.1.1 |
-| Data | topojson-client, world-atlas | ^3.1.0, ^2.0.2 |
-| Testing | Vitest, vite-plugin-istanbul | ^4.1.10 |
-| E2E | Playwright | ^1.61.1 |
-| Coverage | nyc | ^18.0.0 |
-| Linting | ESLint | ^10.7.0 |
-| | @typescript-eslint/parser, @typescript-eslint/eslint-plugin | ^8.64.0 |
-| Formatting | Prettier | ^3.9.5 |
+| Category      | Technology                                                  | Version        |
+| ------------- | ----------------------------------------------------------- | -------------- |
+| Framework     | Vue                                                         | ^3.5.40 (peer) |
+| Language      | TypeScript                                                  | ^5.9.3         |
+| Build         | Vite                                                        | ^8.1.5         |
+| Visualization | d3-geo                                                      | ^3.1.1         |
+| Data          | topojson-client, world-atlas                                | ^3.1.0, ^2.0.2 |
+| Testing       | Vitest, vite-plugin-istanbul                                | ^4.1.10        |
+| E2E           | Playwright                                                  | ^1.61.1        |
+| Coverage      | nyc                                                         | ^18.0.0        |
+| Linting       | ESLint                                                      | ^10.7.0        |
+|               | @typescript-eslint/parser, @typescript-eslint/eslint-plugin | ^8.64.0        |
+| Formatting    | Prettier                                                    | ^3.9.5         |
 
 ## File Structure
 
@@ -121,35 +121,35 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 
 - **Purpose**: Pure business logic, no external dependencies
 - **Contents**:
-  - Domain entities (e.g., `Grant`, `CountryFunding`)
-  - Value objects (e.g., `GrantId`, `CountryName`)
-  - Domain errors (e.g., `DomainError`)
+    - Domain entities (e.g., `Grant`, `CountryFunding`)
+    - Value objects (e.g., `GrantId`, `CountryName`)
+    - Domain errors (e.g., `DomainError`)
 - **Rules**: No Vue, no infrastructure imports, no side effects
 
 ### `src/<bounded-context>/app/`
 
 - **Purpose**: Use case orchestration and application logic
 - **Contents**:
-  - `use-cases/` - Application use cases (e.g., `LoadGeoData`, `CalculateROI`)
-  - `services/` - Application services
-- **Rules**: Depends only on domain abstractions (ports), not infrastructure
+    - `use-cases/` - Application use cases (e.g., `LoadGeoData`, `CalculateROI`)
+    - `services/` - Application services
+- **Rules**: Depends on domain abstractions (ports) and `src/shared/`, not infrastructure
 
 ### `src/<bounded-context>/infrastructure/`
 
 - **Purpose**: Adapters, UI components, external integrations
 - **Contents**:
-  - `adapters/` - Port implementations (e.g., `GeoDataAdapter`)
-  - `ui/` - Vue components
-  - `api/` - External API clients
+    - `adapters/` - Port implementations (e.g., `GeoDataAdapter`)
+    - `ui/` - Vue components
+    - `api/` - External API clients
 - **Rules**: Can import from any inner layer
 
 ### `src/shared/`
 
 - **Purpose**: Shared utilities, types, and constants
 - **Contents**:
-  - `utils/` - Pure utility functions
-  - `types/` - Shared TypeScript types
-  - `constants/` - Application constants
+    - `utils/` - Pure utility functions
+    - `types/` - Shared TypeScript types
+    - `constants/` - Application constants
 
 ## Coding Standards
 
@@ -160,6 +160,7 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 - **Formatting**: Prettier with 4-space indentation, single quotes, trailing commas
 - **Test Coverage**: 100% required for lines, functions, branches, and statements
 - **Comments**: Default to none. Code must be self-explanatory through naming and structure. Only add a comment when there is no alternative to make the code clearer — e.g. a non-obvious constraint, a workaround for a specific bug, or a ceiling/limitation that isn't visible from the code itself.
+- **Small, Independent UI Components**: Vue components should be as small and focused as possible, each encapsulating a single responsibility. When a component grows beyond a single concern (e.g., a panel that renders multiple distinct visual blocks), extract reusable sub-components with their own props and tests rather than inlining markup. This keeps components independently testable and avoids coupling unrelated UI logic.
 
 ## Testing Requirements
 
@@ -201,28 +202,29 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 
 ## Common Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start Vite development server |
-| `npm run build` | Build library (TypeScript + Vite) |
-| `npm run preview` | Preview built library |
-| `npm run typecheck` | Run `vue-tsc` for type checking |
-| `npm run lint` | Run ESLint on source files |
-| `npm run format` | Format code with Prettier |
-| `npm run format:check` | Check code formatting |
-| `npm run depcruise` | Validate architecture dependencies |
-| `npm run check` | Run all checks (lint, format, typecheck, depcruise) |
-| `npm run test` | Run Vitest unit tests |
-| `npm run test:watch` | Run Vitest in watch mode |
-| `npm run test:coverage` | Run tests with coverage report |
-| `npm run test:e2e` | Run Playwright E2E tests |
+| Command                       | Description                                                                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run dev`                 | Start Vite development server                                                                                                              |
+| `npm run build`               | Build library (TypeScript + Vite)                                                                                                          |
+| `npm run preview`             | Preview built library                                                                                                                      |
+| `npm run typecheck`           | Run `vue-tsc` for type checking                                                                                                            |
+| `npm run lint`                | Run ESLint on source files                                                                                                                 |
+| `npm run format`              | Format code with Prettier                                                                                                                  |
+| `npm run format:check`        | Check code formatting                                                                                                                      |
+| `npm run depcruise`           | Validate architecture dependencies                                                                                                         |
+| `npm run check`               | Run all checks (lint, format, typecheck, depcruise)                                                                                        |
+| `npm run test`                | Run Vitest unit tests                                                                                                                      |
+| `npm run test:watch`          | Run Vitest in watch mode                                                                                                                   |
+| `npm run test:coverage`       | Run tests with coverage report                                                                                                             |
+| `npm run test:e2e`            | Run Playwright E2E tests                                                                                                                   |
 | `npm run test:coverage:merge` | Merge Vitest + Playwright coverage and enforce the 100% threshold on the union (requires `test:coverage` and `test:e2e` to have run first) |
-| `npm run test:coverage:all` | Full local chain: clean → `test:coverage` → `test:e2e` → `test:coverage:merge` |
-| `npm run check:size` | Verify the built ES bundle stays under the gzip size limit (default 120 kB) |
+| `npm run test:coverage:all`   | Full local chain: clean → `test:coverage` → `test:e2e` → `test:coverage:merge`                                                             |
+| `npm run check:size`          | Verify the built ES bundle stays under the gzip size limit (default 120 kB)                                                                |
 
 ## CI/CD Pipeline
 
 The GitHub Actions workflow (`.github/workflows/ci.yml`) runs these jobs on every push/PR to `main`:
+
 1. Lint check (`npm run lint`)
 2. Format check (`npm run format:check`)
 3. TypeScript type check (`npm run typecheck`)

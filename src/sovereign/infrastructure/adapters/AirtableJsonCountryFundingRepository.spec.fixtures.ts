@@ -1,4 +1,4 @@
-import { GrantDataValidationError } from '../errors/GrantDataValidationError';
+import { GrantDataValidationError } from '@/sovereign/infrastructure/errors/GrantDataValidationError';
 import type { GrantRecord } from './AirtableJsonCountryFundingRepository';
 
 export const BASE_RECORD: GrantRecord = {
