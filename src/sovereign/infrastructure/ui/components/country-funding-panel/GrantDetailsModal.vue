@@ -2,7 +2,7 @@
 import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { validateSourceUrl } from '@/sovereign/domain/services/validateSourceUrl';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useId, watch } from 'vue';
 
 const props = defineProps<{
     open: boolean;
@@ -16,6 +16,24 @@ const props = defineProps<{
 const emit = defineEmits<{
     close: [];
 }>();
+
+const previouslyFocused = ref<HTMLElement | null>(null);
+const dialogEl = ref<HTMLElement | null>(null);
+const dialogTitleId = useId();
+
+watch(
+    () => props.open,
+    (open) => {
+        if (open) {
+            previouslyFocused.value = document.activeElement as HTMLElement | null;
+            dialogEl.value?.focus();
+        } else {
+            previouslyFocused.value?.focus?.();
+            previouslyFocused.value = null;
+        }
+    },
+    { flush: 'post' },
+);
 
 const cssVars = computed(() => {
     const colors = getThemeColors(props.themeMode);
@@ -44,7 +62,15 @@ onUnmounted(() => window.removeEventListener('keydown', handleEscape));
 <template>
     <Teleport to="body">
         <div v-if="open" class="grant-modal-overlay" :style="cssVars" @click="emit('close')">
-            <div class="grant-modal" @click.stop>
+            <div
+                ref="dialogEl"
+                class="grant-modal"
+                role="dialog"
+                aria-modal="true"
+                tabindex="-1"
+                :aria-labelledby="dialogTitleId"
+                @click.stop
+            >
                 <button
                     class="grant-modal-close-button"
                     type="button"
@@ -53,7 +79,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleEscape));
                 >
                     ×
                 </button>
-                <h2 class="grant-modal-title">{{ title }}</h2>
+                <h2 :id="dialogTitleId" class="grant-modal-title">{{ title }}</h2>
                 <p class="grant-modal-funder">{{ funderName ?? 'Not specified' }}</p>
                 <p class="grant-modal-description">{{ description ?? 'Not specified' }}</p>
                 <a
