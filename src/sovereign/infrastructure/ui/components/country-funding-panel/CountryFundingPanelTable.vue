@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import type { Grant } from '@/sovereign/domain/Grant';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
@@ -6,7 +6,7 @@ import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/const
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
-import { computed, defineComponent, PropType, ref } from 'vue';
+import { computed, ref } from 'vue';
 import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import GrantDetailsModal from './GrantDetailsModal.vue';
 
@@ -24,148 +24,122 @@ const DEFAULT_COLUMN_ORDER = [
 ] as const;
 export type ColumnKey = (typeof DEFAULT_COLUMN_ORDER)[number];
 
-export default defineComponent({
-    components: {
-        CountryFundingPanelCard,
-        GrantDetailsModal,
-    },
-    props: {
-        grants: {
-            type: Array as PropType<ReadonlyArray<Grant>>,
-            required: true,
-        },
-        themeMode: {
-            type: String as PropType<ThemeMode>,
-            required: true,
-        },
-        columnOrder: {
-            type: Array as PropType<ReadonlyArray<ColumnKey>>,
-            required: false,
-            default: () => DEFAULT_COLUMN_ORDER,
-        },
-    },
-    setup(props) {
-        const selectedGrantId = ref<string | null>(null);
+const props = defineProps<{
+    grants: ReadonlyArray<Grant>;
+    themeMode: ThemeMode;
+    columnOrder?: ReadonlyArray<ColumnKey>;
+}>();
 
-        function isValidHttpUrl(value: string): boolean {
-            try {
-                const url = new URL(value);
-                return url.protocol === 'http:' || url.protocol === 'https:';
-            } catch {
-                return false;
-            }
-        }
+const selectedGrantId = ref<string | null>(null);
 
-        const grantsWithValidatedUrls = computed(() =>
-            props.grants.map((grant: Grant) => ({
-                grant,
-                sourceUrl:
-                    grant.sourceUrl !== null && isValidHttpUrl(grant.sourceUrl)
-                        ? grant.sourceUrl
-                        : null,
-            })),
-        );
+function isValidHttpUrl(value: string): boolean {
+    try {
+        const url = new URL(value);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
 
-        const enrichedGrants = computed(() =>
-            grantsWithValidatedUrls.value.map(({ grant, sourceUrl }) => ({
-                grant,
-                sourceUrl,
-                aim: getAimDisplay(grant.aim, props.themeMode),
-                instrument: getFundingInstrumentDisplay(grant.fundingInstrument, props.themeMode),
-                segments: getPlatformSegments(grant.productionPlatforms),
-            })),
-        );
+const grantsWithValidatedUrls = computed(() =>
+    props.grants.map((grant: Grant) => ({
+        grant,
+        sourceUrl:
+            grant.sourceUrl !== null && isValidHttpUrl(grant.sourceUrl) ? grant.sourceUrl : null,
+    })),
+);
 
-        function formatList(values: readonly string[]): string {
-            return values.length > 0 ? values.join(', ') : 'Not specified';
-        }
+const enrichedGrants = computed(() =>
+    grantsWithValidatedUrls.value.map(({ grant, sourceUrl }) => ({
+        grant,
+        sourceUrl,
+        aim: getAimDisplay(grant.aim, props.themeMode),
+        instrument: getFundingInstrumentDisplay(grant.fundingInstrument, props.themeMode),
+        segments: getPlatformSegments(grant.productionPlatforms),
+    })),
+);
 
-        const selectedGrant = computed(
-            () =>
-                enrichedGrants.value.find((row) => row.grant.id === selectedGrantId.value) ?? null,
-        );
+function formatList(values: readonly string[]): string {
+    return values.length > 0 ? values.join(', ') : 'Not specified';
+}
 
-        function openDetailsModal(grantId: string): void {
-            selectedGrantId.value = grantId;
-        }
+const selectedGrant = computed(
+    () => enrichedGrants.value.find((row) => row.grant.id === selectedGrantId.value) ?? null,
+);
 
-        function closeDetailsModal(): void {
-            selectedGrantId.value = null;
-        }
+function openDetailsModal(grantId: string): void {
+    selectedGrantId.value = grantId;
+}
 
-        const instrumentTextColor = computed(() => {
-            const colors = getThemeColors(props.themeMode);
-            const isDark = props.themeMode === 'dark' || props.themeMode === 'colorblind-dark';
-            return isDark ? colors.ON_LIGHT : colors.ON_ACCENT;
-        });
+function closeDetailsModal(): void {
+    selectedGrantId.value = null;
+}
 
-        const columnLabels: Record<ColumnKey, string> = {
-            projectTitle: 'Title',
-            recipients: 'Recipient(s)',
-            amountUsd: 'Funding estimate',
-            funderName: 'Funder name',
-            fundingInstrument: 'Funding instrument',
-            platform: 'Platform',
-            funderAgencies: 'Funder agency',
-            description: 'Description',
-            yearsDisbursed: 'Years disbursed',
-            url: 'URL',
-        };
+const instrumentTextColor = computed(() => {
+    const colors = getThemeColors(props.themeMode);
+    const isDark = props.themeMode === 'dark' || props.themeMode === 'colorblind-dark';
+    return isDark ? colors.ON_LIGHT : colors.ON_ACCENT;
+});
 
-        const columns = computed<ReadonlyArray<ColumnKey>>(() =>
-            props.columnOrder && props.columnOrder.length
-                ? (props.columnOrder as ReadonlyArray<ColumnKey>)
-                : DEFAULT_COLUMN_ORDER,
-        );
+const columnLabels: Record<ColumnKey, string> = {
+    projectTitle: 'Title',
+    recipients: 'Recipient(s)',
+    amountUsd: 'Funding estimate',
+    funderName: 'Funder name',
+    fundingInstrument: 'Funding instrument',
+    platform: 'Platform',
+    funderAgencies: 'Funder agency',
+    description: 'Description',
+    yearsDisbursed: 'Years disbursed',
+    url: 'URL',
+};
 
-        type EnrichedGrant = {
-            grant: Grant;
-            sourceUrl: string | null;
-            instrument: ReturnType<typeof getFundingInstrumentDisplay>;
-            segments: ReturnType<typeof getPlatformSegments>;
-        };
+const columns = computed<ReadonlyArray<ColumnKey>>(() =>
+    props.columnOrder && props.columnOrder.length
+        ? (props.columnOrder as ReadonlyArray<ColumnKey>)
+        : DEFAULT_COLUMN_ORDER,
+);
 
-        function getCellValue(column: ColumnKey, eg: EnrichedGrant): string {
-            const g = eg.grant;
-            switch (column) {
-                case 'projectTitle':
-                    return g.projectTitle ?? 'Not specified';
-                case 'recipients':
-                    return g.recipients ?? 'Not specified';
-                case 'amountUsd':
-                    return formatGrantAmount(g.amountUsd ?? null);
-                case 'funderName':
-                    return g.funderName ?? 'Not specified';
-                case 'funderAgencies':
-                    return formatList((g.funderAgencies ?? []) as readonly string[]);
-                case 'fundingInstrument':
-                    return String(g.fundingInstrument ?? 'Not specified');
-                case 'platform':
-                    return String(eg.segments ?? 'Not specified');
-                case 'yearsDisbursed':
-                    return String(g.yearsDisbursed ?? 'Not specified');
-                case 'description':
-                    return g.description ?? 'Not specified';
-                case 'url':
-                    return eg.sourceUrl ?? 'Not specified';
-                default:
-                    return 'Not specified';
-            }
-        }
+type EnrichedGrant = {
+    grant: Grant;
+    sourceUrl: string | null;
+    instrument: ReturnType<typeof getFundingInstrumentDisplay>;
+    segments: ReturnType<typeof getPlatformSegments>;
+};
 
-        return {
-            enrichedGrants,
-            formatGrantAmount,
-            formatList,
-            selectedGrant,
-            openDetailsModal,
-            closeDetailsModal,
-            columns,
-            columnLabels,
-            getCellValue,
-            instrumentTextColor,
-        };
-    },
+function getCellValue(column: ColumnKey, eg: EnrichedGrant): string {
+    const g = eg.grant;
+    switch (column) {
+        case 'projectTitle':
+            return g.projectTitle ?? 'Not specified';
+        case 'recipients':
+            return g.recipients ?? 'Not specified';
+        case 'amountUsd':
+            return formatGrantAmount(g.amountUsd ?? null);
+        case 'funderName':
+            return g.funderName ?? 'Not specified';
+        case 'funderAgencies':
+            return formatList((g.funderAgencies ?? []) as readonly string[]);
+        case 'fundingInstrument':
+            return String(g.fundingInstrument ?? 'Not specified');
+        case 'platform':
+            return String(eg.segments ?? 'Not specified');
+        case 'yearsDisbursed':
+            return String(g.yearsDisbursed ?? 'Not specified');
+        case 'description':
+            return g.description ?? 'Not specified';
+        case 'url':
+            return eg.sourceUrl ?? 'Not specified';
+        default:
+            return 'Not specified';
+    }
+}
+
+defineExpose({
+    enrichedGrants,
+    getCellValue,
+    columnLabels,
+    instrumentTextColor,
 });
 </script>
 
