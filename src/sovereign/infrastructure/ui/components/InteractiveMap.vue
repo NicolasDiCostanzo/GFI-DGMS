@@ -4,7 +4,7 @@ import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
-import { computed, toRef, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, ref, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
 import { MapColors, type ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { useCountryDisplay } from '@/sovereign/infrastructure/ui/composables/useCountryDisplay';
@@ -14,6 +14,7 @@ import { useMapZoom } from '@/sovereign/infrastructure/ui/composables/useMapZoom
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { calculateFundingColorThresholds } from '@/sovereign/infrastructure/ui/utils/calculateFundingColorThresholds';
 import { createFundingAmountLegendItems } from '@/sovereign/infrastructure/ui/utils/fundingAmountLegend';
+import { resolvePreserveAspectRatio } from '@/sovereign/infrastructure/ui/utils/resolvePreserveAspectRatio';
 
 const props = defineProps<{
     countryFundings: readonly CountryFunding[];
@@ -49,6 +50,32 @@ const pathGenerator = computed(() => geoPath(projection.value));
 
 const mapGroupRef = useTemplateRef<SVGGElement>('mapGroupRef');
 const svgRef = useTemplateRef<SVGSVGElement>('svgRef');
+const mapContainerRef = useTemplateRef<HTMLDivElement>('mapContainerRef');
+
+const containerAspectRatio = ref(SVG_WIDTH / SVG_HEIGHT);
+const preserveAspectRatio = computed(
+    () =>
+        `xMidYMid ${resolvePreserveAspectRatio(containerAspectRatio.value, SVG_WIDTH / SVG_HEIGHT)}`,
+);
+
+let resizeObserver: ResizeObserver | undefined;
+
+onMounted(() => {
+    if (!mapContainerRef.value) {
+        return;
+    }
+    resizeObserver = new ResizeObserver(([entry]) => {
+        const { width, height } = entry.contentRect;
+        if (height > 0) {
+            containerAspectRatio.value = width / height;
+        }
+    });
+    resizeObserver.observe(mapContainerRef.value);
+});
+
+onUnmounted(() => {
+    resizeObserver?.disconnect();
+});
 
 const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
 const { zoomState, mapTransform, isAnimated, zoomAtPoint, panTo } = useMapZoom();
@@ -121,10 +148,11 @@ function handleWheel(event: WheelEvent): void {
 </script>
 
 <template>
-    <div class="map-container">
+    <div ref="mapContainerRef" class="map-container">
         <svg
             ref="svgRef"
             :viewBox="`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`"
+            :preserveAspectRatio="preserveAspectRatio"
             width="100%"
             height="100%"
             xmlns="http://www.w3.org/2000/svg"
