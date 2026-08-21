@@ -237,7 +237,6 @@ defineExpose({
                                     v-for="segment in row.segments ?? []"
                                     :key="segment.label"
                                     class="platform-segment"
-                                    :class="{ 'is-active': segment.active }"
                                 >
                                     {{ segment.label }}
                                 </span>
@@ -428,12 +427,6 @@ defineExpose({
     color: var(--text);
     font-weight: 600;
     font-size: 0.68rem;
-}
-
-.platform-segment.is-active {
-    color: var(--text);
-    background-color: var(--accent);
-    border-color: var(--accent);
 }
 
 .description-cell {

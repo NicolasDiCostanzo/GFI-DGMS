@@ -7,12 +7,17 @@ describe('ProductionPlatformSegments', () => {
             expect(getPlatformSegments([])).toBeNull();
         });
 
-        it.each([['All'], ['Fermentation'], ['Cultivated'], ['Plant-based']])(
-            'returns the three segments with labels for a single platform %s',
-            (platform) => {
+        it.each([
+            ['All', ['PB', 'CM', 'FM']],
+            ['Fermentation', ['FM']],
+            ['Cultivated', ['CM']],
+            ['Plant-based', ['PB']],
+        ] as const)(
+            'returns only relevant segments for a single platform %s',
+            (platform, labels) => {
                 const segments = getPlatformSegments([platform]);
                 expect(segments).not.toBeNull();
-                expect(segments?.map((s) => s.label)).toEqual(['PB', 'CM', 'FM']);
+                expect(segments?.map((s) => s.label)).toEqual(labels);
             },
         );
 
@@ -22,49 +27,29 @@ describe('ProductionPlatformSegments', () => {
 
         it('activates only PB for plant-based values', () => {
             const segments = getPlatformSegments(['Plant-based']);
-            expect(segments?.map((s) => s.active)).toEqual([true, false, false]);
+            expect(segments?.map((s) => s.active)).toEqual([true]);
         });
 
         it('treats near-duplicate plant-based spellings as PB only', () => {
             for (const value of ['Plant-based', 'Plant-based meat']) {
-                expect(getPlatformSegments([value])?.map((s) => s.active)).toEqual([
-                    true,
-                    false,
-                    false,
-                ]);
+                expect(getPlatformSegments([value])?.map((s) => s.active)).toEqual([true]);
             }
         });
 
         it('activates only CM for cultivated', () => {
-            expect(getPlatformSegments(['Cultivated'])?.map((s) => s.active)).toEqual([
-                false,
-                true,
-                false,
-            ]);
+            expect(getPlatformSegments(['Cultivated'])?.map((s) => s.active)).toEqual([true]);
         });
 
         it('activates CM and FM for CM & FM', () => {
-            expect(getPlatformSegments(['CM & FM'])?.map((s) => s.active)).toEqual([
-                false,
-                true,
-                true,
-            ]);
+            expect(getPlatformSegments(['CM & FM'])?.map((s) => s.active)).toEqual([true, true]);
         });
 
         it('activates only FM for fermentation', () => {
-            expect(getPlatformSegments(['Fermentation'])?.map((s) => s.active)).toEqual([
-                false,
-                false,
-                true,
-            ]);
+            expect(getPlatformSegments(['Fermentation'])?.map((s) => s.active)).toEqual([true]);
         });
 
         it('activates PB and FM for PB & FM', () => {
-            expect(getPlatformSegments(['PB & FM'])?.map((s) => s.active)).toEqual([
-                true,
-                false,
-                true,
-            ]);
+            expect(getPlatformSegments(['PB & FM'])?.map((s) => s.active)).toEqual([true, true]);
         });
 
         it('activates all three segments for All', () => {
@@ -72,11 +57,7 @@ describe('ProductionPlatformSegments', () => {
         });
 
         it('activates PB and CM for PB & CM', () => {
-            expect(getPlatformSegments(['PB & CM'])?.map((s) => s.active)).toEqual([
-                true,
-                true,
-                false,
-            ]);
+            expect(getPlatformSegments(['PB & CM'])?.map((s) => s.active)).toEqual([true, true]);
         });
 
         it('merges multiple platform values into one segment set', () => {

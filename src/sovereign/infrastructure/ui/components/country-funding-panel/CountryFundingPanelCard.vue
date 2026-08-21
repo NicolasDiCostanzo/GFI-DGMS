@@ -44,12 +44,7 @@ const amountLabel = computed(() => formatGrantAmount(props.grant.amountUsd));
             >
                 {{ instrument.label }}
             </span>
-            <span
-                v-for="segment in segments ?? []"
-                :key="segment.label"
-                class="platform-segment"
-                :class="{ 'is-active': segment.active }"
-            >
+            <span v-for="segment in segments ?? []" :key="segment.label" class="platform-segment">
                 {{ segment.label }}
             </span>
         </div>
@@ -123,11 +118,6 @@ const amountLabel = computed(() => formatGrantAmount(props.grant.amountUsd));
     border: 1px solid var(--border);
     font-weight: 600;
     font-size: 0.68rem;
-}
-
-.platform-segment.is-active {
-    background-color: var(--accent);
-    border-color: var(--accent);
 }
 
 .grant-card-details-trigger {

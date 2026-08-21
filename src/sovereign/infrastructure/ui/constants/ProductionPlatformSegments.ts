@@ -42,8 +42,8 @@ export function getPlatformSegments(
     if (present.size === 0) {
         return null;
     }
-    return SEGMENTS.map((segment) => ({
+    return SEGMENTS.filter((segment) => present.has(segment.key)).map((segment) => ({
         label: segment.label,
-        active: present.has(segment.key),
+        active: true,
     }));
 }

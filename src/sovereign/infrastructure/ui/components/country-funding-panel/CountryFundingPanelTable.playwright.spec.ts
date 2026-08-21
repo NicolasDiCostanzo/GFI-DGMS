@@ -30,21 +30,15 @@ test.describe('CountryFundingPanelTable responsive layout', () => {
         await expect(page.locator('.grant-card-list')).toBeHidden();
     });
 
-    test('distinguishes active from inactive platform segments in the expanded table', async ({
-        page,
-    }) => {
+    test('shows only relevant platform segments with neutral styling', async ({ page }) => {
         await page.locator('.expand-button').click();
 
-        const active = page.locator('.grant-table .platform-segment.is-active').first();
-        const inactive = page.locator('.grant-table .platform-segment:not(.is-active)').first();
+        const segments = page.locator('.grant-table .platform-segment');
+        await expect(segments).not.toHaveClass(/is-active/);
 
-        const [activeBg, inactiveBg] = await Promise.all([
-            active.evaluate((el) => getComputedStyle(el).backgroundColor),
-            inactive.evaluate((el) => getComputedStyle(el).backgroundColor),
-        ]);
-
-        expect(activeBg).not.toBe('rgba(0, 0, 0, 0)');
-        expect(inactiveBg).toBe('rgba(0, 0, 0, 0)');
+        await expect(segments.first()).toHaveText('PB');
+        await expect(segments).toHaveCount(1);
+        await expect(segments.first()).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     });
 
     test('keeps every table row the same height regardless of content length', async ({ page }) => {
