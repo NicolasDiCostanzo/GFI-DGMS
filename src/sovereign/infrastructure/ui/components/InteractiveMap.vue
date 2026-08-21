@@ -66,7 +66,7 @@ onMounted(() => {
     }
     resizeObserver = new ResizeObserver(([entry]) => {
         const { width, height } = entry.contentRect;
-        if (height > 0) {
+        if (width > 0 && height > 0) {
             containerAspectRatio.value = width / height;
         }
     });
