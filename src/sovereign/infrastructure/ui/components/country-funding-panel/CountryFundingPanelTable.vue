@@ -80,6 +80,49 @@ const instrumentTextColor = computed(() => {
     const isDark = props.themeMode === 'dark' || props.themeMode === 'colorblind-dark';
     return isDark ? colors.ON_LIGHT : colors.ON_ACCENT;
 });
+const sortColumn = ref<ColumnKey | null>(null);
+const sortDirection = ref<'asc' | 'desc'>('asc');
+
+function handleSort(col: ColumnKey) {
+    if (col === 'url' || col === 'description' || col === 'platform') {
+        return;
+    }
+    if (sortColumn.value === col) {
+        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortColumn.value = col;
+        sortDirection.value = 'asc';
+    }
+}
+
+const sortedEnrichedGrants = computed(() => {
+    if (sortColumn.value === null) {
+        return enrichedGrants.value;
+    }
+    return enrichedGrants.value.slice().sort((a, b) => {
+        const col = sortColumn.value as ColumnKey;
+        const aVal = getCellValue(col, a);
+        const bVal = getCellValue(col, b);
+        if (col === 'amountUsd' || col === 'yearsDisbursed') {
+            const aNum = parseFloat(aVal.replace(/[^\d.-]/g, '') || '0');
+            const bNum = parseFloat(bVal.replace(/[^\d.-]/g, '') || '0');
+            return sortDirection.value === 'asc' ? aNum - bNum : bNum - aNum;
+        } else {
+            const aStr = aVal as string;
+            const bStr = bVal as string;
+            const normalize = (str: string) =>
+                str
+                    .replace(/^\[RETRACTED\]/, '')
+                    .replace(/[^a-zA-Z0-9]/g, '')
+                    .toLowerCase();
+            const aNorm = normalize(aStr);
+            const bNorm = normalize(bStr);
+            return sortDirection.value === 'asc'
+                ? aNorm.localeCompare(bNorm)
+                : bNorm.localeCompare(aNorm);
+        }
+    });
+});
 
 const columnLabels: Record<ColumnKey, string> = {
     projectTitle: 'Title',
@@ -149,12 +192,22 @@ defineExpose({
             <table class="grant-table">
                 <thead>
                     <tr>
-                        <th v-for="col in columns" :key="col">{{ columnLabels[col] ?? col }}</th>
+                        <th
+                            v-for="col in columns"
+                            :key="col"
+                            :class="{ sorted: col === sortColumn }"
+                            @click="handleSort(col)"
+                        >
+                            {{ columnLabels[col] ?? col }}
+                            <span v-if="col === sortColumn" class="sort-arrow">
+                                {{ sortDirection === 'asc' ? '▴' : '▾' }}
+                            </span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr
-                        v-for="row in enrichedGrants"
+                        v-for="row in sortedEnrichedGrants"
                         :key="row.grant.id"
                         class="grant-row grant-item"
                         :style="
@@ -431,5 +484,14 @@ defineExpose({
     .grant-card-list {
         display: flex;
     }
+}
+.sort-arrow {
+    font-size: 0.7rem;
+    margin-left: 2px;
+    cursor: default;
+}
+.sorted {
+    background-color: var(--bg-color);
+    border-bottom: 2px solid var(--accent);
 }
 </style>
