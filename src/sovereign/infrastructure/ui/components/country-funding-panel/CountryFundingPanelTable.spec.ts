@@ -259,4 +259,157 @@ describe('CountryFundingPanelTable', () => {
         expect(wrapper.text()).toContain('Custom Funder');
         expect(wrapper.text()).toContain('Custom Recipient');
     });
+
+    it.each([
+        {
+            name: 'single-year grants',
+            grants: [
+                makeGrant({ id: 'g-2025', projectTitle: 'Single 2025', yearsDisbursed: ['2025'] }),
+                makeGrant({ id: 'g-2024', projectTitle: 'Single 2024', yearsDisbursed: ['2024'] }),
+                makeGrant({ id: 'g-2026', projectTitle: 'Single 2026', yearsDisbursed: ['2026'] }),
+            ],
+        },
+        {
+            name: 'multi-year grants',
+            grants: [
+                makeGrant({
+                    id: 'g-multi-3',
+                    projectTitle: 'Ends 2023',
+                    yearsDisbursed: ['2020', '2021', '2022', '2023'],
+                }),
+                makeGrant({
+                    id: 'g-multi-5',
+                    projectTitle: 'Ends 2025',
+                    yearsDisbursed: ['2025', '2026'],
+                }),
+                makeGrant({
+                    id: 'g-multi-4',
+                    projectTitle: 'Ends 2024',
+                    yearsDisbursed: ['2022', '2024'],
+                }),
+            ],
+        },
+        {
+            name: 'mixed single- and multi-year grants',
+            grants: [
+                makeGrant({ id: 'g-2024', projectTitle: 'Single 2024', yearsDisbursed: ['2024'] }),
+                makeGrant({
+                    id: 'g-multi-2028',
+                    projectTitle: 'Ends 2028',
+                    yearsDisbursed: ['2026', '2027', '2028'],
+                }),
+                makeGrant({ id: 'g-2022', projectTitle: 'Single 2022', yearsDisbursed: ['2022'] }),
+            ],
+        },
+    ])('sorts yearsDisbursed ascending by the last year granted ($name)', async ({ grants }) => {
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: {
+                grants,
+                themeMode: 'light' as ThemeMode,
+                columnOrder: [
+                    'yearsDisbursed',
+                    'projectTitle',
+                ] as unknown as ReadonlyArray<ColumnKey>,
+            },
+        });
+
+        const yearsHeader = wrapper.findAll('thead th')[0];
+        await yearsHeader.trigger('click');
+
+        const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
+        const expectedTitles = grants
+            .slice()
+            .sort(
+                (a, b) =>
+                    Math.max(...a.yearsDisbursed.map(Number)) -
+                    Math.max(...b.yearsDisbursed.map(Number)),
+            )
+            .map((g) => g.projectTitle);
+        expect(rowTitles).toEqual(expectedTitles);
+    });
+
+    it.each([
+        {
+            name: 'single-year grants',
+            grants: [
+                makeGrant({ id: 'g-2026', projectTitle: 'Single 2026', yearsDisbursed: ['2026'] }),
+                makeGrant({ id: 'g-2024', projectTitle: 'Single 2024', yearsDisbursed: ['2024'] }),
+                makeGrant({ id: 'g-2025', projectTitle: 'Single 2025', yearsDisbursed: ['2025'] }),
+            ],
+        },
+        {
+            name: 'multi-year grants',
+            grants: [
+                makeGrant({
+                    id: 'g-multi-3',
+                    projectTitle: 'Ends 2023',
+                    yearsDisbursed: ['2020', '2021', '2022', '2023'],
+                }),
+                makeGrant({
+                    id: 'g-multi-5',
+                    projectTitle: 'Ends 2025',
+                    yearsDisbursed: ['2025', '2026'],
+                }),
+                makeGrant({
+                    id: 'g-multi-4',
+                    projectTitle: 'Ends 2024',
+                    yearsDisbursed: ['2022', '2024'],
+                }),
+            ],
+        },
+    ])('sorts yearsDisbursed descending by the last year granted ($name)', async ({ grants }) => {
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: {
+                grants,
+                themeMode: 'light' as ThemeMode,
+                columnOrder: [
+                    'yearsDisbursed',
+                    'projectTitle',
+                ] as unknown as ReadonlyArray<ColumnKey>,
+            },
+        });
+
+        const yearsHeader = wrapper.findAll('thead th')[0];
+        await yearsHeader.trigger('click');
+        await yearsHeader.trigger('click');
+
+        const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
+        const expectedTitles = grants
+            .slice()
+            .sort(
+                (a, b) =>
+                    Math.max(...b.yearsDisbursed.map(Number)) -
+                    Math.max(...a.yearsDisbursed.map(Number)),
+            )
+            .map((g) => g.projectTitle);
+        expect(rowTitles).toEqual(expectedTitles);
+    });
+
+    it('treats grants without yearsDisbursed as having no last year when sorting', async () => {
+        const grants = [
+            makeGrant({ id: 'g-no-years', projectTitle: 'No years', yearsDisbursed: [] }),
+            makeGrant({ id: 'g-2026', projectTitle: 'Ends 2026', yearsDisbursed: ['2026'] }),
+            makeGrant({
+                id: 'g-multi-2024',
+                projectTitle: 'Ends 2024',
+                yearsDisbursed: ['2022', '2023', '2024'],
+            }),
+        ];
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: {
+                grants,
+                themeMode: 'light' as ThemeMode,
+                columnOrder: [
+                    'yearsDisbursed',
+                    'projectTitle',
+                ] as unknown as ReadonlyArray<ColumnKey>,
+            },
+        });
+
+        const yearsHeader = wrapper.findAll('thead th')[0];
+        await yearsHeader.trigger('click');
+
+        const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
+        expect(rowTitles).toEqual(['No years', 'Ends 2024', 'Ends 2026']);
+    });
 });

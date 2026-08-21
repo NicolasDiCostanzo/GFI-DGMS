@@ -41,9 +41,9 @@ describe('CountryFundingPanelCard', () => {
     it('renders platform segments with active state', () => {
         const wrapper = mountCard({ productionPlatforms: ['Plant-based'] });
         const segments = wrapper.findAll('.platform-segment');
-        expect(segments.length).toBe(3);
-        const active = segments.filter((s) => s.classes().includes('is-active'));
-        expect(active.length).toBeGreaterThan(0);
+        expect(segments.length).toBe(1);
+        expect(segments[0].text()).toBe('PB');
+        expect(segments[0].classes()).not.toContain('is-active');
     });
 
     it('renders no platform segments when none are present', () => {

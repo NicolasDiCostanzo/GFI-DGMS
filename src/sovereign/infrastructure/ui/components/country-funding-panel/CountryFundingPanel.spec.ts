@@ -90,15 +90,13 @@ describe('CountryFundingPanel', () => {
             expect(row.find('.instrument-chip').text()).toBe('Business Grant');
         });
 
-        it('renders the production platform segments in PB, CM, FM order', () => {
+        it('renders only the relevant production platform segment', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
             const row = wrapper.findAll('.grant-item')[0];
             const segments = row.findAll('.platform-segment');
 
-            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+            expect(segments.map((s) => s.text())).toEqual(['CM']);
             expect(segments[0].classes()).not.toContain('is-active');
-            expect(segments[1].classes()).toContain('is-active');
-            expect(segments[2].classes()).not.toContain('is-active');
         });
 
         it('renders defaults for a grant with no disclosed fields', () => {
