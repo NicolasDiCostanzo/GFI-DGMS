@@ -90,21 +90,23 @@ onUnmounted(() => {
                     aria-label="Close details"
                     @click="emit('close')"
                 >
-                    ×
+                    ✕
                 </button>
                 <h2 :id="dialogTitleId" class="grant-modal-title">{{ title }}</h2>
-                <p class="grant-modal-funder">{{ funderName ?? 'Not specified' }}</p>
-                <p class="grant-modal-description">{{ description ?? 'Not specified' }}</p>
-                <a
-                    v-if="validatedSourceUrl"
-                    class="grant-modal-link"
-                    :href="validatedSourceUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    View announcement
-                </a>
-                <span v-else class="grant-modal-no-url">Not specified</span>
+                <div class="grant-modal-funder">{{ funderName ?? 'Not specified' }}</div>
+                <div class="grant-modal-description">{{ description ?? 'Not specified' }}</div>
+                <div class="grant-modal-footer">
+                    <a
+                        v-if="validatedSourceUrl"
+                        class="grant-modal-link"
+                        :href="validatedSourceUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View announcement →
+                    </a>
+                    <span v-else class="grant-modal-no-url">—</span>
+                </div>
             </div>
         </div>
     </Teleport>
@@ -118,68 +120,89 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
 }
 
 .grant-modal {
     position: relative;
-    max-width: 420px;
+    max-width: 440px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    background: var(--sidebar-bg);
-    color: var(--text);
-    border: 1px solid var(--border);
+    background-color: #1a1a1a;
+    color: #cccccc;
+    border: 1px solid #2a2a2a;
     border-radius: 8px;
-    padding: 24px;
-    box-shadow: 0 4px 24px var(--panel-shadow-strong);
+    padding: 1.25rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
 .grant-modal-close-button {
     position: absolute;
     top: 12px;
     right: 12px;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border: none;
     border-radius: 4px;
     background: transparent;
-    color: var(--text);
-    font-size: 18px;
-    line-height: 1;
+    color: #aaaaaa;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
 }
 
 .grant-modal-close-button:hover {
-    background: var(--muted-light);
+    background-color: #262626;
+    color: #ffffff;
 }
 
 .grant-modal-title {
-    margin: 0 32px 8px 0;
-    font-size: 16px;
+    margin: 0 28px 0.5rem 0;
+    font-size: 0.95rem;
     font-weight: 600;
+    color: #ffffff;
+    line-height: 1.3;
 }
 
 .grant-modal-funder {
-    margin: 0 0 12px 0;
+    margin-bottom: 0.85rem;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 0.78rem;
+    color: #aaaaaa;
 }
 
 .grant-modal-description {
-    margin: 0 0 16px 0;
-    font-size: 13px;
-    line-height: 1.5;
+    margin-bottom: 1rem;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: #cccccc;
+}
+
+.grant-modal-footer {
+    border-top: 1px solid #262626;
+    padding-top: 0.75rem;
 }
 
 .grant-modal-link {
     font-weight: 500;
-    font-size: 13px;
-    color: var(--link);
+    font-size: 0.75rem;
+    color: #1c92ff;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .grant-modal-no-url {
-    color: var(--text);
-    font-size: 13px;
+    color: #666666;
+    font-size: 0.75rem;
 }
 </style>

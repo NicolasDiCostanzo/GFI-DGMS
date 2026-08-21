@@ -90,7 +90,9 @@ describe('GrantDetailsModal', () => {
             const overlay = document.body.querySelector('.grant-modal-overlay');
             expect(overlay!.querySelectorAll('.grant-modal-link').length).toBe(0);
             expect(overlay!.querySelectorAll('.grant-modal-no-url').length).toBe(1);
-            expect(overlay!.textContent).toContain('Not specified');
+            expect(overlay!.textContent).toContain(
+                ' ✕ Solar Grid ExpansionGreen Energy FundFunding for renewable infrastructure upgrades.—',
+            );
         },
     );
 
