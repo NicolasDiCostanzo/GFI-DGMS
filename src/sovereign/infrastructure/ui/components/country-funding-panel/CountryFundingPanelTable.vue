@@ -95,32 +95,43 @@ function handleSort(col: ColumnKey) {
     }
 }
 
+function getLastDisbursedYear(grant: Grant): number {
+    const years = grant.yearsDisbursed
+        .map((year) => Number(year))
+        .filter((year) => Number.isFinite(year));
+    return years.length > 0 ? Math.max(...years) : 0;
+}
+
 const sortedEnrichedGrants = computed(() => {
     if (sortColumn.value === null) {
         return enrichedGrants.value;
     }
     return enrichedGrants.value.slice().sort((a, b) => {
         const col = sortColumn.value as ColumnKey;
+        if (col === 'yearsDisbursed') {
+            const aNum = getLastDisbursedYear(a.grant);
+            const bNum = getLastDisbursedYear(b.grant);
+            return sortDirection.value === 'asc' ? aNum - bNum : bNum - aNum;
+        }
         const aVal = getCellValue(col, a);
         const bVal = getCellValue(col, b);
-        if (col === 'amountUsd' || col === 'yearsDisbursed') {
+        if (col === 'amountUsd') {
             const aNum = parseFloat(aVal.replace(/[^\d.-]/g, '') || '0');
             const bNum = parseFloat(bVal.replace(/[^\d.-]/g, '') || '0');
             return sortDirection.value === 'asc' ? aNum - bNum : bNum - aNum;
-        } else {
-            const aStr = aVal as string;
-            const bStr = bVal as string;
-            const normalize = (str: string) =>
-                str
-                    .replace(/^\[RETRACTED\]/, '')
-                    .replace(/[^a-zA-Z0-9]/g, '')
-                    .toLowerCase();
-            const aNorm = normalize(aStr);
-            const bNorm = normalize(bStr);
-            return sortDirection.value === 'asc'
-                ? aNorm.localeCompare(bNorm)
-                : bNorm.localeCompare(aNorm);
         }
+        const aStr = aVal as string;
+        const bStr = bVal as string;
+        const normalize = (str: string) =>
+            str
+                .replace(/^\[RETRACTED\]/, '')
+                .replace(/[^a-zA-Z0-9]/g, '')
+                .toLowerCase();
+        const aNorm = normalize(aStr);
+        const bNorm = normalize(bStr);
+        return sortDirection.value === 'asc'
+            ? aNorm.localeCompare(bNorm)
+            : bNorm.localeCompare(aNorm);
     });
 });
 
