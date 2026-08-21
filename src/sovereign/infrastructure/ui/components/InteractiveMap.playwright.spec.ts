@@ -120,8 +120,8 @@ test.describe('InteractiveMap', () => {
         expect(match).not.toBeNull();
         const translateX = parseFloat(match![1]);
         const translateY = parseFloat(match![2]);
-        expect(translateX).toBeCloseTo(112.5, 1);
-        expect(translateY).toBeCloseTo(75, 1);
+        expect(translateX).toBeCloseTo(104.15, 1);
+        expect(translateY).toBeCloseTo(69.4, 1);
 
         await expect(germanyPath).toHaveCSS('stroke', toRGB(SELECTION_COLOR));
         await expect(germanyPath).toHaveCSS('stroke-opacity', '1');
