@@ -1,5 +1,5 @@
 export interface PlatformSegment {
-    readonly label: 'PB' | 'CM' | 'FM';
+    readonly label: 'Plant-based' | 'Cultivated' | 'Fermentation';
     readonly active: boolean;
 }
 
@@ -17,10 +17,13 @@ const PLATFORM_VALUES: Readonly<Record<string, readonly PlatformKey[]>> = {
     All: ['PB', 'CM', 'FM'],
 };
 
-const SEGMENTS: readonly { readonly key: PlatformKey; readonly label: 'PB' | 'CM' | 'FM' }[] = [
-    { key: 'PB', label: 'PB' },
-    { key: 'CM', label: 'CM' },
-    { key: 'FM', label: 'FM' },
+const SEGMENTS: readonly {
+    readonly key: PlatformKey;
+    readonly label: 'Plant-based' | 'Cultivated' | 'Fermentation';
+}[] = [
+    { key: 'PB', label: 'Plant-based' },
+    { key: 'CM', label: 'Cultivated' },
+    { key: 'FM', label: 'Fermentation' },
 ];
 
 export function getPlatformSegments(
