@@ -137,11 +137,12 @@ describe('useCompactView', () => {
 
         hasGrants.value = false;
         await nextTick();
+        expect(isCompact.value).toBe(false);
+        expect(disconnectSpy).toHaveBeenCalledTimes(1);
         expect(observers).toHaveLength(1);
 
         hasGrants.value = true;
         await nextTick();
-        expect(disconnectSpy).toHaveBeenCalledTimes(1);
         expect(observers).toHaveLength(2);
 
         observers[1].fire(COMPACT_VIEW_MAX_WIDTH + 1);

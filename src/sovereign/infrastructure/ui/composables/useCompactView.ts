@@ -15,7 +15,13 @@ export function useCompactView(
 
     function startObserving(): void {
         const container = containerRef.value;
-        if (!container || typeof ResizeObserver === 'undefined') {
+        if (!container) {
+            observer?.disconnect();
+            observer = null;
+            isCompact.value = false;
+            return;
+        }
+        if (typeof ResizeObserver === 'undefined') {
             return;
         }
         observer?.disconnect();
