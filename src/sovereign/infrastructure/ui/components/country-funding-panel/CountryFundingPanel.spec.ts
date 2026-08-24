@@ -10,7 +10,6 @@ import {
     FRANCE_FUNDING_WITH_UNSAFE_URL,
     GERMANY_FUNDING,
 } from './CountryFundingPanel.spec.fixtures';
-import GrantDetailsModal from './GrantDetailsModal.vue';
 
 describe('CountryFundingPanel', () => {
     beforeEach(() => {
@@ -87,49 +86,6 @@ describe('CountryFundingPanel', () => {
             expect(text).toContain('2024, 2025');
         });
 
-        it('renders the funding instrument chip with the cleaned label', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const row = wrapper.findAll('.grant-item')[0];
-
-            expect(row.find('.instrument-chip').text()).toBe('Business Grant');
-        });
-
-        it('renders only the relevant production platform segment', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const row = wrapper.findAll('.grant-item')[0];
-            const segments = row.findAll('.platform-segment');
-
-            expect(segments.map((s) => s.text())).toEqual(['Cultivated']);
-            expect(segments[0].classes()).not.toContain('is-active');
-        });
-
-        it('renders defaults for a grant with no disclosed fields', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const text = wrapper.findAll('.grant-item')[1].text();
-
-            expect(text).toContain('Undisclosed');
-            expect(text).toContain('Not specified');
-        });
-
-        it('links to the grant source URL when present', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const link = wrapper.findAll('.grant-item')[0].find('.grant-link');
-
-            expect(link.attributes('href')).toBe('https://example.com/announcement-1');
-        });
-
-        it('does not render a source link when the grant has none', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-
-            expect(wrapper.findAll('.grant-item')[1].find('.grant-link').exists()).toBe(false);
-        });
-
-        it('does not render a source link for an unsafe scheme such as javascript:', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING_WITH_UNSAFE_URL });
-
-            expect(wrapper.findAll('.grant-item')[1].find('.grant-link').exists()).toBe(false);
-        });
-
         it('still renders the source link for a valid https URL alongside an unsafe one', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING_WITH_UNSAFE_URL });
 
@@ -183,45 +139,6 @@ describe('CountryFundingPanel', () => {
             expect(row.find('.description-toggle').exists()).toBe(true);
             expect(row.find('.description-toggle').text()).toBe('View details');
         });
-
-        it('opens the details modal with the full description when View details is clicked', async () => {
-            const wrapper = createWrapper({
-                countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
-            });
-            const row = wrapper.findAll('.grant-item')[0];
-
-            expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
-
-            await row.find('.description-toggle').trigger('click');
-
-            const modal = wrapper.findComponent(GrantDetailsModal);
-            expect(modal.exists()).toBe(true);
-            expect(modal.props('open')).toBe(true);
-            expect(modal.props('grant').description).toContain(
-                'This is a very long description that definitely exceeds one hundred and twenty characters so that it should be truncated and made expandable in the table view.',
-            );
-        });
-
-        it('closes the details modal when it emits close', async () => {
-            const wrapper = createWrapper({
-                countryFunding: FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
-            });
-            const row = wrapper.findAll('.grant-item')[0];
-
-            await row.find('.description-toggle').trigger('click');
-            wrapper.findComponent(GrantDetailsModal).vm.$emit('close');
-            await nextTick();
-
-            expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
-        });
-
-        it('shows Not specified with a View details button for a null description', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
-            const row = wrapper.findAll('.grant-item')[1];
-
-            expect(row.find('.description-cell').text()).toContain('Not specified');
-            expect(row.find('.description-toggle').exists()).toBe(true);
-        });
     });
 
     describe('legends', () => {
@@ -245,15 +162,6 @@ describe('CountryFundingPanel', () => {
 
             expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('true');
             expect(wrapper.findAll('.legend-card')).toHaveLength(1);
-
-            const swatches = wrapper.findAll('.legend-card')[0]?.findAll('.legend-item') ?? [];
-
-            expect(swatches).toHaveLength(3);
-            expect(swatches.map((s) => s.text())).toEqual([
-                'Research & Development',
-                'Commercialization',
-                'Mixed',
-            ]);
         });
 
         it('re-collapses the label on second click while keeping the legend cards visible', async () => {

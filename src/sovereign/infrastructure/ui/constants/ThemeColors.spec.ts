@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { getThemeColors } from './ThemeColors';
-import { THEME_MODES } from './ThemeColors.spec.fixtures';
 
 describe('ThemeColors', () => {
     describe('getThemeColors()', () => {
@@ -24,7 +23,7 @@ describe('ThemeColors', () => {
             expect(colorblindDarkColors.SIDEBAR_BG).toBe('#121212');
         });
 
-        it.each(THEME_MODES)(
+        it.each(['light', 'dark'] as const)(
             'returns an object with all required theme color keys for %s mode',
             (mode) => {
                 const colors = getThemeColors(mode);

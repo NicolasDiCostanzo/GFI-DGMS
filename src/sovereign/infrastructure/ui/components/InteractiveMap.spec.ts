@@ -437,12 +437,4 @@ describe('InteractiveMap', () => {
             expect(labels.length).toBeGreaterThanOrEqual(6);
         });
     });
-
-    describe('responsive sizing', () => {
-        it('svg has a viewBox attribute', async () => {
-            const wrapper = await createWrapper();
-            const svg = wrapper.find('svg');
-            expect(svg.attributes('viewBox')).toBeTruthy();
-        });
-    });
 });

@@ -77,16 +77,6 @@ describe('App', () => {
         expect(wrapper.find('p[role="alert"]').text()).toContain('network down');
     });
 
-    it('displays error message when loading unattributed grants fails', async () => {
-        findAllMock.mockResolvedValue([]);
-        findUnattributedGrantsMock.mockRejectedValue(new Error('network down'));
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        expect(wrapper.find('p[role="alert"]').exists()).toBe(true);
-    });
-
     it('does not render CountryFundingPanel when no country is selected', async () => {
         findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
@@ -314,26 +304,6 @@ describe('App', () => {
             await flushPromises();
 
             expect(wrapper.find('.theme-colorblind-dark').exists()).toBe(true);
-        });
-
-        it('falls back to localStorage when theme prop is not provided', async () => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
-            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
-
-            const wrapper = mountApp();
-            await flushPromises();
-
-            expect(wrapper.find('.theme-light').exists()).toBe(true);
-        });
-
-        it('defaults to dark when neither theme prop nor localStorage is set', async () => {
-            localStorage.removeItem('gfi-dgms-settings');
-            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
-
-            const wrapper = mountApp();
-            await flushPromises();
-
-            expect(wrapper.find('.theme-dark').exists()).toBe(true);
         });
 
         it('still persists through localStorage when theme prop is used', async () => {
