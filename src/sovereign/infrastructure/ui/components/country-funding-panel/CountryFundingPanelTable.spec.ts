@@ -29,7 +29,7 @@ describe('CountryFundingPanelTable', () => {
     it('renders rows for grants and shows link for valid URL', () => {
         const g1 = makeGrant({ id: 'g1', sourceUrl: 'https://example.com', amountUsd: 2_000_000 });
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g1] },
+            props: { grants: [g1], isCompactView: false },
         });
 
         expect(wrapper.findAll('tbody tr').length).toBe(1);
@@ -41,7 +41,7 @@ describe('CountryFundingPanelTable', () => {
     it('shows no-url placeholder when sourceUrl is invalid', () => {
         const g = invalidUrlGrant;
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g] },
+            props: { grants: [g], isCompactView: false },
         });
 
         expect(wrapper.find('a.grant-link').exists()).toBe(false);
@@ -51,7 +51,7 @@ describe('CountryFundingPanelTable', () => {
     it('shows a View details button for long descriptions that opens the details modal', async () => {
         const g = longDescriptionGrant;
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g] },
+            props: { grants: [g], isCompactView: false },
         });
 
         const viewDetailsBtn = wrapper.find('button.description-toggle');
@@ -73,7 +73,7 @@ describe('CountryFundingPanelTable', () => {
     it('moves focus into the modal on open and restores it to the trigger on close', async () => {
         const g = longDescriptionGrant;
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g] },
+            props: { grants: [g], isCompactView: false },
             attachTo: document.body,
         });
 
@@ -97,7 +97,7 @@ describe('CountryFundingPanelTable', () => {
 
     it('always shows a View details button, even for a null description', () => {
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [basicGrant] },
+            props: { grants: [basicGrant], isCompactView: false },
         });
 
         expect(wrapper.find('button.description-toggle').exists()).toBe(true);
@@ -108,6 +108,7 @@ describe('CountryFundingPanelTable', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: {
                 grants: [g],
+                isCompactView: false,
                 columnOrder: ['projectTitle', 'url', 'amountUsd'],
             },
         });
@@ -124,6 +125,7 @@ describe('CountryFundingPanelTable', () => {
             const wrapper = mount(CountryFundingPanelTable, {
                 props: {
                     grants: multipleGrants,
+                    isCompactView: false,
                     columnOrder: order as unknown as ReadonlyArray<ColumnKey>,
                 },
             });
@@ -137,6 +139,7 @@ describe('CountryFundingPanelTable', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: {
                 grants: [basicGrant],
+                isCompactView: false,
                 columnOrder: ['nonexistentKey'] as unknown as ReadonlyArray<ColumnKey>,
             },
         });
@@ -148,7 +151,7 @@ describe('CountryFundingPanelTable', () => {
 
     it('getCellValue returns strings for all known column keys', () => {
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [basicGrant] },
+            props: { grants: [basicGrant], isCompactView: true },
         });
         const egList = wrapper.vm.enrichedGrants;
         expect(egList.length).toBeGreaterThan(0);
@@ -175,7 +178,7 @@ describe('CountryFundingPanelTable', () => {
 
     it('exposes columnLabels and includes amountUsd', () => {
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [basicGrant] },
+            props: { grants: [basicGrant], isCompactView: true },
         });
         const { columnLabels } = wrapper.vm;
         expect(columnLabels.amountUsd).toBe('Funding estimate');
@@ -188,7 +191,7 @@ describe('CountryFundingPanelTable', () => {
             setTheme(themeMode as ThemeMode);
             const g = makeGrant({ id: 'g-instrument', fundingInstrument: 'Research Grant' });
             const wrapper = mount(CountryFundingPanelTable, {
-                props: { grants: [g] },
+                props: { grants: [g], isCompactView: true },
             });
 
             const instrument = wrapper.find('.instrument-chip');
@@ -209,7 +212,7 @@ describe('CountryFundingPanelTable', () => {
             yearsDisbursed: ['2020', '2021'],
         });
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g] },
+            props: { grants: [g], isCompactView: false },
         });
         const row = wrapper.find('tbody tr');
         expect(row.exists()).toBe(true);
@@ -226,7 +229,7 @@ describe('CountryFundingPanelTable', () => {
     it('shows Not specified for empty funderAgencies and formats years disbursed', () => {
         const g = makeGrant({ id: 'g-empty', funderAgencies: [], yearsDisbursed: ['2019'] });
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g] },
+            props: { grants: [g], isCompactView: false },
         });
         const cells = wrapper.findAll('tbody td');
         const agenciesCell = cells.map((c) => c.text()).find((t) => t.includes('Not specified'));
@@ -255,7 +258,7 @@ describe('CountryFundingPanelTable', () => {
             productionPlatforms: ['Plant-based'],
         });
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g] },
+            props: { grants: [g], isCompactView: true },
         });
         await nextTick();
 
@@ -278,6 +281,7 @@ describe('CountryFundingPanelTable', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: {
                 grants: [customDefaultsGrant],
+                isCompactView: false,
                 columnOrder: ['funderName', 'recipients'] as unknown as ReadonlyArray<ColumnKey>,
             },
         });
@@ -330,6 +334,7 @@ describe('CountryFundingPanelTable', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: {
                 grants,
+                isCompactView: false,
                 columnOrder: [
                     'yearsDisbursed',
                     'projectTitle',
@@ -385,6 +390,7 @@ describe('CountryFundingPanelTable', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: {
                 grants,
+                isCompactView: false,
                 columnOrder: [
                     'yearsDisbursed',
                     'projectTitle',
@@ -421,6 +427,7 @@ describe('CountryFundingPanelTable', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: {
                 grants,
+                isCompactView: false,
                 columnOrder: [
                     'yearsDisbursed',
                     'projectTitle',
