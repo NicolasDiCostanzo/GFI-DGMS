@@ -36,7 +36,7 @@ test.describe('CountryFundingPanelTable responsive layout', () => {
         const segments = page.locator('.grant-table .platform-segment');
         await expect(segments).not.toHaveClass(/is-active/);
 
-        await expect(segments.first()).toHaveText('PB');
+        await expect(segments.first()).toHaveText('Plant-based');
         await expect(segments).toHaveCount(1);
         await expect(segments.first()).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     });

@@ -83,7 +83,7 @@ describe('CountryFundingPanel', () => {
             expect(text).toContain('Bpifrance and the European Commission');
             expect(text).toContain('Gourmey');
             expect(text).toContain('Funding to scale up bioreactor capacity.');
-            expect(text).toContain('CM');
+            expect(text).toContain('Cultivated');
             expect(text).toContain('2024, 2025');
         });
 
@@ -99,7 +99,7 @@ describe('CountryFundingPanel', () => {
             const row = wrapper.findAll('.grant-item')[0];
             const segments = row.findAll('.platform-segment');
 
-            expect(segments.map((s) => s.text())).toEqual(['CM']);
+            expect(segments.map((s) => s.text())).toEqual(['Cultivated']);
             expect(segments[0].classes()).not.toContain('is-active');
         });
 
@@ -244,10 +244,7 @@ describe('CountryFundingPanel', () => {
             await wrapper.find('.legend-label').trigger('click');
 
             expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('true');
-            expect(wrapper.findAll('.legend-card')).toHaveLength(2);
-            const segments = wrapper.findAll('.legend-card .badge');
-
-            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+            expect(wrapper.findAll('.legend-card')).toHaveLength(1);
 
             const swatches = wrapper.findAll('.legend-card')[0]?.findAll('.legend-item') ?? [];
 

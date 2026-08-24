@@ -11,7 +11,6 @@ import CountryHeader from './CountryHeader.vue';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
 import Legend from './Legend.vue';
 import PanelFooter from './PanelFooter.vue';
-import PlatformLegend from './PlatformLegend.vue';
 import ProjectionSection from './ProjectionSection.vue';
 
 const AIRTABLE_SOURCE_URL =
@@ -229,7 +228,6 @@ const panelClasses = computed(() => ({
                 </button>
                 <template v-if="isLegendExpanded">
                     <Legend class="legend-grid-area" />
-                    <PlatformLegend class="platform-legend-grid-area" />
                 </template>
             </div>
             <CountryFundingPanelTable
