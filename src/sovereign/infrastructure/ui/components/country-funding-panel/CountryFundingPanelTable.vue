@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import type { Grant } from '@/sovereign/domain/Grant';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
@@ -26,10 +26,11 @@ export type ColumnKey = (typeof DEFAULT_COLUMN_ORDER)[number];
 
 const props = defineProps<{
     grants: ReadonlyArray<Grant>;
-    themeMode: ThemeMode;
+
     columnOrder?: ReadonlyArray<ColumnKey>;
 }>();
 
+const { themeMode, isDark } = useTheme();
 const selectedGrantId = ref<string | null>(null);
 
 function isValidHttpUrl(value: string): boolean {
@@ -53,8 +54,8 @@ const enrichedGrants = computed(() =>
     grantsWithValidatedUrls.value.map(({ grant, sourceUrl }) => ({
         grant,
         sourceUrl,
-        aim: getAimDisplay(grant.aim, props.themeMode),
-        instrument: getFundingInstrumentDisplay(grant.fundingInstrument, props.themeMode),
+        aim: getAimDisplay(grant.aim, themeMode.value),
+        instrument: getFundingInstrumentDisplay(grant.fundingInstrument, themeMode.value),
         segments: getPlatformSegments(grant.productionPlatforms),
     })),
 );
@@ -76,9 +77,8 @@ function closeDetailsModal(): void {
 }
 
 const instrumentTextColor = computed(() => {
-    const colors = getThemeColors(props.themeMode);
-    const isDark = props.themeMode === 'dark' || props.themeMode === 'colorblind-dark';
-    return isDark ? colors.ON_LIGHT : colors.ON_ACCENT;
+    const colors = getThemeColors(themeMode.value);
+    return isDark.value ? colors.ON_LIGHT : colors.ON_ACCENT;
 });
 const sortColumn = ref<ColumnKey | null>(null);
 const sortDirection = ref<'asc' | 'desc'>('asc');
@@ -329,18 +329,14 @@ defineExpose({
                 :instrument="row.instrument"
                 :segments="row.segments"
                 :instrument-text-color="instrumentTextColor"
-                :theme-mode="themeMode"
                 @open-details="openDetailsModal(row.grant.id)"
             />
         </div>
         <GrantDetailsModal
             v-if="selectedGrant"
             :open="true"
-            :title="selectedGrant.grant.projectTitle ?? 'Untitled grant'"
-            :funder-name="selectedGrant.grant.funderName"
-            :description="selectedGrant.grant.description"
+            :grant="selectedGrant.grant"
             :source-url="selectedGrant.sourceUrl"
-            :theme-mode="themeMode"
             @close="closeDetailsModal"
         />
     </div>

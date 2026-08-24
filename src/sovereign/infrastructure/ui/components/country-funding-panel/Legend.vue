@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getAimLegend } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
+import { computed } from 'vue';
 
-const legend = getAimLegend('dark');
+const { themeMode } = useTheme();
+const legend = computed(() => getAimLegend(themeMode.value));
 </script>
 
 <template>

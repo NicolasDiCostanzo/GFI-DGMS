@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Grant } from '@/sovereign/domain/Grant';
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import type { AimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import type { FundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import type { PlatformSegment } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
@@ -14,7 +13,6 @@ const props = defineProps<{
     instrument: FundingInstrumentDisplay;
     segments: readonly PlatformSegment[] | null;
     instrumentTextColor: string;
-    themeMode: ThemeMode;
 }>();
 
 const emit = defineEmits<{
