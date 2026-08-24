@@ -2,7 +2,7 @@ import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { resetTheme, useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import {
@@ -20,6 +20,10 @@ import GrantDetailsModal from './GrantDetailsModal.vue';
 describe('CountryFundingPanelTable', () => {
     beforeEach(() => {
         resetTheme();
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
     });
 
     it('renders rows for grants and shows link for valid URL', () => {
@@ -268,8 +272,6 @@ describe('CountryFundingPanelTable', () => {
         expect(card.props('instrument')).toEqual(eg.instrument);
         expect(card.props('segments')).toEqual(eg.segments);
         expect(card.props('instrumentTextColor')).toBe(wrapper.vm.instrumentTextColor);
-
-        vi.unstubAllGlobals();
     });
 
     it('renders custom funderName and recipients overrides', () => {
