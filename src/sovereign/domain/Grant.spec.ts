@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { CountryName } from './CountryName';
 import { Grant, GrantId } from './Grant';
 
 describe('Grant', () => {
     const grant = new Grant(
         GrantId('recABC123'),
-        'France',
+        CountryName('France'),
         'Scaling cultivated foie gras production',
         5_000_000,
         ['Bpifrance', 'European Commission'],

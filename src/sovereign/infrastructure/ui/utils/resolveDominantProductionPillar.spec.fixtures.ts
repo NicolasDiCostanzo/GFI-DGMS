@@ -1,3 +1,4 @@
+import { CountryName } from '@/sovereign/domain/CountryName';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 
 let nextId = 1;
@@ -5,7 +6,7 @@ let nextId = 1;
 export function buildGrantWithPlatforms(productionPlatforms: string[]): Grant {
     return new Grant(
         GrantId(`rec${nextId++}`),
-        'France',
+        CountryName('France'),
         'Untitled grant',
         null,
         [],

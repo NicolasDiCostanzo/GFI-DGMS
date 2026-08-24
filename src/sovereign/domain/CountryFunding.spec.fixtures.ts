@@ -1,3 +1,4 @@
+import { CountryName } from './CountryName';
 import { Grant, GrantId } from './Grant';
 
 export function buildGrant(overrides: {
@@ -7,7 +8,7 @@ export function buildGrant(overrides: {
 }): Grant {
     return new Grant(
         GrantId(overrides.id),
-        overrides.country ?? 'France',
+        CountryName(overrides.country ?? 'France'),
         'Untitled grant',
         overrides.amountUsd,
         [],

@@ -67,7 +67,7 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
             const canonicalCountry = resolveCountryName(record.country);
             const grant = new Grant(
                 GrantId(record.id),
-                canonicalCountry ?? record.country ?? 'Unknown',
+                CountryName(canonicalCountry ?? record.country ?? 'Unknown'),
                 record.projectTitle,
                 record.fundingAmountUsd,
                 record.funderAgencies,

@@ -1,3 +1,4 @@
+import { CountryName } from '@/sovereign/domain/CountryName';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 import type { AimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import type { FundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
@@ -46,7 +47,7 @@ function withDefault<T>(value: T | undefined, fallback: T): T {
 export function makeGrantFor(overrides: GrantOverrides = {}): Grant {
     return new Grant(
         GrantId(withDefault(overrides.id, 'g-row')),
-        withDefault(overrides.country, 'DE'),
+        CountryName(withDefault(overrides.country, 'DE')),
         withDefault(overrides.projectTitle, 'Row project'),
         withDefault(overrides.amountUsd, 1_500_000),
         withDefault(overrides.funderAgencies, ['Agency A', 'Agency B']),
