@@ -54,4 +54,5 @@ export const PILLAR_CASES: ReadonlyArray<
         'Plant-based',
     ],
     ['an "All" value counting toward both pillars', [['All']], null],
+    ['an unrecognized production platform is ignored', [['Unknown platform']], null],
 ];

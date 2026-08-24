@@ -2,11 +2,11 @@ import type {
     EnrichedGrantRow,
     GrantTableColumn,
 } from '@/sovereign/infrastructure/ui/components/country-funding-panel/GrantTable.types';
-import { describe, expect, it } from 'vitest';
 import {
     makeEnrichedRow,
     makeGrantFor,
 } from '@/sovereign/infrastructure/ui/components/country-funding-panel/GrantTableRow.spec.fixtures';
+import { describe, expect, it } from 'vitest';
 import { sortGrantRows } from './sortGrantRows';
 
 const getProjectTitle = (_column: GrantTableColumn, row: EnrichedGrantRow): string =>
@@ -59,6 +59,26 @@ describe('sortGrantRows', () => {
         expect(sorted).toEqual([earlier, later]);
     });
 
+    it('reverses yearsDisbursed sorting when descending', () => {
+        const earlier = makeEnrichedRow({ grant: makeGrantFor({ yearsDisbursed: ['2021'] }) });
+        const later = makeEnrichedRow({
+            grant: makeGrantFor({ yearsDisbursed: ['2022', '2023'] }),
+        });
+
+        const sorted = sortGrantRows([earlier, later], 'yearsDisbursed', 'desc', () => 'unused');
+
+        expect(sorted).toEqual([later, earlier]);
+    });
+
+    it('treats empty disbursement year lists as zero when sorting', () => {
+        const empty = makeEnrichedRow({ grant: makeGrantFor({ yearsDisbursed: [] }) });
+        const later = makeEnrichedRow({ grant: makeGrantFor({ yearsDisbursed: ['2023'] }) });
+
+        const sorted = sortGrantRows([later, empty], 'yearsDisbursed', 'asc', () => 'unused');
+
+        expect(sorted).toEqual([empty, later]);
+    });
+
     it('reverses the order for the desc direction', () => {
         const disclosed = makeEnrichedRow({ grant: makeGrantFor({ amountUsd: 5_000_000 }) });
         const undisclosed = makeEnrichedRow({ grant: makeGrantFor({ amountUsd: null }) });
@@ -66,5 +86,17 @@ describe('sortGrantRows', () => {
         const sorted = sortGrantRows([undisclosed, disclosed], 'amountUsd', 'desc', () => 'unused');
 
         expect(sorted).toEqual([disclosed, undisclosed]);
+    });
+
+    it('reverses normalized string ordering when descending', () => {
+        const banana = makeEnrichedRow({ grant: makeGrantFor({ projectTitle: 'Banana project' }) });
+        const apple = makeEnrichedRow({ grant: makeGrantFor({ projectTitle: 'apple project' }) });
+
+        const sorted = sortGrantRows([banana, apple], 'projectTitle', 'desc', getProjectTitle);
+
+        expect(sorted.map((row) => row.grant.projectTitle)).toEqual([
+            'Banana project',
+            'apple project',
+        ]);
     });
 });
