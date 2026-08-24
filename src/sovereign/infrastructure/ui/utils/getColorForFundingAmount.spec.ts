@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MapColors } from '@/sovereign/domain/constants/MapColors';
+import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { getColorForFundingAmount } from './getColorForFundingAmount';
 
 const THRESHOLDS = [20, 40, 60, 80];

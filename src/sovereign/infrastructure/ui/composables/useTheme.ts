@@ -1,7 +1,7 @@
 import { SettingsParseError } from '@/shared/errors/SettingsParseError';
 import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { computed, ref } from 'vue';
 
 const STORAGE_KEY = 'gfi-dgms-settings';

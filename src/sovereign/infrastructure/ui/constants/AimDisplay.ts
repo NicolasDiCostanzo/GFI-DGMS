@@ -1,4 +1,4 @@
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { AIM_PALETTES } from './ThemeColors';
 
 export type Aim = keyof typeof AIM_PALETTES;

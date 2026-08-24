@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import { GetCountryFundingOverview } from '@/sovereign/app/GetCountryFundingOverview';
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { Grant } from '@/sovereign/domain/Grant';
 import {

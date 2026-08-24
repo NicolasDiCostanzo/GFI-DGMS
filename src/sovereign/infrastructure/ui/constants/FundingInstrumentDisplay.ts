@@ -1,4 +1,4 @@
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { INSTRUMENT_FAMILY_COLORS } from './ThemeColors';
 
 export interface FundingInstrumentDisplay {

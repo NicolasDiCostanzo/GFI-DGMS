@@ -6,7 +6,7 @@ import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import { computed, onMounted, onUnmounted, ref, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
-import { MapColors } from '@/sovereign/domain/constants/MapColors';
+import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { useCountryDisplay } from '@/sovereign/infrastructure/ui/composables/useCountryDisplay';
 import { useMapDrag } from '@/sovereign/infrastructure/ui/composables/useMapDrag';
 import { useMapTooltip } from '@/sovereign/infrastructure/ui/composables/useMapTooltip';
