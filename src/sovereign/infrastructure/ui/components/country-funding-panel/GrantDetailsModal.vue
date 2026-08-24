@@ -159,7 +159,7 @@ onUnmounted(() => {
                             </template>
 
                             <template v-else-if="row.key === 'platform'">
-                                <div class="platform-container">
+                                <div v-if="platformSegments?.length" class="platform-container">
                                     <span
                                         v-for="segment in platformSegments"
                                         :key="segment.label"
@@ -169,6 +169,7 @@ onUnmounted(() => {
                                         {{ segment.label }}
                                     </span>
                                 </div>
+                                <span v-else>Not specified</span>
                             </template>
 
                             <template v-else>
