@@ -2,7 +2,8 @@ import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { resetTheme, useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import {
     basicGrant,
@@ -19,6 +20,10 @@ import GrantDetailsModal from './GrantDetailsModal.vue';
 describe('CountryFundingPanelTable', () => {
     beforeEach(() => {
         resetTheme();
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
     });
 
     it('renders rows for grants and shows link for valid URL', () => {
@@ -113,17 +118,20 @@ describe('CountryFundingPanelTable', () => {
         expect(headers[2]).toBe('Funding estimate');
     });
 
-    it.each(sampleColumnOrders)('renders headers for sample column order %s', (order) => {
-        const wrapper = mount(CountryFundingPanelTable, {
-            props: {
-                grants: multipleGrants,
-                columnOrder: order as unknown as ReadonlyArray<ColumnKey>,
-            },
-        });
-        const headers = wrapper.findAll('thead th').map((h) => h.text());
-        expect(headers.length).toBe(order.length);
-        expect(headers[0].length).toBeGreaterThan(0);
-    });
+    it.each(sampleColumnOrders.map((order) => [order] as const))(
+        'renders headers for sample column order %s',
+        (order) => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: {
+                    grants: multipleGrants,
+                    columnOrder: order as unknown as ReadonlyArray<ColumnKey>,
+                },
+            });
+            const headers = wrapper.findAll('thead th').map((h) => h.text());
+            expect(headers.length).toBe(order.length);
+            expect(headers[0].length).toBeGreaterThan(0);
+        },
+    );
 
     it('renders fallback cell for unknown column keys', () => {
         const wrapper = mount(CountryFundingPanelTable, {
@@ -226,7 +234,20 @@ describe('CountryFundingPanelTable', () => {
         expect(wrapper.text()).toContain('2019');
     });
 
-    it('renders a compact card per grant alongside the table, with matching props', () => {
+    it('renders compact cards instead of the table when the view is narrow', async () => {
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                constructor(
+                    private callback: (entries: Array<{ contentRect: { width: number } }>) => void,
+                ) {}
+                observe(): void {
+                    this.callback([{ contentRect: { width: 400 } }]);
+                }
+                disconnect(): void {}
+                unobserve(): void {}
+            },
+        );
         const g = makeGrant({
             id: 'g-card',
             aim: 'Research & Development',
@@ -236,6 +257,9 @@ describe('CountryFundingPanelTable', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: { grants: [g] },
         });
+        await nextTick();
+
+        expect(wrapper.find('.table-scroll-container').exists()).toBe(false);
 
         const cards = wrapper.findAllComponents(CountryFundingPanelCard);
         expect(cards).toHaveLength(1);
