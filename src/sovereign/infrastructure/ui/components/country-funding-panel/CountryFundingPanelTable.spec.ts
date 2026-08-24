@@ -113,17 +113,20 @@ describe('CountryFundingPanelTable', () => {
         expect(headers[2]).toBe('Funding estimate');
     });
 
-    it.each(sampleColumnOrders)('renders headers for sample column order %s', (order) => {
-        const wrapper = mount(CountryFundingPanelTable, {
-            props: {
-                grants: multipleGrants,
-                columnOrder: order as unknown as ReadonlyArray<ColumnKey>,
-            },
-        });
-        const headers = wrapper.findAll('thead th').map((h) => h.text());
-        expect(headers.length).toBe(order.length);
-        expect(headers[0].length).toBeGreaterThan(0);
-    });
+    it.each(sampleColumnOrders.map((order) => [order] as const))(
+        'renders headers for sample column order %s',
+        (order) => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: {
+                    grants: multipleGrants,
+                    columnOrder: order as unknown as ReadonlyArray<ColumnKey>,
+                },
+            });
+            const headers = wrapper.findAll('thead th').map((h) => h.text());
+            expect(headers.length).toBe(order.length);
+            expect(headers[0].length).toBeGreaterThan(0);
+        },
+    );
 
     it('renders fallback cell for unknown column keys', () => {
         const wrapper = mount(CountryFundingPanelTable, {
