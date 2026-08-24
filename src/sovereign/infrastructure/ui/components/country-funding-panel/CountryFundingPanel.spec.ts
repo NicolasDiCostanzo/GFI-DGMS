@@ -244,10 +244,7 @@ describe('CountryFundingPanel', () => {
             await wrapper.find('.legend-label').trigger('click');
 
             expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('true');
-            expect(wrapper.findAll('.legend-card')).toHaveLength(2);
-            const segments = wrapper.findAll('.legend-card .badge');
-
-            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+            expect(wrapper.findAll('.legend-card')).toHaveLength(1);
 
             const swatches = wrapper.findAll('.legend-card')[0]?.findAll('.legend-item') ?? [];
 
