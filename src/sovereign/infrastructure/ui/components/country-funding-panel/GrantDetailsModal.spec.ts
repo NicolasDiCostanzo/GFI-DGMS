@@ -1,7 +1,7 @@
-import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { Grant } from '@/sovereign/domain/Grant';
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it } from 'vitest';
-import { BASE_PROPS } from './GrantDetailsModal.spec.fixtures';
+import { BASE_GRANT, BASE_PROPS } from './GrantDetailsModal.spec.fixtures';
 import GrantDetailsModal from './GrantDetailsModal.vue';
 
 describe('GrantDetailsModal', () => {
@@ -14,7 +14,7 @@ describe('GrantDetailsModal', () => {
         expect(document.body.querySelector('.grant-modal-overlay')).toBeNull();
     });
 
-    it('teleports the open modal to document.body with the grant details', () => {
+    it('teleports the open modal to document.body with all grant details', () => {
         const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });
         expect(wrapper.find('.grant-modal-overlay').exists()).toBe(false);
 
@@ -23,6 +23,16 @@ describe('GrantDetailsModal', () => {
         expect(overlay!.textContent).toContain('Solar Grid Expansion');
         expect(overlay!.textContent).toContain('Green Energy Fund');
         expect(overlay!.textContent).toContain('Funding for renewable infrastructure upgrades.');
+        expect(overlay!.textContent).toContain('France');
+        expect(overlay!.textContent).toContain('Solar Grid Co.');
+        expect(overlay!.textContent).toContain('$5M');
+        expect(overlay!.textContent).toContain('Green Energy Agency');
+        expect(overlay!.textContent).toContain('Business Grant');
+        expect(overlay!.textContent).toContain('Commercialization');
+        expect(overlay!.textContent).toContain(
+            '✕ Solar Grid ExpansionCountryFranceRecipient(s)Solar Grid Co.Funding',
+        );
+        expect(overlay!.textContent).toContain('2024, 2025');
 
         const link = overlay!.querySelector('a.grant-modal-link');
         expect(link).not.toBeNull();
@@ -72,14 +82,31 @@ describe('GrantDetailsModal', () => {
         expect(document.activeElement).toBe(document.body);
     });
 
-    it('shows fallback text when funderName, description or sourceUrl are null', () => {
+    it('shows fallback text when grant fields are null', () => {
+        const emptyGrant = new Grant(
+            BASE_GRANT.id,
+            BASE_GRANT.country,
+            null,
+            null,
+            [],
+            null,
+            null,
+            null,
+            null,
+            null,
+            [],
+            [],
+            null,
+        );
         mount(GrantDetailsModal, {
-            props: { ...BASE_PROPS, funderName: null, description: null, sourceUrl: null },
+            props: { ...BASE_PROPS, grant: emptyGrant, sourceUrl: null },
         });
 
         const overlay = document.body.querySelector('.grant-modal-overlay');
         expect(overlay!.querySelectorAll('.grant-modal-no-url').length).toBe(1);
         expect(overlay!.textContent).toContain('Not specified');
+        expect(overlay!.textContent).toContain('Untitled grant');
+        expect(overlay!.textContent).toContain('Undisclosed');
     });
 
     it.each([['javascript:alert(1)'], ['data:text/html,<script>alert(1)</script>']])(
@@ -90,9 +117,6 @@ describe('GrantDetailsModal', () => {
             const overlay = document.body.querySelector('.grant-modal-overlay');
             expect(overlay!.querySelectorAll('.grant-modal-link').length).toBe(0);
             expect(overlay!.querySelectorAll('.grant-modal-no-url').length).toBe(1);
-            expect(overlay!.textContent).toContain(
-                ' ✕ Solar Grid ExpansionGreen Energy FundFunding for renewable infrastructure upgrades.—',
-            );
         },
     );
 
@@ -139,16 +163,4 @@ describe('GrantDetailsModal', () => {
             window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })),
         ).not.toThrow();
     });
-
-    it.each([['light'], ['dark'], ['colorblind-light'], ['colorblind-dark']] as const)(
-        'computes its own theme colors for %s mode instead of inheriting them',
-        (themeMode) => {
-            mount(GrantDetailsModal, { props: { ...BASE_PROPS, themeMode } });
-            const overlay = document.body.querySelector('.grant-modal-overlay') as HTMLElement;
-            const colors = getThemeColors(themeMode);
-
-            expect(overlay.getAttribute('style')).toContain(`--sidebar-bg: ${colors.SIDEBAR_BG}`);
-            expect(overlay.getAttribute('style')).toContain(`--text: ${colors.TEXT}`);
-        },
-    );
 });

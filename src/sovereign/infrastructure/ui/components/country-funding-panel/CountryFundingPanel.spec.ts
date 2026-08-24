@@ -189,7 +189,7 @@ describe('CountryFundingPanel', () => {
             const modal = wrapper.findComponent(GrantDetailsModal);
             expect(modal.exists()).toBe(true);
             expect(modal.props('open')).toBe(true);
-            expect(modal.props('description')).toContain(
+            expect(modal.props('grant').description).toContain(
                 'This is a very long description that definitely exceeds one hundred and twenty characters so that it should be truncated and made expandable in the table view.',
             );
         });

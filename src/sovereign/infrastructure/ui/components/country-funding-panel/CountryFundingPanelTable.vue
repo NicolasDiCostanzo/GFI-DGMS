@@ -336,9 +336,7 @@ defineExpose({
         <GrantDetailsModal
             v-if="selectedGrant"
             :open="true"
-            :title="selectedGrant.grant.projectTitle ?? 'Untitled grant'"
-            :funder-name="selectedGrant.grant.funderName"
-            :description="selectedGrant.grant.description"
+            :grant="selectedGrant.grant"
             :source-url="selectedGrant.sourceUrl"
             :theme-mode="themeMode"
             @close="closeDetailsModal"

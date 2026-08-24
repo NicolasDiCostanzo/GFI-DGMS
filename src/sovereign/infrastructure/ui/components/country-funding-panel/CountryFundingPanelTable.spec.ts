@@ -54,8 +54,7 @@ describe('CountryFundingPanelTable', () => {
         const modal = wrapper.findComponent(GrantDetailsModal);
         expect(modal.exists()).toBe(true);
         expect(modal.props('open')).toBe(true);
-        expect(modal.props('description')).toBe(g.description);
-        expect(modal.props('funderName')).toBe(g.funderName);
+        expect(modal.props('grant')).toEqual(g);
 
         await modal.vm.$emit('close');
         expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
