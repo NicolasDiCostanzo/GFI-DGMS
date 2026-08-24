@@ -8,6 +8,7 @@ import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
 import CountryFundingPanel from './sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
 import InteractiveMap from './sovereign/infrastructure/ui/components/InteractiveMap.vue';
+import { resetTheme } from './sovereign/infrastructure/ui/composables/useTheme';
 
 const findAllMock = vi.fn<() => Promise<CountryFunding[]>>();
 const findUnattributedGrantsMock = vi.fn<() => Promise<readonly Grant[]>>();
@@ -51,6 +52,7 @@ describe('App', () => {
         findAllMock.mockReset();
         findUnattributedGrantsMock.mockReset();
         findUnattributedGrantsMock.mockResolvedValue([]);
+        resetTheme();
     });
 
     it('loads country fundings and passes them down to the map and the EU dial', async () => {
@@ -376,39 +378,6 @@ describe('App', () => {
 
             expect(wrapper.find('.theme-dark').exists()).toBe(false);
             expect(wrapper.find('.theme-light').exists()).toBe(true);
-        });
-
-        it('passes theme mode to CountryFundingPanel', async () => {
-            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
-
-            const wrapper = mountApp({
-                props: { theme: 'light' },
-            });
-            await flushPromises();
-
-            wrapper.findComponent(InteractiveMap).vm.$emit('country-select', 'Germany');
-            await flushPromises();
-
-            expect(wrapper.findComponent(CountryFundingPanel).props('themeMode')).toBe('light');
-        });
-
-        it('updates CountryFundingPanel theme when theme prop changes', async () => {
-            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
-
-            const wrapper = mountApp({
-                props: { theme: 'dark' },
-            });
-            await flushPromises();
-
-            wrapper.findComponent(InteractiveMap).vm.$emit('country-select', 'Germany');
-            await flushPromises();
-            const panel = wrapper.findComponent(CountryFundingPanel);
-            expect(panel.props('themeMode')).toBe('dark');
-
-            await wrapper.setProps({ theme: 'light' });
-            await flushPromises();
-
-            expect(panel.props('themeMode')).toBe('light');
         });
 
         it('applies theme CSS variables to the app container', async () => {

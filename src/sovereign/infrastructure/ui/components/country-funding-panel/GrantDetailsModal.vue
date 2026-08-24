@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import type { Grant } from '@/sovereign/domain/Grant';
 import { validateSourceUrl } from '@/sovereign/domain/services/validateSourceUrl';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
 import { computed, onMounted, onUnmounted, ref, useId, watch } from 'vue';
@@ -13,12 +13,13 @@ const props = defineProps<{
     open: boolean;
     grant: Grant;
     sourceUrl: string | null;
-    themeMode: ThemeMode;
 }>();
 
 const emit = defineEmits<{
     close: [];
 }>();
+
+const { themeMode, isDark } = useTheme();
 
 const previouslyFocused = ref<HTMLElement | null>(null);
 const dialogEl = ref<HTMLElement | null>(null);
@@ -42,20 +43,19 @@ const title = computed(() => props.grant.projectTitle ?? 'Untitled grant');
 const validatedSourceUrl = computed(() => validateSourceUrl(props.sourceUrl));
 const amountLabel = computed(() => formatGrantAmount(props.grant.amountUsd));
 
-const aimDisplay = computed(() => getAimDisplay(props.grant.aim, props.themeMode));
+const aimDisplay = computed(() => getAimDisplay(props.grant.aim, themeMode.value));
 const instrumentDisplay = computed(() =>
-    getFundingInstrumentDisplay(props.grant.fundingInstrument, props.themeMode),
+    getFundingInstrumentDisplay(props.grant.fundingInstrument, themeMode.value),
 );
 const platformSegments = computed(() => getPlatformSegments(props.grant.productionPlatforms));
 
 const instrumentTextColor = computed(() => {
-    const colors = getThemeColors(props.themeMode);
-    const isDark = props.themeMode === 'dark' || props.themeMode === 'colorblind-dark';
-    return isDark ? colors.ON_LIGHT : colors.ON_ACCENT;
+    const colors = getThemeColors(themeMode.value);
+    return isDark.value ? colors.ON_LIGHT : colors.ON_ACCENT;
 });
 
 const themeVariables = computed(() => {
-    const colors = getThemeColors(props.themeMode);
+    const colors = getThemeColors(themeMode.value);
     return {
         '--background-color': colors.OCEAN,
         '--text-color': colors.TEXT,

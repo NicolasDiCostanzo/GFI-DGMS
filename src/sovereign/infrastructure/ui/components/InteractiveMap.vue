@@ -6,11 +6,12 @@ import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import { computed, onMounted, onUnmounted, ref, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
-import { MapColors, type ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { MapColors } from '@/sovereign/domain/constants/MapColors';
 import { useCountryDisplay } from '@/sovereign/infrastructure/ui/composables/useCountryDisplay';
 import { useMapDrag } from '@/sovereign/infrastructure/ui/composables/useMapDrag';
 import { useMapTooltip } from '@/sovereign/infrastructure/ui/composables/useMapTooltip';
 import { useMapZoom } from '@/sovereign/infrastructure/ui/composables/useMapZoom';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { calculateFundingColorThresholds } from '@/sovereign/infrastructure/ui/utils/calculateFundingColorThresholds';
 import { createFundingAmountLegendItems } from '@/sovereign/infrastructure/ui/utils/fundingAmountLegend';
@@ -19,12 +20,13 @@ import { resolvePreserveAspectRatio } from '@/sovereign/infrastructure/ui/utils/
 const props = defineProps<{
     countryFundings: readonly CountryFunding[];
     selectedCountryName: string | null;
-    themeMode: ThemeMode;
 }>();
 
 const emit = defineEmits<{
     'country-select': [countryName: string | null];
 }>();
+
+const { themeMode } = useTheme();
 
 const SVG_WIDTH = 960;
 const SVG_HEIGHT = 500;
@@ -81,15 +83,14 @@ const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
 const { zoomState, mapTransform, isAnimated, zoomAtPoint, panTo } = useMapZoom();
 const { getCountryFill, getCountryAriaLabel, getTooltipText, hasCountryData } = useCountryDisplay(
     toRef(props, 'countryFundings'),
-    toRef(props, 'themeMode'),
 );
 
-const themeColors = computed(() => getThemeColors(props.themeMode));
+const themeColors = computed(() => getThemeColors(themeMode.value));
 const legendItems = computed(() => {
     const thresholds = calculateFundingColorThresholds(
         props.countryFundings.map((funding) => funding.totalAmountUsd),
     );
-    return createFundingAmountLegendItems(thresholds, props.themeMode);
+    return createFundingAmountLegendItems(thresholds, themeMode.value);
 });
 
 const { isDragging, handleDragStart, didDragOccur, resetDidDrag } = useMapDrag(

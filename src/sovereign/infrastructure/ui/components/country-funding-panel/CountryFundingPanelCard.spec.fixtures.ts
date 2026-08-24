@@ -1,5 +1,4 @@
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
@@ -7,7 +6,7 @@ import { mount } from '@vue/test-utils';
 import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import { makeGrant } from './CountryFundingPanelTable.fixtures';
 
-export const THEME_MODE: ThemeMode = 'light';
+export const THEME_MODE = 'light' as const;
 
 export const NULL_FIELDS_GRANT = new Grant(
     GrantId('g-null'),
@@ -34,7 +33,6 @@ export function mountCardWithGrant(grant: Grant) {
             instrument: getFundingInstrumentDisplay(grant.fundingInstrument, THEME_MODE),
             segments: getPlatformSegments(grant.productionPlatforms),
             instrumentTextColor: '#fff',
-            themeMode: THEME_MODE,
         },
     });
 }

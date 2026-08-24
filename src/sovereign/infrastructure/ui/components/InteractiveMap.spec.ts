@@ -30,7 +30,6 @@ async function createWrapper(
     options: {
         countryFundings?: readonly CountryFunding[];
         selectedCountryName?: string | null;
-        themeMode?: 'light' | 'dark' | 'colorblind-light' | 'colorblind-dark';
     } = {},
 ) {
     const defaults = createWrapperDefaults();
@@ -40,7 +39,6 @@ async function createWrapper(
         props: {
             countryFundings: props.countryFundings,
             selectedCountryName: props.selectedCountryName,
-            themeMode: props.themeMode,
         },
     });
 }

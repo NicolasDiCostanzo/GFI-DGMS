@@ -26,6 +26,5 @@ export function createWrapperDefaults() {
     return {
         countryFundings: [GERMANY_FUNDING],
         selectedCountryName: null as string | null,
-        themeMode: 'dark' as const,
     };
 }

@@ -1,4 +1,3 @@
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 
 export const BASE_GRANT = new Grant(
@@ -21,5 +20,4 @@ export const BASE_PROPS = {
     open: true,
     grant: BASE_GRANT,
     sourceUrl: 'https://example.com/grant',
-    themeMode: 'light' as ThemeMode,
 };
