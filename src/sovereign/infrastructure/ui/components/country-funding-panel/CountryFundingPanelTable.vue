@@ -182,7 +182,7 @@ defineExpose({
     <div v-if="grants.length" ref="viewEl" class="table-card">
         <div v-if="isCompactView" class="grant-card-list" aria-label="Funding grants cards">
             <CountryFundingPanelCard
-                v-for="row in enrichedGrants"
+                v-for="row in sortedEnrichedGrants"
                 :key="row.grant.id"
                 :grant="row.grant"
                 :source-url="row.sourceUrl"
