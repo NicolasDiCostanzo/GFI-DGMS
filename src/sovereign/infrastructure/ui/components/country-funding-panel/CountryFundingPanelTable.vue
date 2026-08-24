@@ -7,6 +7,7 @@ import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/const
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
+import { validateSourceUrl } from '@/sovereign/infrastructure/ui/utils/validateSourceUrl';
 import { computed, ref } from 'vue';
 import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import GrantDetailsModal from './GrantDetailsModal.vue';
@@ -27,20 +28,10 @@ const props = defineProps<{
 const { themeMode, isDark } = useTheme();
 const selectedGrantId = ref<string | null>(null);
 
-function isValidHttpUrl(value: string): boolean {
-    try {
-        const url = new URL(value);
-        return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch {
-        return false;
-    }
-}
-
 const grantsWithValidatedUrls = computed(() =>
     props.grants.map((grant: Grant) => ({
         grant,
-        sourceUrl:
-            grant.sourceUrl !== null && isValidHttpUrl(grant.sourceUrl) ? grant.sourceUrl : null,
+        sourceUrl: validateSourceUrl(grant.sourceUrl),
     })),
 );
 

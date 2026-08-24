@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Grant } from '@/sovereign/domain/Grant';
-import { validateSourceUrl } from '@/sovereign/domain/services/validateSourceUrl';
+import { validateSourceUrl } from '@/sovereign/infrastructure/ui/utils/validateSourceUrl';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
