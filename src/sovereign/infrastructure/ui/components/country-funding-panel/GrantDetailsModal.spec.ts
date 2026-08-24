@@ -1,10 +1,16 @@
 import { Grant } from '@/sovereign/domain/Grant';
+import { resetTheme, useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { BASE_GRANT, BASE_PROPS } from './GrantDetailsModal.spec.fixtures';
 import GrantDetailsModal from './GrantDetailsModal.vue';
 
 describe('GrantDetailsModal', () => {
+    beforeEach(() => {
+        resetTheme();
+    });
+
     afterEach(() => {
         document.body.innerHTML = '';
     });
@@ -124,6 +130,21 @@ describe('GrantDetailsModal', () => {
             expect(overlay.findAll('.grant-modal-no-url')).toHaveLength(1);
         },
     );
+
+    it.each([
+        ['dark', true],
+        ['light', false],
+    ] as const)('uses the %s theme text color on the instrument chip', (mode, dark) => {
+        const { setTheme } = useTheme();
+        setTheme(mode);
+        const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });
+
+        const colors = getThemeColors(mode);
+        const expected = dark ? colors.ON_LIGHT : colors.ON_ACCENT;
+        expect(wrapper.find('.instrument-chip').attributes('style')).toContain(
+            `color: ${expected}`,
+        );
+    });
 
     it('emits close when the backdrop is clicked', async () => {
         const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });

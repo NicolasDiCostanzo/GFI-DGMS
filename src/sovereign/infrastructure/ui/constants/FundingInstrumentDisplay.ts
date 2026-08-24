@@ -7,15 +7,6 @@ export interface FundingInstrumentDisplay {
     readonly color: string;
 }
 
-const FAMILY_ORDER: readonly (keyof typeof INSTRUMENT_FAMILY_COLORS)[] = [
-    'Research',
-    'Business',
-    'Debt',
-    'Equity',
-    'Infrastructure',
-    'Other',
-];
-
 const INSTRUMENT_ENTRIES: Readonly<
     Record<
         string,
@@ -73,17 +64,4 @@ export function getFundingInstrumentDisplay(
         ? INSTRUMENT_FAMILY_COLORS[family].dark
         : INSTRUMENT_FAMILY_COLORS[family].light;
     return { family, label, color };
-}
-
-export function getFundingInstrumentLegend(
-    themeMode: ThemeMode,
-): readonly FundingInstrumentDisplay[] {
-    const dark = isDarkTheme(themeMode);
-    return FAMILY_ORDER.map((family) => ({
-        family,
-        label: family,
-        color: dark
-            ? INSTRUMENT_FAMILY_COLORS[family].dark
-            : INSTRUMENT_FAMILY_COLORS[family].light,
-    }));
 }

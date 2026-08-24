@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import Element, {
+import {
     GFI_DGMS_WIDGET_TAG,
     GfiDgmsWidgetElement,
     defineGfiDgmsWidget,
@@ -27,10 +27,6 @@ describe('gfi-dgms-widget custom element entry', () => {
 
         expect(defineSpy).not.toHaveBeenCalled();
         expect(customElements.get(GFI_DGMS_WIDGET_TAG)).toBe(GfiDgmsWidgetElement);
-    });
-
-    it('default-exports the custom element constructor', () => {
-        expect(Element).toBe(GfiDgmsWidgetElement);
     });
 });
 

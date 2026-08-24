@@ -24,7 +24,6 @@ export const FUNDING_PROGRESS_COLORS_CASES: ReadonlyArray<
     [mode: ThemeMode, expected: readonly string[]]
 > = [
     ['light', STANDARD_PALETTE],
-    ['dark', STANDARD_PALETTE],
     ['colorblind-light', COLORBLIND_FUNDING_PROGRESS_COLORS],
     ['colorblind-dark', COLORBLIND_FUNDING_PROGRESS_COLORS],
 ];

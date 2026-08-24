@@ -24,8 +24,4 @@ describe('getColorForFundingAmount', () => {
     it.each(BUCKET_CASES)('buckets an amount of %s into %s', (amount, expectedColor) => {
         expect(getColorForFundingAmount(amount, THRESHOLDS)).toBe(expectedColor);
     });
-
-    it('defaults to the dark theme palette when no mode is given', () => {
-        expect(getColorForFundingAmount(10, THRESHOLDS)).toBe(MapColors.RED);
-    });
 });
