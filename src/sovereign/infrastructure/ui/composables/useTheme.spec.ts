@@ -66,20 +66,15 @@ describe('useTheme', () => {
         expect(themeMode.value).toBe('dark');
     });
 
-    it('isDark is true for dark and colorblind-dark', () => {
+    it.each([
+        ['dark', true],
+        ['colorblind-dark', true],
+        ['light', false],
+        ['colorblind-light', false],
+    ] as const)('isDark is %s for %s', (mode, expected) => {
         const { isDark, setTheme } = useTheme();
-        setTheme('dark');
-        expect(isDark.value).toBe(true);
-        setTheme('colorblind-dark');
-        expect(isDark.value).toBe(true);
-    });
-
-    it('isDark is false for light and colorblind-light', () => {
-        const { isDark, setTheme } = useTheme();
-        setTheme('light');
-        expect(isDark.value).toBe(false);
-        setTheme('colorblind-light');
-        expect(isDark.value).toBe(false);
+        setTheme(mode);
+        expect(isDark.value).toBe(expected);
     });
 
     it('throws SettingsParseError when localStorage contains invalid JSON', () => {
