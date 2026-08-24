@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
 import { usePanelResize } from '@/sovereign/infrastructure/ui/composables/usePanelResize';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors.ts';
 import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment.ts';
 import { computed, ref } from 'vue';
@@ -11,7 +11,6 @@ import CountryHeader from './CountryHeader.vue';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
 import Legend from './Legend.vue';
 import PanelFooter from './PanelFooter.vue';
-import PlatformLegend from './PlatformLegend.vue';
 import ProjectionSection from './ProjectionSection.vue';
 
 const AIRTABLE_SOURCE_URL =
@@ -31,17 +30,17 @@ const COUNTRY_2040_PROJECTIONS: Readonly<Record<string, Country2040Projection>> 
 const props = withDefaults(
     defineProps<{
         countryFunding?: CountryFunding | null;
-        themeMode?: ThemeMode;
     }>(),
     {
         countryFunding: null,
-        themeMode: 'dark',
     },
 );
 
 const emit = defineEmits<{
     close: [];
 }>();
+
+const { themeMode } = useTheme();
 
 const isExpanded = ref(false);
 const isLegendExpanded = ref(false);
@@ -75,7 +74,7 @@ const tableColumnOrder = [
 ] as const;
 
 const cssVars = computed(() => {
-    const colors = getThemeColors(props.themeMode!);
+    const colors = getThemeColors(themeMode.value);
     return {
         '--text': colors.TEXT,
         '--link': colors.LINK,
@@ -229,13 +228,11 @@ const panelClasses = computed(() => ({
                 </button>
                 <template v-if="isLegendExpanded">
                     <Legend class="legend-grid-area" />
-                    <PlatformLegend class="platform-legend-grid-area" />
                 </template>
             </div>
             <CountryFundingPanelTable
                 v-if="grants.length"
                 :grants="grants"
-                :theme-mode="props.themeMode"
                 :column-order="tableColumnOrder"
             />
 

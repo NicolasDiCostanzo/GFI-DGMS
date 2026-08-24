@@ -42,7 +42,7 @@ describe('CountryFundingPanelCard', () => {
         const wrapper = mountCard({ productionPlatforms: ['Plant-based'] });
         const segments = wrapper.findAll('.platform-segment');
         expect(segments.length).toBe(1);
-        expect(segments[0].text()).toBe('PB');
+        expect(segments[0].text()).toBe('Plant-based');
         expect(segments[0].classes()).not.toContain('is-active');
     });
 

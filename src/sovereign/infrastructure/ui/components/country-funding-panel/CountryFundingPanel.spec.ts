@@ -1,6 +1,7 @@
 import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { AIM_PALETTES, getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import {
     createWrapper,
@@ -12,6 +13,9 @@ import {
 import GrantDetailsModal from './GrantDetailsModal.vue';
 
 describe('CountryFundingPanel', () => {
+    beforeEach(() => {
+        useTheme().resetTheme();
+    });
     describe('with no countryFunding', () => {
         it('renders an empty country name and no grants', () => {
             const wrapper = createWrapper();
@@ -79,7 +83,7 @@ describe('CountryFundingPanel', () => {
             expect(text).toContain('Bpifrance and the European Commission');
             expect(text).toContain('Gourmey');
             expect(text).toContain('Funding to scale up bioreactor capacity.');
-            expect(text).toContain('CM');
+            expect(text).toContain('Cultivated');
             expect(text).toContain('2024, 2025');
         });
 
@@ -95,7 +99,7 @@ describe('CountryFundingPanel', () => {
             const row = wrapper.findAll('.grant-item')[0];
             const segments = row.findAll('.platform-segment');
 
-            expect(segments.map((s) => s.text())).toEqual(['CM']);
+            expect(segments.map((s) => s.text())).toEqual(['Cultivated']);
             expect(segments[0].classes()).not.toContain('is-active');
         });
 
@@ -137,7 +141,9 @@ describe('CountryFundingPanel', () => {
 
     describe('aim row tinting', () => {
         it('tints the row with the light aim palette in light mode', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode: 'light' });
+            const { setTheme } = useTheme();
+            setTheme('light');
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
             const row = wrapper.findAll('.grant-item')[0];
             const style = row.attributes('style') ?? '';
             const expected = AIM_PALETTES['Commercialization'].light;
@@ -146,7 +152,9 @@ describe('CountryFundingPanel', () => {
         });
 
         it('tints the row with the dark aim palette in dark mode', () => {
-            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode: 'dark' });
+            const { setTheme } = useTheme();
+            setTheme('dark');
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
             const row = wrapper.findAll('.grant-item')[0];
             const style = row.attributes('style') ?? '';
             const expected = AIM_PALETTES['Commercialization'].dark;
@@ -189,7 +197,7 @@ describe('CountryFundingPanel', () => {
             const modal = wrapper.findComponent(GrantDetailsModal);
             expect(modal.exists()).toBe(true);
             expect(modal.props('open')).toBe(true);
-            expect(modal.props('description')).toContain(
+            expect(modal.props('grant').description).toContain(
                 'This is a very long description that definitely exceeds one hundred and twenty characters so that it should be truncated and made expandable in the table view.',
             );
         });
@@ -236,10 +244,7 @@ describe('CountryFundingPanel', () => {
             await wrapper.find('.legend-label').trigger('click');
 
             expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('true');
-            expect(wrapper.findAll('.legend-card')).toHaveLength(2);
-            const segments = wrapper.findAll('.legend-card .badge');
-
-            expect(segments.map((s) => s.text())).toEqual(['PB', 'CM', 'FM']);
+            expect(wrapper.findAll('.legend-card')).toHaveLength(1);
 
             const swatches = wrapper.findAll('.legend-card')[0]?.findAll('.legend-item') ?? [];
 
@@ -419,7 +424,9 @@ describe('CountryFundingPanel', () => {
         it.each([['dark'], ['colorblind-dark'], ['light'], ['colorblind-light']] as const)(
             'still applies theme colors when expanded in %s mode',
             async (themeMode) => {
-                const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode });
+                const { setTheme } = useTheme();
+                setTheme(themeMode as ThemeMode);
+                const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
                 await wrapper.find('.expand-button').trigger('click');
                 const style = wrapper.find('.country-funding-panel').attributes('style');
                 const colors = getThemeColors(themeMode as ThemeMode);
@@ -442,7 +449,9 @@ describe('CountryFundingPanel', () => {
         it.each([['dark'], ['colorblind-dark'], ['light'], ['colorblind-light']] as const)(
             'sets --text and --link for the %s theme',
             (themeMode) => {
-                const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING, themeMode });
+                const { setTheme } = useTheme();
+                setTheme(themeMode as ThemeMode);
+                const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
                 const style = wrapper.find('.country-funding-panel').attributes('style');
 
                 const colors = getThemeColors(themeMode as ThemeMode);
