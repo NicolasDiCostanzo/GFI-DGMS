@@ -7,6 +7,8 @@ import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/const
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
+import { formatList } from '@/sovereign/infrastructure/ui/utils/formatList';
+import { sortGrantRows } from '@/sovereign/infrastructure/ui/utils/sortGrantRows';
 import { validateSourceUrl } from '@/sovereign/infrastructure/ui/utils/validateSourceUrl';
 import { computed, ref } from 'vue';
 import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
@@ -45,10 +47,6 @@ const enrichedGrants = computed(() =>
     })),
 );
 
-function formatList(values: readonly string[]): string {
-    return values.length > 0 ? values.join(', ') : 'Not specified';
-}
-
 const selectedGrant = computed(
     () => enrichedGrants.value.find((row) => row.grant.id === selectedGrantId.value) ?? null,
 );
@@ -80,44 +78,11 @@ function handleSort(col: ColumnKey) {
     }
 }
 
-function getLastDisbursedYear(grant: Grant): number {
-    const years = grant.yearsDisbursed
-        .map((year) => Number(year))
-        .filter((year) => Number.isFinite(year));
-    return years.length > 0 ? Math.max(...years) : 0;
-}
-
 const sortedEnrichedGrants = computed(() => {
     if (sortColumn.value === null) {
         return enrichedGrants.value;
     }
-    return enrichedGrants.value.slice().sort((a, b) => {
-        const col = sortColumn.value as ColumnKey;
-        if (col === 'yearsDisbursed') {
-            const aNum = getLastDisbursedYear(a.grant);
-            const bNum = getLastDisbursedYear(b.grant);
-            return sortDirection.value === 'asc' ? aNum - bNum : bNum - aNum;
-        }
-        const aVal = getCellValue(col, a);
-        const bVal = getCellValue(col, b);
-        if (col === 'amountUsd') {
-            const aNum = parseFloat(aVal.replace(/[^\d.-]/g, '') || '0');
-            const bNum = parseFloat(bVal.replace(/[^\d.-]/g, '') || '0');
-            return sortDirection.value === 'asc' ? aNum - bNum : bNum - aNum;
-        }
-        const aStr = aVal as string;
-        const bStr = bVal as string;
-        const normalize = (str: string) =>
-            str
-                .replace(/^\[RETRACTED\]/, '')
-                .replace(/[^a-zA-Z0-9]/g, '')
-                .toLowerCase();
-        const aNorm = normalize(aStr);
-        const bNorm = normalize(bStr);
-        return sortDirection.value === 'asc'
-            ? aNorm.localeCompare(bNorm)
-            : bNorm.localeCompare(aNorm);
-    });
+    return sortGrantRows(enrichedGrants.value, sortColumn.value, sortDirection.value, getCellValue);
 });
 
 const columns = computed<ReadonlyArray<ColumnKey>>(() =>

@@ -7,6 +7,7 @@ import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/const
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
+import { formatList } from '@/sovereign/infrastructure/ui/utils/formatList';
 import { computed, onMounted, onUnmounted, ref, useId, watch } from 'vue';
 
 const props = defineProps<{
@@ -63,10 +64,6 @@ const themeVariables = computed(() => {
         '--link-color': colors.LINK,
     };
 });
-
-function formatList(values: readonly string[]): string {
-    return values.length > 0 ? values.join(', ') : 'Not specified';
-}
 
 const details = computed(() => [
     { label: 'Country', value: props.grant.country },

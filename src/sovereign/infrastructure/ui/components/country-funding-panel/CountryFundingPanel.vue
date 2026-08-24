@@ -4,6 +4,7 @@ import { useCompactView } from '@/sovereign/infrastructure/ui/composables/useCom
 import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
 import { usePanelResize } from '@/sovereign/infrastructure/ui/composables/usePanelResize';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import { COUNTRY_2040_PROJECTIONS } from '@/sovereign/infrastructure/ui/constants/CountryProjections';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors.ts';
 import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment.ts';
 import { computed, ref, watch } from 'vue';
@@ -17,19 +18,8 @@ import ProjectionSection from './ProjectionSection.vue';
 const AIRTABLE_SOURCE_URL =
     'https://airtable.com/app9etL9LpZ9MKX3v/shr3Czph4N1AWaE18/tblxsTk9dw1Kq1qid';
 
-interface Country2040Projection {
-    readonly gvaEurBillions: number;
-    readonly jobs: number;
-}
-
 const viewEl = ref<HTMLElement | null>(null);
 const isCompactView = useCompactView(viewEl);
-
-const COUNTRY_2040_PROJECTIONS: Readonly<Record<string, Country2040Projection>> = {
-    France: { gvaEurBillions: 18, jobs: 64_000 },
-    Italy: { gvaEurBillions: 10, jobs: 31_000 },
-    Spain: { gvaEurBillions: 10, jobs: 34_000 },
-};
 
 const props = withDefaults(
     defineProps<{

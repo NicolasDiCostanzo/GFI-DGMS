@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatList } from '@/sovereign/infrastructure/ui/utils/formatList';
 import { computed, type Component } from 'vue';
 import type { EnrichedGrantRow, GrantTableColumn } from './GrantTable.types';
 import GrantTableCellAmount from './cells/GrantTableCellAmount.vue';
@@ -89,10 +90,6 @@ const rowStyle = computed(() =>
           }
         : {},
 );
-
-function formatList(values: readonly string[]): string {
-    return values.length > 0 ? values.join(', ') : 'Not specified';
-}
 </script>
 
 <template>

@@ -53,4 +53,5 @@ export const PILLAR_CASES: ReadonlyArray<
         [['PB & CM'], ['Plant-based']],
         'Plant-based',
     ],
+    ['an "All" value counting toward both pillars', [['All']], null],
 ];
