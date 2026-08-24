@@ -10,53 +10,53 @@ describe('GrantDetailsModal', () => {
     });
 
     it('renders nothing in the document when closed', () => {
-        mount(GrantDetailsModal, { props: { ...BASE_PROPS, open: false } });
-        expect(document.body.querySelector('.grant-modal-overlay')).toBeNull();
+        const wrapper = mount(GrantDetailsModal, { props: { ...BASE_PROPS, open: false } });
+        expect(wrapper.find('.grant-modal-overlay').exists()).toBe(false);
     });
 
-    it('teleports the open modal to document.body with all grant details', () => {
+    it('renders the open modal with all grant details', () => {
         const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });
-        expect(wrapper.find('.grant-modal-overlay').exists()).toBe(false);
-
-        const overlay = document.body.querySelector('.grant-modal-overlay');
-        expect(overlay).not.toBeNull();
-        expect(overlay!.textContent).toContain('Solar Grid Expansion');
-        expect(overlay!.textContent).toContain('Green Energy Fund');
-        expect(overlay!.textContent).toContain('Funding for renewable infrastructure upgrades.');
-        expect(overlay!.textContent).toContain('France');
-        expect(overlay!.textContent).toContain('Solar Grid Co.');
-        expect(overlay!.textContent).toContain('$5M');
-        expect(overlay!.textContent).toContain('Green Energy Agency');
-        expect(overlay!.textContent).toContain('Business Grant');
-        expect(overlay!.textContent).toContain('Commercialization');
-        expect(overlay!.textContent).toContain(
+        const overlay = wrapper.find('.grant-modal-overlay');
+        expect(overlay.exists()).toBe(true);
+        expect(overlay.text()).toContain('Solar Grid Expansion');
+        expect(overlay.text()).toContain('Green Energy Fund');
+        expect(overlay.text()).toContain('Funding for renewable infrastructure upgrades.');
+        expect(overlay.text()).toContain('France');
+        expect(overlay.text()).toContain('Solar Grid Co.');
+        expect(overlay.text()).toContain('$5M');
+        expect(overlay.text()).toContain('Green Energy Agency');
+        expect(overlay.text()).toContain('Business Grant');
+        expect(overlay.text()).toContain('Commercialization');
+        expect(overlay.text()).toContain(
             '✕ Solar Grid ExpansionCountryFranceRecipient(s)Solar Grid Co.Funding',
         );
-        expect(overlay!.textContent).toContain('2024, 2025');
+        expect(overlay.text()).toContain('2024, 2025');
 
-        const link = overlay!.querySelector('a.grant-modal-link');
-        expect(link).not.toBeNull();
-        expect(link!.getAttribute('href')).toBe('https://example.com/grant');
+        const link = overlay.find('a.grant-modal-link');
+        expect(link.exists()).toBe(true);
+        expect(link.attributes('href')).toBe('https://example.com/grant');
     });
 
     it('exposes the inner modal as a labelled dialog', () => {
-        mount(GrantDetailsModal, { props: BASE_PROPS });
+        const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });
+        const modal = wrapper.find('.grant-modal');
+        const title = wrapper.find('.grant-modal-title');
 
-        const modal = document.body.querySelector('.grant-modal');
-        const title = document.body.querySelector('.grant-modal-title');
-
-        expect(modal?.getAttribute('role')).toBe('dialog');
-        expect(modal?.getAttribute('aria-modal')).toBe('true');
-        expect(title?.id).not.toBe('');
-        expect(modal?.getAttribute('aria-labelledby')).toBe(title?.id);
+        expect(modal.attributes('role')).toBe('dialog');
+        expect(modal.attributes('aria-modal')).toBe('true');
+        expect(title.attributes('id')).not.toBe('');
+        expect(modal.attributes('aria-labelledby')).toBe(title.attributes('id'));
     });
 
     it('moves focus into the dialog when open becomes true', async () => {
-        const wrapper = mount(GrantDetailsModal, { props: { ...BASE_PROPS, open: false } });
+        const wrapper = mount(GrantDetailsModal, {
+            props: { ...BASE_PROPS, open: false },
+            attachTo: document.body,
+        });
 
         await wrapper.setProps({ open: true });
 
-        expect(document.activeElement).toBe(document.body.querySelector('.grant-modal'));
+        expect(document.activeElement).toBe(wrapper.find('.grant-modal').element);
     });
 
     it('restores focus to the previously focused element when the modal closes', async () => {
@@ -65,17 +65,23 @@ describe('GrantDetailsModal', () => {
         trigger.focus();
         expect(document.activeElement).toBe(trigger);
 
-        const wrapper = mount(GrantDetailsModal, { props: { ...BASE_PROPS, open: false } });
+        const wrapper = mount(GrantDetailsModal, {
+            props: { ...BASE_PROPS, open: false },
+            attachTo: document.body,
+        });
 
         await wrapper.setProps({ open: true });
-        expect(document.activeElement).toBe(document.body.querySelector('.grant-modal'));
+        expect(document.activeElement).toBe(wrapper.find('.grant-modal').element);
 
         await wrapper.setProps({ open: false });
         expect(document.activeElement).toBe(trigger);
     });
 
     it('restores nothing when the modal closes without a tracked trigger', async () => {
-        const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });
+        const wrapper = mount(GrantDetailsModal, {
+            props: BASE_PROPS,
+            attachTo: document.body,
+        });
 
         await wrapper.setProps({ open: false });
 
@@ -98,32 +104,30 @@ describe('GrantDetailsModal', () => {
             [],
             null,
         );
-        mount(GrantDetailsModal, {
+        const wrapper = mount(GrantDetailsModal, {
             props: { ...BASE_PROPS, grant: emptyGrant, sourceUrl: null },
         });
-
-        const overlay = document.body.querySelector('.grant-modal-overlay');
-        expect(overlay!.querySelectorAll('.grant-modal-no-url').length).toBe(1);
-        expect(overlay!.textContent).toContain('Not specified');
-        expect(overlay!.textContent).toContain('Untitled grant');
-        expect(overlay!.textContent).toContain('Undisclosed');
+        const overlay = wrapper.find('.grant-modal-overlay');
+        expect(overlay.findAll('.grant-modal-no-url')).toHaveLength(1);
+        expect(overlay.text()).toContain('Not specified');
+        expect(overlay.text()).toContain('Untitled grant');
+        expect(overlay.text()).toContain('Undisclosed');
     });
 
     it.each([['javascript:alert(1)'], ['data:text/html,<script>alert(1)</script>']])(
         'shows the "Not specified" fallback for unsafe sourceUrl scheme (%s)',
         (sourceUrl) => {
-            mount(GrantDetailsModal, { props: { ...BASE_PROPS, sourceUrl } });
+            const wrapper = mount(GrantDetailsModal, { props: { ...BASE_PROPS, sourceUrl } });
 
-            const overlay = document.body.querySelector('.grant-modal-overlay');
-            expect(overlay!.querySelectorAll('.grant-modal-link').length).toBe(0);
-            expect(overlay!.querySelectorAll('.grant-modal-no-url').length).toBe(1);
+            const overlay = wrapper.find('.grant-modal-overlay');
+            expect(overlay.findAll('.grant-modal-link')).toHaveLength(0);
+            expect(overlay.findAll('.grant-modal-no-url')).toHaveLength(1);
         },
     );
 
     it('emits close when the backdrop is clicked', async () => {
         const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });
-        const overlay = document.body.querySelector('.grant-modal-overlay') as HTMLElement;
-        overlay.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await wrapper.find('.grant-modal-overlay').trigger('click');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('close')).toHaveLength(1);
@@ -131,8 +135,7 @@ describe('GrantDetailsModal', () => {
 
     it('does not emit close when the modal content itself is clicked', async () => {
         const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });
-        const content = document.body.querySelector('.grant-modal') as HTMLElement;
-        content.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await wrapper.find('.grant-modal').trigger('click');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('close')).toBeUndefined();
@@ -140,8 +143,7 @@ describe('GrantDetailsModal', () => {
 
     it('emits close when the close button is clicked', async () => {
         const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });
-        const closeButton = document.body.querySelector('.grant-modal-close-button') as HTMLElement;
-        closeButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await wrapper.find('.grant-modal-close-button').trigger('click');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('close')).toHaveLength(1);

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Grant } from '@/sovereign/domain/Grant';
 import { validateSourceUrl } from '@/sovereign/domain/services/validateSourceUrl';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
-import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
 import { computed, onMounted, onUnmounted, ref, useId, watch } from 'vue';
@@ -104,105 +104,103 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Teleport to="body">
-        <div v-if="open" class="grant-modal-overlay" @click="emit('close')">
-            <div
-                ref="dialogEl"
-                class="grant-modal"
-                :style="{
-                    ...(aimDisplay
-                        ? { 'border-left-color': aimDisplay.backgroundColor }
-                        : { 'border-left-color': 'transparent' }),
-                    ...themeVariables,
-                }"
-                role="dialog"
-                aria-modal="true"
-                tabindex="-1"
-                :aria-labelledby="dialogTitleId"
-                @click.stop
+    <div v-if="open" class="grant-modal-overlay" @click="emit('close')">
+        <div
+            ref="dialogEl"
+            class="grant-modal"
+            :style="{
+                ...(aimDisplay
+                    ? { 'border-left-color': aimDisplay.backgroundColor }
+                    : { 'border-left-color': 'transparent' }),
+                ...themeVariables,
+            }"
+            role="dialog"
+            aria-modal="true"
+            tabindex="-1"
+            :aria-labelledby="dialogTitleId"
+            @click.stop
+        >
+            <button
+                class="grant-modal-close-button"
+                type="button"
+                aria-label="Close details"
+                @click="emit('close')"
             >
-                <button
-                    class="grant-modal-close-button"
-                    type="button"
-                    aria-label="Close details"
-                    @click="emit('close')"
-                >
-                    ✕
-                </button>
-                <h2 :id="dialogTitleId" class="grant-modal-title">{{ title }}</h2>
+                ✕
+            </button>
+            <h2 :id="dialogTitleId" class="grant-modal-title">{{ title }}</h2>
 
-                <dl class="grant-modal-details">
-                    <div v-for="row in details" :key="row.label" class="grant-modal-row">
-                        <dt>{{ row.label }}</dt>
-                        <dd>
-                            <template v-if="row.key === 'fundingInstrument'">
+            <dl class="grant-modal-details">
+                <div v-for="row in details" :key="row.label" class="grant-modal-row">
+                    <dt>{{ row.label }}</dt>
+                    <dd>
+                        <template v-if="row.key === 'fundingInstrument'">
+                            <span
+                                class="instrument-chip"
+                                :style="{
+                                    backgroundColor: instrumentDisplay.color,
+                                    color: instrumentTextColor,
+                                }"
+                            >
+                                {{ instrumentDisplay.label }}
+                            </span>
+                        </template>
+
+                        <template v-else-if="row.key === 'aim'">
+                            <span v-if="aimDisplay" class="aim-badge">
                                 <span
-                                    class="instrument-chip"
-                                    :style="{
-                                        backgroundColor: instrumentDisplay.color,
-                                        color: instrumentTextColor,
-                                    }"
+                                    class="aim-dot"
+                                    :style="{ backgroundColor: aimDisplay.backgroundColor }"
+                                ></span>
+                                {{ aimDisplay.label }}
+                            </span>
+                            <span v-else>Not specified</span>
+                        </template>
+
+                        <template v-else-if="row.key === 'platform'">
+                            <div v-if="platformSegments?.length" class="platform-container">
+                                <span
+                                    v-for="segment in platformSegments"
+                                    :key="segment.label"
+                                    class="platform-segment"
+                                    :class="{ 'is-active': segment.active }"
                                 >
-                                    {{ instrumentDisplay.label }}
+                                    {{ segment.label }}
                                 </span>
-                            </template>
+                            </div>
+                            <span v-else>Not specified</span>
+                        </template>
 
-                            <template v-else-if="row.key === 'aim'">
-                                <span v-if="aimDisplay" class="aim-badge">
-                                    <span
-                                        class="aim-dot"
-                                        :style="{ backgroundColor: aimDisplay.backgroundColor }"
-                                    ></span>
-                                    {{ aimDisplay.label }}
-                                </span>
-                                <span v-else>Not specified</span>
-                            </template>
-
-                            <template v-else-if="row.key === 'platform'">
-                                <div v-if="platformSegments?.length" class="platform-container">
-                                    <span
-                                        v-for="segment in platformSegments"
-                                        :key="segment.label"
-                                        class="platform-segment"
-                                        :class="{ 'is-active': segment.active }"
-                                    >
-                                        {{ segment.label }}
-                                    </span>
-                                </div>
-                                <span v-else>Not specified</span>
-                            </template>
-
-                            <template v-else>
-                                <span :class="{ 'amount-highlight': row.isAmount }">{{
-                                    row.value
-                                }}</span>
-                            </template>
-                        </dd>
-                    </div>
-                </dl>
-
-                <div class="grant-modal-section">
-                    <h3 class="grant-modal-section-title">Description</h3>
-                    <p class="grant-modal-description">
-                        {{ grant.description ?? 'Not specified' }}
-                    </p>
+                        <template v-else>
+                            <span :class="{ 'amount-highlight': row.isAmount }">{{
+                                row.value
+                            }}</span>
+                        </template>
+                    </dd>
                 </div>
+            </dl>
 
-                <div class="grant-modal-footer">
-                    <a
-                        v-if="validatedSourceUrl"
-                        class="grant-modal-link"
-                        :href="validatedSourceUrl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        View announcement →
-                    </a>
-                    <span v-else class="grant-modal-no-url">—</span>
-                </div>
+            <div class="grant-modal-section">
+                <h3 class="grant-modal-section-title">Description</h3>
+                <p class="grant-modal-description">
+                    {{ grant.description ?? 'Not specified' }}
+                </p>
+            </div>
+
+            <div class="grant-modal-footer">
+                <a
+                    v-if="validatedSourceUrl"
+                    class="grant-modal-link"
+                    :href="validatedSourceUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    View announcement →
+                </a>
+                <span v-else class="grant-modal-no-url">—</span>
             </div>
         </div>
-    </Teleport>
+    </div>
 </template>
 
 <style scoped>
