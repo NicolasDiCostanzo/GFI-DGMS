@@ -4,8 +4,10 @@ import { CountryFundingRepository } from '@/sovereign/domain/repository/CountryF
 import { resolveCountryName } from '@/sovereign/domain/services/resolveCountryName';
 import { GrantDataValidationError } from '@/sovereign/infrastructure/errors/GrantDataValidationError';
 
-const GRANT_DATA_URL =
+const DEFAULT_GRANT_DATA_URL =
     'https://cdn.jsdelivr.net/gh/NicolasDiCostanzo/GFI-DGMS@main/src/sovereign/infrastructure/data/grants.json';
+
+const GRANT_DATA_URL = import.meta.env.VITE_GRANT_DATA_URL ?? DEFAULT_GRANT_DATA_URL;
 
 export async function loadGrantRecords(): Promise<GrantRecord[]> {
     const response = await fetch(GRANT_DATA_URL);
