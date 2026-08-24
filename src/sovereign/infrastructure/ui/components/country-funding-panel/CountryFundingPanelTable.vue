@@ -4,6 +4,7 @@ export type { GrantTableColumn as ColumnKey } from './GrantTable.types';
 
 <script setup lang="ts">
 import type { Grant } from '@/sovereign/domain/Grant';
+import { useCompactView } from '@/sovereign/infrastructure/ui/composables/useCompactView';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
@@ -29,6 +30,9 @@ const props = defineProps<{
 
 const { themeMode, isDark } = useTheme();
 const selectedGrantId = ref<string | null>(null);
+
+const viewEl = ref<HTMLElement | null>(null);
+const isCompactView = useCompactView(viewEl);
 
 function isValidHttpUrl(value: string): boolean {
     try {
@@ -175,8 +179,21 @@ defineExpose({
 </script>
 
 <template>
-    <div v-if="grants.length" class="table-card">
-        <div class="table-scroll-container" tabindex="0" aria-label="Funding grants table">
+    <div v-if="grants.length" ref="viewEl" class="table-card">
+        <div v-if="isCompactView" class="grant-card-list" aria-label="Funding grants cards">
+            <CountryFundingPanelCard
+                v-for="row in enrichedGrants"
+                :key="row.grant.id"
+                :grant="row.grant"
+                :source-url="row.sourceUrl"
+                :aim="row.aim"
+                :instrument="row.instrument"
+                :segments="row.segments"
+                :instrument-text-color="instrumentTextColor"
+                @open-details="openDetailsModal(row.grant.id)"
+            />
+        </div>
+        <div v-else class="table-scroll-container" tabindex="0" aria-label="Funding grants table">
             <table class="grant-table">
                 <thead>
                     <tr>
@@ -204,19 +221,6 @@ defineExpose({
                     />
                 </tbody>
             </table>
-        </div>
-        <div class="grant-card-list">
-            <CountryFundingPanelCard
-                v-for="row in enrichedGrants"
-                :key="row.grant.id"
-                :grant="row.grant"
-                :source-url="row.sourceUrl"
-                :aim="row.aim"
-                :instrument="row.instrument"
-                :segments="row.segments"
-                :instrument-text-color="instrumentTextColor"
-                @open-details="openDetailsModal(row.grant.id)"
-            />
         </div>
         <GrantDetailsModal
             v-if="selectedGrant"
@@ -255,20 +259,10 @@ defineExpose({
 }
 
 .grant-card-list {
-    display: none;
+    display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 12px;
-}
-
-@container country-funding-panel (max-width: 599px) {
-    .table-scroll-container {
-        display: none;
-    }
-
-    .grant-card-list {
-        display: flex;
-    }
 }
 .sort-arrow {
     font-size: 0.7rem;

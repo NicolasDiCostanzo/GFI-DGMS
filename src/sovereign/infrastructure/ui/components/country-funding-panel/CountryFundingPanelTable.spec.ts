@@ -2,7 +2,8 @@ import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
 import { resetTheme, useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import {
     basicGrant,
@@ -229,7 +230,20 @@ describe('CountryFundingPanelTable', () => {
         expect(wrapper.text()).toContain('2019');
     });
 
-    it('renders a compact card per grant alongside the table, with matching props', () => {
+    it('renders compact cards instead of the table when the view is narrow', async () => {
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                constructor(
+                    private callback: (entries: Array<{ contentRect: { width: number } }>) => void,
+                ) {}
+                observe(): void {
+                    this.callback([{ contentRect: { width: 400 } }]);
+                }
+                disconnect(): void {}
+                unobserve(): void {}
+            },
+        );
         const g = makeGrant({
             id: 'g-card',
             aim: 'Research & Development',
@@ -239,6 +253,9 @@ describe('CountryFundingPanelTable', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: { grants: [g] },
         });
+        await nextTick();
+
+        expect(wrapper.find('.table-scroll-container').exists()).toBe(false);
 
         const cards = wrapper.findAllComponents(CountryFundingPanelCard);
         expect(cards).toHaveLength(1);
@@ -251,6 +268,8 @@ describe('CountryFundingPanelTable', () => {
         expect(card.props('instrument')).toEqual(eg.instrument);
         expect(card.props('segments')).toEqual(eg.segments);
         expect(card.props('instrumentTextColor')).toBe(wrapper.vm.instrumentTextColor);
+
+        vi.unstubAllGlobals();
     });
 
     it('renders custom funderName and recipients overrides', () => {
