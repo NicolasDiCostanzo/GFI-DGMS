@@ -1,7 +1,6 @@
 <script setup lang="ts">
 export type { GrantTableColumn as ColumnKey } from './GrantTable.types';
 import type { Grant } from '@/sovereign/domain/Grant';
-import { useCompactView } from '@/sovereign/infrastructure/ui/composables/useCompactView';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
@@ -21,15 +20,12 @@ const columnLabels = GRANT_TABLE_COLUMN_LABELS;
 
 const props = defineProps<{
     grants: ReadonlyArray<Grant>;
-
+    isCompactView: boolean;
     columnOrder?: ReadonlyArray<ColumnKey>;
 }>();
 
 const { themeMode, isDark } = useTheme();
 const selectedGrantId = ref<string | null>(null);
-
-const viewEl = ref<HTMLElement | null>(null);
-const isCompactView = useCompactView(viewEl);
 
 function isValidHttpUrl(value: string): boolean {
     try {

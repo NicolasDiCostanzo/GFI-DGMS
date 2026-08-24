@@ -23,8 +23,6 @@ defineProps<{
 .platform-segment {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    min-width: 24px;
     height: 18px;
     padding: 0 4px;
     border-radius: 4px;
@@ -32,5 +30,6 @@ defineProps<{
     color: var(--text);
     font-weight: 600;
     font-size: 0.68rem;
+    white-space: nowrap;
 }
 </style>

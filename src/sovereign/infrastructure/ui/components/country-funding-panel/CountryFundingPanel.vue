@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
+import { useCompactView } from '@/sovereign/infrastructure/ui/composables/useCompactView';
 import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
 import { usePanelResize } from '@/sovereign/infrastructure/ui/composables/usePanelResize';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors.ts';
 import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment.ts';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
 import CountryHeader from './CountryHeader.vue';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
@@ -20,6 +21,9 @@ interface Country2040Projection {
     readonly gvaEurBillions: number;
     readonly jobs: number;
 }
+
+const viewEl = ref<HTMLElement | null>(null);
+const isCompactView = useCompactView(viewEl);
 
 const COUNTRY_2040_PROJECTIONS: Readonly<Record<string, Country2040Projection>> = {
     France: { gvaEurBillions: 18, jobs: 64_000 },
@@ -44,6 +48,14 @@ const { themeMode } = useTheme();
 
 const isExpanded = ref(false);
 const isLegendExpanded = ref(false);
+
+watch(
+    [isCompactView, isExpanded],
+    ([isCompact, expanded]) => {
+        if (isCompact || expanded) isLegendExpanded.value = true;
+    },
+    { immediate: true },
+);
 
 const countryName = computed(() => props.countryFunding?.countryName ?? '');
 const grants = computed(() => props.countryFunding?.grants ?? []);
@@ -100,8 +112,7 @@ const cssVars = computed(() => {
     } as Record<string, string>;
 });
 
-const panelEl = ref<HTMLElement | null>(null);
-const containerEl = computed(() => panelEl.value?.parentElement ?? null);
+const containerEl = computed(() => viewEl.value?.parentElement ?? null);
 
 const DEFAULT_PANEL_WIDTH = 380;
 const panelWidth = ref(DEFAULT_PANEL_WIDTH);
@@ -141,7 +152,7 @@ const panelClasses = computed(() => ({
 </script>
 
 <template>
-    <aside ref="panelEl" class="country-funding-panel" :class="panelClasses" :style="panelStyle">
+    <aside ref="viewEl" class="country-funding-panel" :class="panelClasses" :style="panelStyle">
         <button
             v-if="!shouldShowExpandedState && !isMobile"
             class="resize-handle"
@@ -213,7 +224,7 @@ const panelClasses = computed(() => ({
                 :grant-count-label="grantCountLabel"
             />
             <ProjectionSection v-if="projection" :projection="projection" />
-            <div class="sub-header-wrapper">
+            <div class="sub-header-wrapper" :class="isCompactView ? 'is-compact' : ''">
                 <EnvironmentalImpactPanel :grants="grants" />
                 <button
                     class="legend-label"
@@ -226,13 +237,12 @@ const panelClasses = computed(() => ({
                         >▾</span
                     >
                 </button>
-                <template v-if="isLegendExpanded">
-                    <Legend class="legend-grid-area" />
-                </template>
+                <Legend v-if="isLegendExpanded || !isCompactView" />
             </div>
             <CountryFundingPanelTable
                 v-if="grants.length"
                 :grants="grants"
+                :is-compact-view="isCompactView"
                 :column-order="tableColumnOrder"
             />
 
@@ -282,28 +292,21 @@ const panelClasses = computed(() => ({
 }
 
 .sub-header-wrapper {
-    display: grid;
-    grid-template-areas:
-        'environmental-impact environmental-impact'
-        'legend-label legend-label'
-        'legend platform-legend';
+    display: flex;
+    flex-direction: column;
     gap: 8px;
-}
 
-.sub-header-wrapper > .environmental-impact-panel {
-    grid-area: environmental-impact;
-}
+    &:not(.is-compact) {
+        flex-direction: row;
 
-.sub-header-wrapper > .legend-label {
-    grid-area: legend-label;
-}
+        > * {
+            width: 50%;
+        }
 
-.sub-header-wrapper > .legend-grid-area {
-    grid-area: legend;
-}
-
-.sub-header-wrapper > .platform-legend-grid-area {
-    grid-area: platform-legend;
+        .legend-label {
+            display: none;
+        }
+    }
 }
 
 .country-funding-panel {

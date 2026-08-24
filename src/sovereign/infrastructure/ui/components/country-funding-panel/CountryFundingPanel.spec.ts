@@ -231,11 +231,11 @@ describe('CountryFundingPanel', () => {
             expect(wrapper.find('.legend-label').text()).toContain('Legend:');
         });
 
-        it("doesn't render the legend cards expanded by default", () => {
+        it('renders the legend cards by default with the label collapsed', () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
 
             expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('false');
-            expect(wrapper.findAll('.legend-card')).toHaveLength(0);
+            expect(wrapper.findAll('.legend-card')).toHaveLength(1);
         });
 
         it('renders the legend cards when the label is clicked', async () => {
@@ -256,14 +256,14 @@ describe('CountryFundingPanel', () => {
             ]);
         });
 
-        it('re-collapse the legend cards when the label is clicked again', async () => {
+        it('re-collapses the label on second click while keeping the legend cards visible', async () => {
             const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
 
             await wrapper.find('.legend-label').trigger('click');
             await wrapper.find('.legend-label').trigger('click');
 
             expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('false');
-            expect(wrapper.findAll('.legend-card')).toHaveLength(0);
+            expect(wrapper.findAll('.legend-card')).toHaveLength(1);
         });
 
         it('does not render legends when there are no grants', () => {
