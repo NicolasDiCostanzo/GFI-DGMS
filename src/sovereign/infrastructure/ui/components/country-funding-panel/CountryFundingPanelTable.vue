@@ -1,8 +1,5 @@
-<script lang="ts">
-export type { GrantTableColumn as ColumnKey } from './GrantTable.types';
-</script>
-
 <script setup lang="ts">
+export type { GrantTableColumn as ColumnKey } from './GrantTable.types';
 import type { Grant } from '@/sovereign/domain/Grant';
 import { useCompactView } from '@/sovereign/infrastructure/ui/composables/useCompactView';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
