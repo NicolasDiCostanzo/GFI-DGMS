@@ -54,6 +54,16 @@ const instrumentTextColor = computed(() => {
     return isDark ? colors.ON_LIGHT : colors.ON_ACCENT;
 });
 
+const themeVariables = computed(() => {
+    const colors = getThemeColors(props.themeMode);
+    return {
+        '--background-color': colors.OCEAN,
+        '--text-color': colors.TEXT,
+        '--border-color': colors.BORDER,
+        '--link-color': colors.LINK,
+    };
+});
+
 function formatList(values: readonly string[]): string {
     return values.length > 0 ? values.join(', ') : 'Not specified';
 }
@@ -99,11 +109,12 @@ onUnmounted(() => {
             <div
                 ref="dialogEl"
                 class="grant-modal"
-                :style="
-                    aimDisplay
+                :style="{
+                    ...(aimDisplay
                         ? { 'border-left-color': aimDisplay.backgroundColor }
-                        : { 'border-left-color': 'transparent' }
-                "
+                        : { 'border-left-color': 'transparent' }),
+                    ...themeVariables,
+                }"
                 role="dialog"
                 aria-modal="true"
                 tabindex="-1"
