@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { useCompactView } from '@/sovereign/infrastructure/ui/composables/useCompactView';
+import { useLegendState } from '@/sovereign/infrastructure/ui/composables/useLegendState';
 import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
 import { usePanelResize } from '@/sovereign/infrastructure/ui/composables/usePanelResize';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
@@ -37,12 +38,14 @@ const emit = defineEmits<{
 const { themeMode } = useTheme();
 
 const isExpanded = ref(false);
-const isLegendExpanded = ref(false);
+const { isLegendExpanded, hasUserToggledLegend, toggleLegend } = useLegendState();
 
 watch(
     [isCompactView, isExpanded],
     ([isCompact, expanded]) => {
-        if (isCompact || expanded) isLegendExpanded.value = true;
+        if (!hasUserToggledLegend.value && (isCompact || expanded)) {
+            isLegendExpanded.value = true;
+        }
     },
     { immediate: true },
 );
@@ -220,7 +223,7 @@ const panelClasses = computed(() => ({
                     class="legend-label"
                     type="button"
                     :aria-expanded="isLegendExpanded"
-                    @click="isLegendExpanded = !isLegendExpanded"
+                    @click="toggleLegend"
                 >
                     Legend:
                     <span class="legend-chevron" :class="{ 'is-collapsed': !isLegendExpanded }"

@@ -1,4 +1,5 @@
 import { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
+import { resetLegendState } from '@/sovereign/infrastructure/ui/composables/useLegendState';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { AIM_PALETTES, getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,6 +15,7 @@ import {
 describe('CountryFundingPanel', () => {
     beforeEach(() => {
         useTheme().resetTheme();
+        resetLegendState();
     });
     describe('with no countryFunding', () => {
         it('renders an empty country name and no grants', () => {

@@ -67,3 +67,68 @@ test.describe('CountryFundingPanel drag-to-resize', () => {
         }).toPass();
     });
 });
+
+test.describe('CountryFundingPanel legend state persistence', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.route('https://cdn.jsdelivr.net/gh/**/grants.json', async (route) => {
+            await route.fulfill({ json: MOCK_GRANT_RECORDS });
+        });
+        await page.goto('/');
+        await page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`).click();
+        await expect(page.locator('.country-funding-panel')).toBeVisible();
+        await expect(page.locator('button.legend-label')).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    const PERSISTENCE_CASES = [
+        {
+            title: 'keeps the legend collapsed after expanding and restoring the panel',
+            labelClicks: 1,
+            action: 'expand-restore',
+            expanded: false,
+        },
+        {
+            title: 'keeps the legend expanded after toggling it back on and restoring the panel',
+            labelClicks: 2,
+            action: 'expand-restore',
+            expanded: true,
+        },
+        {
+            title: 'keeps the legend collapsed after closing and reopening the panel',
+            labelClicks: 1,
+            action: 'close-reopen',
+            expanded: false,
+        },
+        {
+            title: 'keeps the legend expanded after closing and reopening the panel',
+            labelClicks: 0,
+            action: 'close-reopen',
+            expanded: true,
+        },
+    ] as const;
+
+    for (const { title, labelClicks, action, expanded } of PERSISTENCE_CASES) {
+        test(title, async ({ page }) => {
+            const label = page.locator('button.legend-label');
+            const legendCard = page.locator('.country-funding-panel .legend-card');
+
+            for (let i = 0; i < labelClicks; i++) await label.click();
+            await expect(label).toHaveAttribute('aria-expanded', String(expanded));
+
+            if (action === 'expand-restore') {
+                const expandButton = page.locator('.expand-button');
+                await expandButton.click();
+                await expect(page.locator('.country-funding-panel')).toHaveClass(/is-expanded/);
+                await expect(label).toHaveAttribute('aria-expanded', String(expanded));
+                await expandButton.click();
+            } else {
+                await page.locator('.close-button').click();
+                await expect(page.locator('.country-funding-panel')).toHaveCount(0);
+                await page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`).click();
+                await expect(page.locator('.country-funding-panel')).toBeVisible();
+            }
+
+            await expect(label).toHaveAttribute('aria-expanded', String(expanded));
+            await expect(legendCard).toHaveCount(expanded ? 1 : 0);
+        });
+    }
+});
