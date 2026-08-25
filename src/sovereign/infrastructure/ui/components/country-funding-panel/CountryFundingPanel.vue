@@ -343,6 +343,7 @@ const panelClasses = computed(() => ({
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s ease;
+    z-index: 1;
 }
 
 .expand-button:hover {
@@ -365,6 +366,7 @@ const panelClasses = computed(() => ({
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s ease;
+    z-index: 20;
 }
 
 .close-button:hover {

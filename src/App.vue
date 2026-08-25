@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
-import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { Grant } from '@/sovereign/domain/Grant';
 import { loadCountryFundingOverview } from '@/sovereign/infrastructure/composition';
@@ -9,6 +8,7 @@ import CountryFundingPanel from '@/sovereign/infrastructure/ui/components/countr
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { computed, onMounted, ref, watch } from 'vue';
 
@@ -118,7 +118,7 @@ function handleSidebarClosing(): void {
                 />
             </Transition>
         </div>
-        <ThemeToggle v-model:model-value="themeModel" />
+        <ThemeToggle v-model:model-value="themeModel" style="z-index: 0" />
     </main>
 </template>
 
