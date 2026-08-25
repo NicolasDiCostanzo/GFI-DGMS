@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getAimLegend } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { computed } from 'vue';
 
 const { themeMode } = useTheme();
 const legend = computed(() => getAimLegend(themeMode.value));
+const cardVars = computed(() => ({
+    '--card-shadow': getThemeColors(themeMode.value).CARD_SHADOW,
+}));
 </script>
 
 <template>
-    <div class="legend-card">
+    <div class="legend-card" :style="cardVars">
         <h4 class="legend-title">Funding objective</h4>
         <div class="legend-content">
             <div v-for="item in legend" :key="item.label" class="legend-item">
@@ -23,7 +27,7 @@ const legend = computed(() => getAimLegend(themeMode.value));
 .legend-card {
     padding: 0.5rem;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(127, 127, 127, 0.6);
+    box-shadow: 0 2px 4px var(--card-shadow);
 }
 
 .legend-content {

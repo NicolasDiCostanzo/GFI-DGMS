@@ -9,7 +9,7 @@ describe('createFundingAmountLegendItems', () => {
     it('leads with a "no disclosed funding" item', () => {
         const items = createFundingAmountLegendItems([2, 4, 6, 8], 'dark');
 
-        expect(items[0]).toEqual({ color: MapColors.INACTIVE, label: 'No disclosed funding' });
+        expect(items[0]).toEqual({ color: MapColors.GREY, label: 'No disclosed funding' });
     });
 
     it('formats the 5 funding buckets from the thresholds', () => {

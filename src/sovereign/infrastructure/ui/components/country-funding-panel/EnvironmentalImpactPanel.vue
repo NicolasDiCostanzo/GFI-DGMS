@@ -1,5 +1,5 @@
 <template>
-    <section v-if="figures.length" class="environmental-impact-panel">
+    <section v-if="figures.length" class="environmental-impact-panel" :style="cssVars">
         <h3 class="panel-title">Environmental impact: {{ pillarLabel }} vs. conventional meat</h3>
 
         <div class="meat-type-tabs" role="tablist" aria-label="Select meat type for comparison">
@@ -72,7 +72,11 @@ import {
     CULTIVATED_LCA_FIGURES,
     PLANT_BASED_LCA_FIGURES,
 } from '@/sovereign/domain/constants/EnvironmentalImpactFigures';
-import { ENVIRONMENTAL_METRIC_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import {
+    ENVIRONMENTAL_METRIC_COLORS,
+    getThemeColors,
+} from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { resolveDominantProductionPillar } from '@/sovereign/domain/services/resolveDominantProductionPillar';
 import { computed, ref } from 'vue';
 import EnvironmentalMetricRing from './EnvironmentalMetricRing.vue';
@@ -96,6 +100,17 @@ const props = withDefaults(
 );
 
 const selectedMeatType = ref<MeatType>('beef');
+
+const { themeMode } = useTheme();
+
+const cssVars = computed(() => {
+    const colors = getThemeColors(themeMode.value);
+    return {
+        '--panel-border': colors.PANEL_BORDER,
+        '--panel-border-strong': colors.PANEL_BORDER_STRONG,
+        '--highlight': colors.HIGHLIGHT,
+    };
+});
 
 const dominantPillar = computed(() => resolveDominantProductionPillar(props.grants));
 
@@ -128,7 +143,7 @@ const sourceText = computed(() => {
 .environmental-impact-panel {
     padding: 1rem;
     border-radius: 8px;
-    border: 1px solid #2a2a2a;
+    border: 1px solid var(--panel-border);
 }
 
 .panel-title {
@@ -139,7 +154,7 @@ const sourceText = computed(() => {
 
 .meat-type-tabs {
     display: flex;
-    border: 1px solid #333333;
+    border: 1px solid var(--panel-border-strong);
     border-radius: 9999px;
     padding: 3px;
 }
@@ -158,7 +173,7 @@ const sourceText = computed(() => {
 }
 
 .meat-type-tab--active {
-    background: #1c92ff;
+    background: var(--highlight);
 }
 
 .metric-rings {

@@ -2,6 +2,7 @@ import { SettingsParseError } from '@/shared/errors/SettingsParseError';
 import { SettingsStorageError } from '@/shared/errors/SettingsStorageError';
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
+import { isDarkTheme } from '@/sovereign/infrastructure/ui/constants/ThemePrimitives';
 import { computed, ref } from 'vue';
 
 const STORAGE_KEY = 'gfi-dgms-settings';
@@ -66,7 +67,7 @@ function loadSettings(): Settings {
 let storageAvailable = true;
 let initialized = false;
 const themeMode = ref<ThemeMode>('dark');
-const isDark = computed(() => themeMode.value === 'dark' || themeMode.value === 'colorblind-dark');
+const isDark = computed(() => isDarkTheme(themeMode.value));
 
 function persistSettings(persistedSettings: Settings): void {
     if (!storageAvailable) {

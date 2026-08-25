@@ -1,12 +1,13 @@
 import { expect, test } from '@/../e2e/coverage-fixtures';
-import { MapColors, toRGB } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { MOCK_GRANT_RECORDS } from '@/sovereign/infrastructure/ui/components/InteractiveMap.playwright.spec.fixtures';
+import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { toRGB } from '@/sovereign/infrastructure/ui/constants/ThemePrimitives';
 import { checkA11y, injectAxe } from 'axe-playwright';
 
 const GERMANY_ID = '276';
 const BORDER_COLOR = DARK_THEME_COLORS.BORDER;
-const SELECTION_COLOR = MapColors.SELECTION;
+const SELECTION_COLOR = MapColors.BLUE;
 
 // Mirrors InteractiveMap's own screen-to-user-space conversion (getScreenCTM().inverse()),
 // so a screen-space drag delta can be checked against the real, non-identity CTM the
@@ -164,6 +165,9 @@ test.describe('InteractiveMap', () => {
         const focused = page.locator(':focus');
         await expect(focused).toHaveAttribute('role', 'button');
         await expect(focused).toHaveClass(/\bclickable\b/);
+        await expect(focused).toHaveCSS('outline-style', 'solid');
+        await expect(focused).toHaveCSS('outline-width', '2px');
+        await expect(focused).not.toHaveCSS('outline-color', 'transparent');
         const countryId = await focused.getAttribute('data-country-id');
 
         await page.keyboard.press('Enter');

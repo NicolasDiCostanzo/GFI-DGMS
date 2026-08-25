@@ -1,4 +1,7 @@
-import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
+import {
+    isDarkTheme,
+    type ThemeMode,
+} from '@/sovereign/infrastructure/ui/constants/ThemePrimitives';
 import { INSTRUMENT_FAMILY_COLORS } from './ThemeColors';
 
 export interface FundingInstrumentDisplay {
@@ -42,10 +45,6 @@ const INSTRUMENT_ENTRIES: Readonly<
     MIXED: { family: 'Other', label: 'Mixed' },
     Other: { family: 'Other', label: 'Other' },
 };
-
-function isDarkTheme(themeMode: ThemeMode): boolean {
-    return themeMode === 'dark' || themeMode === 'colorblind-dark';
-}
 
 export function getFundingInstrumentDisplay(
     instrument: string | null | undefined,

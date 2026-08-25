@@ -62,6 +62,8 @@ const themeVariables = computed(() => {
         '--text-color': colors.TEXT,
         '--border-color': colors.BORDER,
         '--link-color': colors.LINK,
+        '--modal-overlay': colors.MODAL_OVERLAY,
+        '--modal-shadow': colors.MODAL_SHADOW,
     };
 });
 
@@ -101,16 +103,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div v-if="open" class="grant-modal-overlay" @click="emit('close')">
+    <div v-if="open" class="grant-modal-overlay" :style="themeVariables" @click="emit('close')">
         <div
             ref="dialogEl"
             class="grant-modal"
-            :style="{
-                ...(aimDisplay
+            :style="
+                aimDisplay
                     ? { 'border-left-color': aimDisplay.backgroundColor }
-                    : { 'border-left-color': 'transparent' }),
-                ...themeVariables,
-            }"
+                    : { 'border-left-color': 'transparent' }
+            "
             role="dialog"
             aria-modal="true"
             tabindex="-1"
@@ -208,7 +209,7 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.65);
+    background: var(--modal-overlay);
     backdrop-filter: blur(2px);
 }
 
@@ -224,7 +225,7 @@ onUnmounted(() => {
     border-left: 4px solid transparent;
     border-radius: 8px;
     padding: 1.25rem;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 32px var(--modal-shadow);
 }
 
 .grant-modal-close-button {

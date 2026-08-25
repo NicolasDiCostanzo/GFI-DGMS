@@ -30,7 +30,7 @@ export function createFundingAmountLegendItems(
     mode: ThemeMode,
 ): LegendItem[] {
     const colors = getFundingProgressColors(mode);
-    const items: LegendItem[] = [{ color: MapColors.INACTIVE, label: 'No disclosed funding' }];
+    const items: LegendItem[] = [{ color: MapColors.GREY, label: 'No disclosed funding' }];
 
     colors.forEach((color, index) => {
         items.push({ color, label: formatBucketLabel(thresholds[index - 1], thresholds[index]) });
