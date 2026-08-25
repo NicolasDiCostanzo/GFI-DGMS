@@ -10,7 +10,7 @@ export function getColorForFundingAmount(
     mode: ThemeMode = 'dark',
 ): string {
     if (amountUsd <= 0) {
-        return MapColors.INACTIVE;
+        return MapColors.GREY;
     }
 
     const colors = getFundingProgressColors(mode);

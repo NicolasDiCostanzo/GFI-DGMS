@@ -25,13 +25,13 @@ describe('useCountryDisplay', () => {
         it('returns the inactive color for a country with no data', () => {
             const { getCountryFill } = useCountryDisplay(ref([]));
 
-            expect(getCountryFill('France')).toBe(MapColors.INACTIVE);
+            expect(getCountryFill('France')).toBe(MapColors.GREY);
         });
 
         it('returns the inactive color for a country with zero disclosed funding', () => {
             const { getCountryFill } = useCountryDisplay(ref([buildCountryFunding('France', 0)]));
 
-            expect(getCountryFill('France')).toBe(MapColors.INACTIVE);
+            expect(getCountryFill('France')).toBe(MapColors.GREY);
         });
 
         it('returns a funding-tier color for a country with disclosed funding', () => {
@@ -39,7 +39,7 @@ describe('useCountryDisplay', () => {
                 ref([buildCountryFunding('Germany', 1_000_000)]),
             );
 
-            expect(getCountryFill('Germany')).not.toBe(MapColors.INACTIVE);
+            expect(getCountryFill('Germany')).not.toBe(MapColors.GREY);
         });
     });
 

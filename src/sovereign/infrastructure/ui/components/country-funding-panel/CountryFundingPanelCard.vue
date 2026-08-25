@@ -3,6 +3,8 @@ import type { Grant } from '@/sovereign/domain/Grant';
 import type { AimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import type { FundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import type { PlatformSegment } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
 import { computed } from 'vue';
 
@@ -19,11 +21,14 @@ const emit = defineEmits<{
     'open-details': [];
 }>();
 
-const cardStyle = computed(() =>
-    props.aim
+const { themeMode } = useTheme();
+
+const cardStyle = computed(() => ({
+    '--card-shadow': getThemeColors(themeMode.value).CARD_SHADOW,
+    ...(props.aim
         ? { borderLeftColor: props.aim.borderColor, backgroundColor: props.aim.backgroundColor }
-        : {},
-);
+        : {}),
+}));
 
 const amountLabel = computed(() => formatGrantAmount(props.grant.amountUsd));
 </script>
@@ -66,7 +71,7 @@ const amountLabel = computed(() => formatGrantAmount(props.grant.amountUsd));
     flex-direction: column;
     gap: 8px;
     color: var(--text);
-    box-shadow: 0 2px 4px rgba(127, 127, 127, 0.6);
+    box-shadow: 0 2px 4px var(--card-shadow);
 }
 
 .grant-card-header {

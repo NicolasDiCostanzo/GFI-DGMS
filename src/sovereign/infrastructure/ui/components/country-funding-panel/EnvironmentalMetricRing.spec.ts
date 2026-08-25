@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { ENVIRONMENTAL_METRIC_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import {
+    ENVIRONMENTAL_METRIC_COLORS,
+    getMetricGradientEndColor,
+} from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import {
     createDoubleWrapper,
     createWrapper,
@@ -33,8 +36,10 @@ describe('EnvironmentalMetricRing', () => {
 
             const stops = wrapper.findAll('stop');
             expect(stops).toHaveLength(2);
-            expect(stops[0]?.attributes('style')).toContain(color);
-            expect(stops[1]?.attributes('style')).toContain(color);
+            expect(stops[0]?.attributes('style')).toContain(`stop-color: ${color};`);
+            expect(stops[1]?.attributes('style')).toContain(
+                `stop-color: ${getMetricGradientEndColor(color)};`,
+            );
         },
     );
 

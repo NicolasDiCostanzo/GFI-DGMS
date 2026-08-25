@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { GRANT_TABLE_COLUMN_ORDER, type GrantTableColumn } from './GrantTable.types';
 import {
     aimDisplay,
@@ -119,10 +120,12 @@ describe('GrantTableRow', () => {
         expect(style).toContain(`border-color: ${aimDisplay.borderColor}`);
     });
 
-    it('applies no inline style when there is no aim display', () => {
+    it('applies no aim tinting when there is no aim display', () => {
         const wrapper = mountRow(['projectTitle']);
+        const style = wrapper.get('tr').attributes('style');
 
-        expect(wrapper.get('tr').attributes('style')).toBeUndefined();
+        expect(style).not.toContain('background-color');
+        expect(style).toContain(`--row-shadow: ${getThemeColors('light').ROW_SHADOW}`);
     });
 
     it('emits open-details with the grant id when View details is clicked', async () => {

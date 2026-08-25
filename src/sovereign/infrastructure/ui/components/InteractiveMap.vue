@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
+import { useCountryDisplay } from '@/sovereign/infrastructure/ui/composables/useCountryDisplay';
+import { useMapDrag } from '@/sovereign/infrastructure/ui/composables/useMapDrag';
+import { useMapTooltip } from '@/sovereign/infrastructure/ui/composables/useMapTooltip';
+import { useMapZoom } from '@/sovereign/infrastructure/ui/composables/useMapZoom';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { calculateFundingColorThresholds } from '@/sovereign/infrastructure/ui/utils/calculateFundingColorThresholds';
+import { createFundingAmountLegendItems } from '@/sovereign/infrastructure/ui/utils/fundingAmountLegend';
+import { resolvePreserveAspectRatio } from '@/sovereign/infrastructure/ui/utils/resolvePreserveAspectRatio';
 import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import { computed, onMounted, onUnmounted, ref, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
-import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
-import { useCountryDisplay } from '@/sovereign/infrastructure/ui/composables/useCountryDisplay';
-import { useMapDrag } from '@/sovereign/infrastructure/ui/composables/useMapDrag';
-import { useMapTooltip } from '@/sovereign/infrastructure/ui/composables/useMapTooltip';
-import { useMapZoom } from '@/sovereign/infrastructure/ui/composables/useMapZoom';
-import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
-import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
-import { calculateFundingColorThresholds } from '@/sovereign/infrastructure/ui/utils/calculateFundingColorThresholds';
-import { createFundingAmountLegendItems } from '@/sovereign/infrastructure/ui/utils/fundingAmountLegend';
-import { resolvePreserveAspectRatio } from '@/sovereign/infrastructure/ui/utils/resolvePreserveAspectRatio';
 
 const props = defineProps<{
     countryFundings: readonly CountryFunding[];
@@ -181,7 +181,7 @@ function handleWheel(event: WheelEvent): void {
                         :aria-label="getCountryAriaLabel(countryFeature.properties.name)"
                         :stroke="
                             countryFeature.properties.name === selectedCountryName
-                                ? MapColors.SELECTION
+                                ? MapColors.BLUE
                                 : themeColors.BORDER
                         "
                         :stroke-opacity="
@@ -249,8 +249,9 @@ function handleWheel(event: WheelEvent): void {
         stroke 0.3s;
 }
 
-.country-path.clickable:focus {
-    outline: none;
+.country-path.clickable:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .country-path.clickable:hover {

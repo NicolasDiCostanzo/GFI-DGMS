@@ -1,16 +1,16 @@
-import { describe, expect, it } from 'vitest';
 import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
+import { describe, expect, it } from 'vitest';
 import { getColorForFundingAmount } from './getColorForFundingAmount';
 
 const THRESHOLDS = [20, 40, 60, 80];
 
 describe('getColorForFundingAmount', () => {
     it('returns the "no data" color for zero', () => {
-        expect(getColorForFundingAmount(0, THRESHOLDS)).toBe(MapColors.INACTIVE);
+        expect(getColorForFundingAmount(0, THRESHOLDS)).toBe(MapColors.GREY);
     });
 
     it('returns the "no data" color for a negative amount', () => {
-        expect(getColorForFundingAmount(-5, THRESHOLDS)).toBe(MapColors.INACTIVE);
+        expect(getColorForFundingAmount(-5, THRESHOLDS)).toBe(MapColors.GREY);
     });
 
     const BUCKET_CASES: ReadonlyArray<[amount: number, expectedColor: string]> = [

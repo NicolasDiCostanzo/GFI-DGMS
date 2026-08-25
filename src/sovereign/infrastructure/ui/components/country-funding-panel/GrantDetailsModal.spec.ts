@@ -131,6 +131,17 @@ describe('GrantDetailsModal', () => {
         },
     );
 
+    it('binds the theme variables on the overlay so --modal-overlay resolves', () => {
+        const { setTheme } = useTheme();
+        setTheme('dark');
+        const wrapper = mount(GrantDetailsModal, { props: BASE_PROPS });
+
+        const colors = getThemeColors('dark');
+        const overlayStyle = wrapper.find('.grant-modal-overlay').attributes('style');
+        expect(overlayStyle).toContain(`--modal-overlay: ${colors.MODAL_OVERLAY}`);
+        expect(overlayStyle).toContain(`--modal-shadow: ${colors.MODAL_SHADOW}`);
+    });
+
     it.each([
         ['dark', true],
         ['light', false],

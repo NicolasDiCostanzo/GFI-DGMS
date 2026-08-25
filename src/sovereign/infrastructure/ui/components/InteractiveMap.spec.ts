@@ -83,7 +83,7 @@ describe('InteractiveMap', () => {
         it('fills a country with inactive colour when no funding data exists', async () => {
             const wrapper = await createWrapper({ countryFundings: [] });
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
-            expect(germanPath.attributes('fill')).toBe(MapColors.INACTIVE);
+            expect(germanPath.attributes('fill')).toBe(MapColors.GREY);
         });
     });
 

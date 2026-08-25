@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { formatList } from '@/sovereign/infrastructure/ui/utils/formatList';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { computed, type Component } from 'vue';
 import type { EnrichedGrantRow, GrantTableColumn } from './GrantTable.types';
 import GrantTableCellAmount from './cells/GrantTableCellAmount.vue';
@@ -19,6 +21,8 @@ const props = defineProps<{
 const emit = defineEmits<{
     'open-details': [grantId: string];
 }>();
+
+const { themeMode } = useTheme();
 
 interface CellDefinition {
     component: Component;
@@ -82,14 +86,15 @@ function cellFor(col: GrantTableColumn): CellDefinition {
 
 const cellDefinitions = computed(() => props.columns.map((col) => ({ col, ...cellFor(col) })));
 
-const rowStyle = computed(() =>
-    props.row.aim
+const rowStyle = computed(() => ({
+    '--row-shadow': getThemeColors(themeMode.value).ROW_SHADOW,
+    ...(props.row.aim
         ? {
               backgroundColor: props.row.aim.backgroundColor,
               borderColor: props.row.aim.borderColor,
           }
-        : {},
-);
+        : {}),
+}));
 </script>
 
 <template>
@@ -115,7 +120,7 @@ td {
 .grant-row {
     border-left: 4px solid transparent;
     transition: background-color 0.15s ease-in-out;
-    box-shadow: 0 2px 4px rgba(127, 127, 127, 0.15);
+    box-shadow: 0 2px 4px var(--row-shadow);
 }
 
 .grant-row:last-child td {

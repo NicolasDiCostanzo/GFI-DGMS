@@ -1,5 +1,5 @@
 <template>
-    <div class="projection-card">
+    <div class="projection-card" :style="cssVars">
         <h4 class="projection-title">
             2040 Impact Projection
             <span class="scenario-tag">Moderate Policy Scenario</span>
@@ -27,6 +27,10 @@
 </template>
 
 <script setup lang="ts">
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { computed } from 'vue';
+
 interface ProjectionProps {
     gvaEurBillions: number;
     jobs: number;
@@ -35,13 +39,26 @@ interface ProjectionProps {
 defineProps<{
     projection: ProjectionProps;
 }>();
+
+const { themeMode } = useTheme();
+
+const cssVars = computed(() => {
+    const colors = getThemeColors(themeMode.value);
+    return {
+        '--panel-border': colors.PANEL_BORDER,
+        '--panel-border-strong': colors.PANEL_BORDER_STRONG,
+        '--highlight': colors.HIGHLIGHT,
+        '--highlight-bg': colors.HIGHLIGHT_BG,
+        '--highlight-border': colors.HIGHLIGHT_BORDER,
+    };
+});
 </script>
 
 <style scoped>
 .projection-card {
     padding: 1rem;
     border-radius: 8px;
-    border: 1px solid #2a2a2a;
+    border: 1px solid var(--panel-border);
 }
 
 .projection-title {
@@ -58,9 +75,9 @@ defineProps<{
 .scenario-tag {
     font-size: 0.7rem;
     font-weight: 500;
-    color: #1c92ff;
-    background-color: rgba(28, 146, 255, 0.1);
-    border: 1px solid rgba(28, 146, 255, 0.25);
+    color: var(--highlight);
+    background-color: var(--highlight-bg);
+    border: 1px solid var(--highlight-border);
     padding: 2px 8px;
     border-radius: 9999px;
 }
@@ -68,7 +85,7 @@ defineProps<{
 .projection-metrics {
     display: flex;
     align-items: center;
-    border: 1px solid #333333;
+    border: 1px solid var(--panel-border-strong);
     border-radius: 6px;
     padding: 0.75rem 1rem;
 }

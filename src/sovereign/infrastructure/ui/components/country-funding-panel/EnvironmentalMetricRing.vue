@@ -7,7 +7,7 @@
                         <stop offset="0%" :style="{ stopColor: color }" />
                         <stop
                             offset="100%"
-                            :style="{ stopColor: `color-mix(in srgb, ${color} 80%, black)` }"
+                            :style="{ stopColor: getMetricGradientEndColor(color) }"
                         />
                     </linearGradient>
                 </defs>
@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import { useId } from 'vue';
+import { getMetricGradientEndColor } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 
 withDefaults(
     defineProps<{
