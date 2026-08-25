@@ -1,10 +1,13 @@
 import { CountryFunding, CountryName } from '@/sovereign/domain/CountryFunding';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 import { CountryFundingRepository } from '@/sovereign/domain/repository/CountryFundingRepository';
+import { resolveCountryName } from '@/sovereign/domain/services/resolveCountryName';
 import { GrantDataValidationError } from '@/sovereign/infrastructure/errors/GrantDataValidationError';
 
-const GRANT_DATA_URL =
+const DEFAULT_GRANT_DATA_URL =
     'https://cdn.jsdelivr.net/gh/NicolasDiCostanzo/GFI-DGMS@main/src/sovereign/infrastructure/data/grants.json';
+
+const GRANT_DATA_URL = import.meta.env.VITE_GRANT_DATA_URL ?? DEFAULT_GRANT_DATA_URL;
 
 export async function loadGrantRecords(): Promise<GrantRecord[]> {
     const response = await fetch(GRANT_DATA_URL);
@@ -36,22 +39,8 @@ export interface GrantRecord {
     sourceUrl: string | null;
 }
 
-const COUNTRY_NAME_ALIASES: Readonly<Record<string, string>> = {
-    'United States': 'United States of America',
-    'The Netherlands': 'Netherlands',
-};
-
-const NON_COUNTRY_VALUES = new Set(['European Union', 'Other']);
-
-function resolveCountryName(rawCountry: string | null): string | null {
-    if (rawCountry === null || NON_COUNTRY_VALUES.has(rawCountry)) {
-        return null;
-    }
-    return COUNTRY_NAME_ALIASES[rawCountry] ?? rawCountry;
-}
-
 export class AirtableJsonCountryFundingRepository implements CountryFundingRepository {
-    private readonly fundingByCountry: Map<string, CountryFunding>;
+    private readonly fundingByCountry: Map<CountryName, CountryFunding>;
     private readonly unattributedGrants: Grant[] = [];
 
     constructor(records: GrantRecord[]) {
@@ -59,7 +48,7 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
             throw new Error('Grant data file is missing or empty');
         }
 
-        const grantsByCountry = new Map<string, Grant[]>();
+        const grantsByCountry = new Map<CountryName, Grant[]>();
 
         records.forEach((record, index) => {
             this.validateRecord(record, index + 1);
@@ -67,7 +56,7 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
             const canonicalCountry = resolveCountryName(record.country);
             const grant = new Grant(
                 GrantId(record.id),
-                canonicalCountry ?? record.country ?? 'Unknown',
+                canonicalCountry ?? CountryName(record.country ?? 'Unknown'),
                 record.projectTitle,
                 record.fundingAmountUsd,
                 record.funderAgencies,
@@ -94,7 +83,7 @@ export class AirtableJsonCountryFundingRepository implements CountryFundingRepos
         this.fundingByCountry = new Map(
             [...grantsByCountry.entries()].map(([country, countryGrants]) => [
                 country,
-                new CountryFunding(CountryName(country), countryGrants),
+                new CountryFunding(country, countryGrants),
             ]),
         );
     }

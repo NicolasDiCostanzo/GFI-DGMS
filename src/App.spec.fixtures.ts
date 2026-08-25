@@ -4,7 +4,7 @@ import { Grant, GrantId } from '@/sovereign/domain/Grant';
 export function buildCountryFunding(countryName: string, amountUsd: number): CountryFunding {
     const grant = new Grant(
         GrantId('rec1'),
-        countryName,
+        CountryName(countryName),
         'Untitled grant',
         amountUsd,
         [],

@@ -5,7 +5,7 @@ import CountryFundingPanel from './CountryFundingPanel.vue';
 
 export const GRANT_ONE = new Grant(
     GrantId('rec1'),
-    'France',
+    CountryName('France'),
     'Scaling cultivated foie gras production',
     5_000_000,
     ['Bpifrance', 'European Commission'],
@@ -21,7 +21,7 @@ export const GRANT_ONE = new Grant(
 
 export const GRANT_TWO = new Grant(
     GrantId('rec2'),
-    'France',
+    CountryName('France'),
     'Early-stage precision fermentation research',
     null,
     [],
@@ -37,7 +37,7 @@ export const GRANT_TWO = new Grant(
 
 export const GRANT_THREE = new Grant(
     GrantId('rec3'),
-    'France',
+    CountryName('France'),
     'Unsafe source URL grant',
     null,
     [],
@@ -60,7 +60,7 @@ export const FRANCE_FUNDING_WITH_UNSAFE_URL = new CountryFunding(CountryName('Fr
 
 export const GRANT_WITH_LONG_DESCRIPTION = new Grant(
     GrantId('rec4'),
-    'France',
+    CountryName('France'),
     'Long description grant',
     1_000_000,
     ['Funder'],

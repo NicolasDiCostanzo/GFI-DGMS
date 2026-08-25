@@ -1,3 +1,4 @@
+import { CountryName } from '@/sovereign/domain/CountryName';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 
 export function makeGrant(
@@ -48,7 +49,7 @@ export function makeGrant(
 
     return new Grant(
         GrantId(id),
-        country,
+        CountryName(country),
         projectTitle,
         amountUsd,
         funderAgencies,

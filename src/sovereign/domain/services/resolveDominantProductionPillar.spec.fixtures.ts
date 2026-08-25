@@ -1,3 +1,4 @@
+import { CountryName } from '@/sovereign/domain/CountryName';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 
 let nextId = 1;
@@ -5,7 +6,7 @@ let nextId = 1;
 export function buildGrantWithPlatforms(productionPlatforms: string[]): Grant {
     return new Grant(
         GrantId(`rec${nextId++}`),
-        'France',
+        CountryName('France'),
         'Untitled grant',
         null,
         [],
@@ -52,4 +53,6 @@ export const PILLAR_CASES: ReadonlyArray<
         [['PB & CM'], ['Plant-based']],
         'Plant-based',
     ],
+    ['an "All" value counting toward both pillars', [['All']], null],
+    ['an unrecognized production platform is ignored', [['Unknown platform']], null],
 ];

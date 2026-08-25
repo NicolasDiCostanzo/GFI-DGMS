@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
-import { GetCountryFundingOverview } from '@/sovereign/app/GetCountryFundingOverview';
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { Grant } from '@/sovereign/domain/Grant';
-import {
-    AirtableJsonCountryFundingRepository,
-    loadGrantRecords,
-} from '@/sovereign/infrastructure/adapters/AirtableJsonCountryFundingRepository';
+import { loadCountryFundingOverview } from '@/sovereign/infrastructure/composition';
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
 import CountryFundingPanel from '@/sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
@@ -83,9 +79,7 @@ const appStyle = computed(() => ({
 
 onMounted(async () => {
     try {
-        const records = await loadGrantRecords();
-        const countryFundingRepository = new AirtableJsonCountryFundingRepository(records);
-        const overview = await new GetCountryFundingOverview(countryFundingRepository).execute();
+        const overview = await loadCountryFundingOverview();
         countryFundings.value = overview.countryFundings;
         unattributedGrants.value = [...overview.unattributedGrants];
     } catch (error) {

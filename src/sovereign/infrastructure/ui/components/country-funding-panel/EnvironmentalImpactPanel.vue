@@ -71,9 +71,9 @@ import type { Grant } from '@/sovereign/domain/Grant';
 import {
     CULTIVATED_LCA_FIGURES,
     PLANT_BASED_LCA_FIGURES,
-} from '@/sovereign/infrastructure/ui/constants/EnvironmentalImpactData';
+} from '@/sovereign/domain/constants/EnvironmentalImpactFigures';
 import { ENVIRONMENTAL_METRIC_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
-import { resolveDominantProductionPillar } from '@/sovereign/infrastructure/ui/utils/resolveDominantProductionPillar';
+import { resolveDominantProductionPillar } from '@/sovereign/domain/services/resolveDominantProductionPillar';
 import { computed, ref } from 'vue';
 import EnvironmentalMetricRing from './EnvironmentalMetricRing.vue';
 

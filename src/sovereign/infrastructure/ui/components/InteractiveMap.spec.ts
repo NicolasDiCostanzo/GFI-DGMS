@@ -1,5 +1,5 @@
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
-import { MapColors } from '@/sovereign/domain/constants/MapColors';
+import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';

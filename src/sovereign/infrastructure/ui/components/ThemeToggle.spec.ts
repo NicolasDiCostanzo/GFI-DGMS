@@ -1,7 +1,7 @@
 import {
     COLORBLIND_FUNDING_PROGRESS_COLORS,
     type ThemeMode,
-} from '@/sovereign/domain/constants/MapColors';
+} from '@/sovereign/infrastructure/ui/constants/MapColors';
 import {
     DARK_THEME_COLORS,
     LIGHT_THEME_COLORS,

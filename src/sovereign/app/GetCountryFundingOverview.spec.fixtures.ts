@@ -24,7 +24,7 @@ export class MockCountryFundingRepository implements CountryFundingRepository {
 export const FRANCE_FUNDING = new CountryFunding(CountryName('France'), [
     new Grant(
         GrantId('rec1'),
-        'France',
+        CountryName('France'),
         'Untitled grant',
         1_000_000,
         [],
@@ -41,7 +41,7 @@ export const FRANCE_FUNDING = new CountryFunding(CountryName('France'), [
 
 export const EU_GRANT = new Grant(
     GrantId('rec2'),
-    'European Union',
+    CountryName('European Union'),
     'Untitled grant',
     2_000_000,
     [],

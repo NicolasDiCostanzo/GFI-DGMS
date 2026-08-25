@@ -1,3 +1,5 @@
+import { CountryName } from './CountryName';
+
 export type GrantId = string & { readonly _brand: 'GrantId' };
 export const GrantId = (id: string): GrantId => id as GrantId;
 
@@ -8,7 +10,7 @@ export class Grant {
 
     constructor(
         readonly id: GrantId,
-        readonly country: string,
+        readonly country: CountryName,
         readonly projectTitle: string | null,
         readonly amountUsd: number | null,
         funderAgencies: readonly string[],

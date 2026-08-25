@@ -1,3 +1,4 @@
+import { CountryName } from '@/sovereign/domain/CountryName';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 import { mount } from '@vue/test-utils';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
@@ -5,7 +6,7 @@ import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
 function buildGrantWithPlatforms(productionPlatforms: string[]): Grant {
     return new Grant(
         GrantId('rec1'),
-        'France',
+        CountryName('France'),
         'Untitled grant',
         null,
         [],

@@ -1,8 +1,8 @@
 import { Grant } from './Grant';
 import { GrantCountryMismatchException } from './errors/GrantCountryMismatchException';
+import { CountryName } from './CountryName';
 
-export type CountryName = string & { readonly _brand: 'CountryName' };
-export const CountryName = (name: string): CountryName => name as CountryName;
+export { CountryName } from './CountryName';
 
 export class CountryFunding {
     readonly totalAmountUsd: number;

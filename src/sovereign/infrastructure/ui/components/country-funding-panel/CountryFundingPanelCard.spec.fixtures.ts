@@ -1,3 +1,4 @@
+import { CountryName } from '@/sovereign/domain/CountryName';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
@@ -10,7 +11,7 @@ export const THEME_MODE = 'light' as const;
 
 export const NULL_FIELDS_GRANT = new Grant(
     GrantId('g-null'),
-    'X',
+    CountryName('X'),
     null,
     null,
     [],

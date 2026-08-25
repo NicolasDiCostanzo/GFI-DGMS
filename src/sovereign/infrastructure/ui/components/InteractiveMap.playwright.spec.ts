@@ -1,5 +1,5 @@
 import { expect, test } from '@/../e2e/coverage-fixtures';
-import { MapColors, toRGB } from '@/sovereign/domain/constants/MapColors';
+import { MapColors, toRGB } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { MOCK_GRANT_RECORDS } from '@/sovereign/infrastructure/ui/components/InteractiveMap.playwright.spec.fixtures';
 import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { checkA11y, injectAxe } from 'axe-playwright';

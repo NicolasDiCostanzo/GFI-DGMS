@@ -1,7 +1,7 @@
 import {
     COLORBLIND_FUNDING_PROGRESS_COLORS,
     MapColors,
-} from '@/sovereign/domain/constants/MapColors';
+} from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { describe, expect, it } from 'vitest';
 import { createFundingAmountLegendItems } from './fundingAmountLegend';
 

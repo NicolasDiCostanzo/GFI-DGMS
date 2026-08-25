@@ -1,4 +1,4 @@
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { Grant } from '@/sovereign/domain/Grant';
 import { flushPromises, mount } from '@vue/test-utils';

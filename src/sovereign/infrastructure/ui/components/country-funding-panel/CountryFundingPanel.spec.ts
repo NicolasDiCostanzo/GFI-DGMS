@@ -1,4 +1,4 @@
-import { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { AIM_PALETTES, getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

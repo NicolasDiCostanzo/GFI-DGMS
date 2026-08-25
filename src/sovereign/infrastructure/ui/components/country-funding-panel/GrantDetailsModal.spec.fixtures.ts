@@ -1,8 +1,9 @@
+import { CountryName } from '@/sovereign/domain/CountryName';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 
 export const BASE_GRANT = new Grant(
     GrantId('rec-modal'),
-    'France',
+    CountryName('France'),
     'Solar Grid Expansion',
     5_000_000,
     ['Green Energy Agency'],

@@ -1,4 +1,4 @@
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { resetTheme, useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
@@ -35,7 +35,7 @@ describe('CountryFundingPanelTable', () => {
         expect(wrapper.findAll('tbody tr').length).toBe(1);
         const link = wrapper.find('a.grant-link');
         expect(link.exists()).toBe(true);
-        expect(link.attributes('href')).toBe('https://example.com');
+        expect(link.attributes('href')).toBe('https://example.com/');
     });
 
     it('shows no-url placeholder when sourceUrl is invalid', () => {

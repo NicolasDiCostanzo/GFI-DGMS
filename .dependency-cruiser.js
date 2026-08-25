@@ -34,9 +34,7 @@ export default {
             from: {},
             to: {
                 dependencyTypes: ['core'],
-                path: [
-                    '^(v8/tools/codemap)$',
-                ],
+                path: ['^(v8/tools/codemap)$'],
             },
         },
         {
@@ -75,7 +73,7 @@ export default {
                 path: '^src/[^/]+/domain/',
             },
             to: {
-                path: '^node_modules/(?:vue|`@vue`)/',
+                path: '^node_modules/(?:vue(?:/|$)|@vue/[^/]+(?:/|$))',
             },
         },
         {
@@ -89,6 +87,46 @@ export default {
             },
             to: {
                 path: '^src/[^/]+/infrastructure/',
+            },
+        },
+        {
+            name: 'app-not-import-vue',
+            comment:
+                'Application layer must not depend on Vue framework. ' +
+                'Use cases should be as framework-agnostic as the domain they orchestrate.',
+            severity: 'error',
+            from: {
+                path: '^src/[^/]+/app/',
+            },
+            to: {
+                path: '^node_modules/(?:vue(?:/|$)|@vue/[^/]+(?:/|$))',
+            },
+        },
+        {
+            name: 'shared-not-import-context',
+            comment:
+                'The shared kernel must not depend on a specific bounded context. ' +
+                'Code in shared/ should stay reusable by any future context.',
+            severity: 'error',
+            from: {
+                path: '^src/shared/',
+            },
+            to: {
+                path: '^src/(?!shared/)[^/]+/',
+            },
+        },
+        {
+            name: 'adapters-only-imported-by-composition-root',
+            comment:
+                "Only a context's composition root may construct concrete infrastructure " +
+                'adapters. Everything else (including UI components) should depend on domain ' +
+                'ports instead.',
+            severity: 'error',
+            from: {
+                pathNot: '^src/[^/]+/infrastructure/(composition\\.ts|adapters/)',
+            },
+            to: {
+                path: '^src/[^/]+/infrastructure/adapters/',
             },
         },
     ],
@@ -112,8 +150,7 @@ export default {
                 collapsePattern: 'node_modules/[^/]+',
             },
             archi: {
-                collapsePattern:
-                    '^(node_modules|packages|src/lib|src/utils|src/types)',
+                collapsePattern: '^(node_modules|packages|src/lib|src/utils|src/types)',
             },
         },
     },

@@ -26,6 +26,15 @@ export default defineConfig(({ command }) => ({
                 '**/InteractiveMap.vue',
                 '**/CountryFundingPanel.vue',
                 '**/CountryFundingPanelTable.vue',
+                // vite-plugin-istanbul instruments this file at different line offsets
+                // depending on whether it's loaded via Vitest's SSR transform (unit tests)
+                // or the browser/client transform (Playwright e2e), because of how each
+                // pipeline reformats the multi-line GRANT_DATA_URL declarations. nyc's
+                // location-keyed merge can't reconcile the two, so combined coverage
+                // (test:coverage:merge) falsely reports guard clauses as uncovered even
+                // though the unit-test-only run (test:coverage) is 100%. Revisit if
+                // vite-plugin-istanbul stabilizes line numbers across SSR/client transforms.
+                '**/AirtableJsonCountryFundingRepository.ts',
             ],
             extension: ['.vue', '.ts'],
             requireEnv: true,

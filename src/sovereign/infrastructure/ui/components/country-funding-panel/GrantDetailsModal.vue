@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { Grant } from '@/sovereign/domain/Grant';
-import { validateSourceUrl } from '@/sovereign/domain/services/validateSourceUrl';
+import { validateSourceUrl } from '@/sovereign/infrastructure/ui/utils/validateSourceUrl';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { getAimDisplay } from '@/sovereign/infrastructure/ui/constants/AimDisplay';
 import { getFundingInstrumentDisplay } from '@/sovereign/infrastructure/ui/constants/FundingInstrumentDisplay';
 import { getPlatformSegments } from '@/sovereign/infrastructure/ui/constants/ProductionPlatformSegments';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { formatGrantAmount } from '@/sovereign/infrastructure/ui/utils/formatGrantAmount';
+import { formatList } from '@/sovereign/infrastructure/ui/utils/formatList';
 import { computed, onMounted, onUnmounted, ref, useId, watch } from 'vue';
 
 const props = defineProps<{
@@ -63,10 +64,6 @@ const themeVariables = computed(() => {
         '--link-color': colors.LINK,
     };
 });
-
-function formatList(values: readonly string[]): string {
-    return values.length > 0 ? values.join(', ') : 'Not specified';
-}
 
 const details = computed(() => [
     { label: 'Country', value: props.grant.country },

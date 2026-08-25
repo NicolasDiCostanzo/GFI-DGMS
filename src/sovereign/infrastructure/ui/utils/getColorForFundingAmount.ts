@@ -2,7 +2,7 @@ import {
     MapColors,
     getFundingProgressColors,
     type ThemeMode,
-} from '@/sovereign/domain/constants/MapColors';
+} from '@/sovereign/infrastructure/ui/constants/MapColors';
 
 export function getColorForFundingAmount(
     amountUsd: number,

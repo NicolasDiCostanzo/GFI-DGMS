@@ -1,24 +1,15 @@
+import {
+    PRODUCTION_PLATFORM_KEYS,
+    type ProductionPlatformKey,
+} from '@/sovereign/domain/constants/ProductionPlatformTaxonomy';
+
 export interface PlatformSegment {
     readonly label: 'Plant-based' | 'Cultivated' | 'Fermentation';
     readonly active: boolean;
 }
 
-type PlatformKey = 'PB' | 'CM' | 'FM';
-
-const PLATFORM_VALUES: Readonly<Record<string, readonly PlatformKey[]>> = {
-    'Plant-based': ['PB'],
-    'Plant-Based': ['PB'],
-    'Plant-based meat': ['PB'],
-    'PB & FM': ['PB', 'FM'],
-    'PB & CM': ['PB', 'CM'],
-    Cultivated: ['CM'],
-    'CM & FM': ['CM', 'FM'],
-    Fermentation: ['FM'],
-    All: ['PB', 'CM', 'FM'],
-};
-
 const SEGMENTS: readonly {
-    readonly key: PlatformKey;
+    readonly key: ProductionPlatformKey;
     readonly label: 'Plant-based' | 'Cultivated' | 'Fermentation';
 }[] = [
     { key: 'PB', label: 'Plant-based' },
@@ -32,9 +23,9 @@ export function getPlatformSegments(
     if (platforms.length === 0) {
         return null;
     }
-    const present = new Set<PlatformKey>();
+    const present = new Set<ProductionPlatformKey>();
     for (const platform of platforms) {
-        const keys = PLATFORM_VALUES[platform];
+        const keys = PRODUCTION_PLATFORM_KEYS[platform];
         if (!keys) {
             continue;
         }
