@@ -9,7 +9,9 @@ export default defineConfig(({ command }) => ({
         // shadow-root injection) during the production library build. In dev/test,
         // styles inject normally into the document head, which the standalone SPA
         // entry (createApp + #app, no shadow root) needs to render correctly.
-        vue({ customElement: command === 'build' }),
+        vue({
+            customElement: process.env.BUILD_TARGET === 'ce' || command === 'build'
+        }),
         istanbul({
             include: 'src/**/*',
             exclude: [
@@ -23,9 +25,9 @@ export default defineConfig(({ command }) => ({
                 // reported as uncovered). No source change can fix this; revisit if a
                 // vite-plugin-istanbul upgrade addresses SFC branch mapping.
                 'src/App.vue',
-                '**/InteractiveMap.vue',
-                '**/CountryFundingPanel.vue',
-                '**/CountryFundingPanelTable.vue',
+                'src/**/InteractiveMap.vue',
+                'src/**/CountryFundingPanel.vue',
+                'src/**/CountryFundingPanelTable.vue',
                 // vite-plugin-istanbul instruments this file at different line offsets
                 // depending on whether it's loaded via Vitest's SSR transform (unit tests)
                 // or the browser/client transform (Playwright e2e), because of how each
@@ -34,7 +36,7 @@ export default defineConfig(({ command }) => ({
                 // (test:coverage:merge) falsely reports guard clauses as uncovered even
                 // though the unit-test-only run (test:coverage) is 100%. Revisit if
                 // vite-plugin-istanbul stabilizes line numbers across SSR/client transforms.
-                '**/AirtableJsonCountryFundingRepository.ts',
+                'src/**/AirtableJsonCountryFundingRepository.ts',
             ],
             extension: ['.vue', '.ts'],
             requireEnv: true,
