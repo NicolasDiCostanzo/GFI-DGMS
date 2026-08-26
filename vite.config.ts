@@ -54,14 +54,6 @@ export default defineConfig(({ command }) => ({
     },
     build: {
         sourcemap: true,
-        lib: {
-            entry: fileURLToPath(
-                new URL('./src/sovereign/infrastructure/ui/entry/gfi-dgms-widget.ce.ts', import.meta.url),
-            ),
-            name: 'GFIDGMS',
-            formats: ['es', 'umd'],
-            fileName: (format) => (format === 'es' ? 'gfi-dgms-widget.js' : 'gfi-dgms-widget.umd.js'),
-        },
         // Vue is intentionally bundled so the widget is fully self-contained for
         // third-party embedding (WordPress, Wix, etc.) — no separate Vue runtime
         // needs to be loaded by the host page.
@@ -69,11 +61,6 @@ export default defineConfig(({ command }) => ({
             output: {
                 exports: 'named',
             },
-        },
-        // Vue's esm-bundler build references `process.env.NODE_ENV`; provide a safe
-        // browser global so the UMD bundle works when loaded via a plain <script>.
-        define: {
-            'process.env.NODE_ENV': JSON.stringify('production'),
         },
     },
 }));

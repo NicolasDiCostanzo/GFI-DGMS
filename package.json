@@ -15,7 +15,9 @@
   "scripts": {
     "prepare": "husky",
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build:app": "vue-tsc -b && vite build",
+    "build:widget": "vite build --config vite.config.widget.ts",
+    "build": "npm run build:app && npm run build:widget",
     "preview": "vite preview",
     "typecheck": "vue-tsc -b --noEmit",
     "lint": "eslint . --ext .vue,.ts",
