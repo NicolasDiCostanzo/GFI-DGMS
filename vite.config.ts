@@ -9,9 +9,7 @@ export default defineConfig(({ command }) => ({
         // shadow-root injection) during the production library build. In dev/test,
         // styles inject normally into the document head, which the standalone SPA
         // entry (createApp + #app, no shadow root) needs to render correctly.
-        vue({
-            customElement: process.env.BUILD_TARGET === 'ce' || command === 'build'
-        }),
+        vue(),
         istanbul({
             include: 'src/**/*',
             exclude: [
