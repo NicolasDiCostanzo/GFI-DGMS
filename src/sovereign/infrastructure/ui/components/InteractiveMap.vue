@@ -9,12 +9,11 @@ import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { calculateFundingColorThresholds } from '@/sovereign/infrastructure/ui/utils/calculateFundingColorThresholds';
 import { createFundingAmountLegendItems } from '@/sovereign/infrastructure/ui/utils/fundingAmountLegend';
-import { resolvePreserveAspectRatio } from '@/sovereign/infrastructure/ui/utils/resolvePreserveAspectRatio';
 import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
-import { computed, onMounted, onUnmounted, ref, toRef, useTemplateRef } from 'vue';
+import { computed, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
 
 const props = defineProps<{
@@ -52,32 +51,8 @@ const pathGenerator = computed(() => geoPath(projection.value));
 
 const mapGroupRef = useTemplateRef<SVGGElement>('mapGroupRef');
 const svgRef = useTemplateRef<SVGSVGElement>('svgRef');
-const mapContainerRef = useTemplateRef<HTMLDivElement>('mapContainerRef');
 
-const containerAspectRatio = ref(SVG_WIDTH / SVG_HEIGHT);
-const preserveAspectRatio = computed(
-    () =>
-        `xMidYMid ${resolvePreserveAspectRatio(containerAspectRatio.value, SVG_WIDTH / SVG_HEIGHT)}`,
-);
-
-let resizeObserver: ResizeObserver | undefined;
-
-onMounted(() => {
-    if (!mapContainerRef.value) {
-        return;
-    }
-    resizeObserver = new ResizeObserver(([entry]) => {
-        const { width, height } = entry.contentRect;
-        if (width > 0 && height > 0) {
-            containerAspectRatio.value = width / height;
-        }
-    });
-    resizeObserver.observe(mapContainerRef.value);
-});
-
-onUnmounted(() => {
-    resizeObserver?.disconnect();
-});
+const PRESERVE_ASPECT_RATIO = 'xMidYMid slice';
 
 const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
 const { zoomState, mapTransform, isAnimated, zoomAtPoint, panTo } = useMapZoom();
@@ -149,11 +124,11 @@ function handleWheel(event: WheelEvent): void {
 </script>
 
 <template>
-    <div ref="mapContainerRef" class="map-container">
+    <div class="map-container">
         <svg
             ref="svgRef"
             :viewBox="`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`"
-            :preserveAspectRatio="preserveAspectRatio"
+            :preserveAspectRatio="PRESERVE_ASPECT_RATIO"
             width="100%"
             height="100%"
             xmlns="http://www.w3.org/2000/svg"
