@@ -10,6 +10,7 @@ import {
     FRANCE_FUNDING_WITH_LONG_DESCRIPTION,
     FRANCE_FUNDING_WITH_UNSAFE_URL,
     GERMANY_FUNDING,
+    GERMANY_FUNDING_WITH_GRANTS,
 } from './CountryFundingPanel.spec.fixtures';
 
 describe('CountryFundingPanel', () => {
@@ -180,6 +181,17 @@ describe('CountryFundingPanel', () => {
             const wrapper = createWrapper({ countryFunding: GERMANY_FUNDING });
 
             expect(wrapper.find('.table-legends').exists()).toBe(false);
+        });
+
+        it('resets to collapsed when a different country panel is mounted after expanding', async () => {
+            const wrapper = createWrapper({ countryFunding: FRANCE_FUNDING });
+            await wrapper.find('.legend-label').trigger('click');
+            expect(wrapper.find('.legend-label').attributes('aria-expanded')).toBe('true');
+            wrapper.unmount();
+
+            const nextWrapper = createWrapper({ countryFunding: GERMANY_FUNDING_WITH_GRANTS });
+
+            expect(nextWrapper.find('.legend-label').attributes('aria-expanded')).toBe('false');
         });
     });
 

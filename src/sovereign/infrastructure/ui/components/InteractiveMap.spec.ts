@@ -2,7 +2,7 @@ import { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { createWrapperDefaults } from './InteractiveMap.spec.fixtures';
 import InteractiveMap from './InteractiveMap.vue';
@@ -16,14 +16,51 @@ function dispatchWheel(
     return event;
 }
 
-function dispatchMouse(
+type PointerEventType = 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel';
+
+function dispatchPointer(
     target: EventTarget,
-    type: 'mousedown' | 'mousemove' | 'mouseup' | 'click',
-    options: { clientX: number; clientY: number; button?: number },
-): MouseEvent {
-    const event = new MouseEvent(type, { ...options, cancelable: true, bubbles: true });
+    type: PointerEventType,
+    options: {
+        clientX: number;
+        clientY: number;
+        button?: number;
+        pointerId?: number;
+        pointerType?: string;
+    },
+): PointerEvent {
+    const event = new PointerEvent(type, { ...options, cancelable: true, bubbles: true });
     target.dispatchEvent(event);
     return event;
+}
+
+function dispatchClick(
+    target: EventTarget,
+    options: { clientX: number; clientY: number; button?: number },
+): MouseEvent {
+    const event = new MouseEvent('click', { ...options, cancelable: true, bubbles: true });
+    target.dispatchEvent(event);
+    return event;
+}
+
+function createMockMediaQueryList(matches: boolean) {
+    const listeners: Array<(event: Event) => void> = [];
+    const mql = {
+        matches,
+        addEventListener: vi.fn((_type: string, listener: (event: Event) => void) => {
+            listeners.push(listener);
+        }),
+        removeEventListener: vi.fn(),
+    };
+    return { mql, listeners };
+}
+
+function stubMatchMedia(mql: unknown) {
+    Object.defineProperty(window, 'matchMedia', {
+        value: vi.fn().mockReturnValue(mql),
+        configurable: true,
+        writable: true,
+    });
 }
 
 async function createWrapper(
@@ -87,6 +124,40 @@ describe('InteractiveMap', () => {
         });
     });
 
+    describe('selected country outline', () => {
+        const originalMatchMedia = window.matchMedia;
+
+        afterEach(() => {
+            Object.defineProperty(window, 'matchMedia', {
+                value: originalMatchMedia,
+                configurable: true,
+                writable: true,
+            });
+        });
+
+        it('outlines the selected country on desktop', async () => {
+            const { mql } = createMockMediaQueryList(false);
+            stubMatchMedia(mql);
+
+            const wrapper = await createWrapper({ selectedCountryName: 'Germany' });
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+            expect(germanPath.attributes('stroke')).toBe(MapColors.BLUE);
+            expect(germanPath.attributes('stroke-opacity')).toBe('1');
+            expect(germanPath.attributes('stroke-width')).toBe('0.5');
+        });
+
+        it('does not outline the selected country on mobile', async () => {
+            const { mql } = createMockMediaQueryList(true);
+            stubMatchMedia(mql);
+
+            const wrapper = await createWrapper({ selectedCountryName: 'Germany' });
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+            expect(germanPath.attributes('stroke')).toBe(DARK_THEME_COLORS.BORDER);
+            expect(germanPath.attributes('stroke-opacity')).toBe('0.35');
+            expect(germanPath.attributes('stroke-width')).toBe('0.1');
+        });
+    });
+
     describe('country click events', () => {
         it('emits country-select with the country name on path click', async () => {
             const wrapper = await createWrapper();
@@ -123,16 +194,16 @@ describe('InteractiveMap', () => {
         it('suppresses country-select when the click followed an ocean drag', async () => {
             const wrapper = await createWrapper();
             const oceanRect = wrapper.find('rect').element;
-            dispatchMouse(oceanRect, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
-            dispatchMouse(window, 'mousemove', { clientX: 150, clientY: 130, button: 0 });
-            dispatchMouse(window, 'mousemove', { clientX: 160, clientY: 140, button: 0 });
-            dispatchMouse(window, 'mouseup', { clientX: 160, clientY: 140, button: 0 });
-            dispatchMouse(oceanRect, 'click', { clientX: 160, clientY: 140, button: 0 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, button: 0 });
+            dispatchPointer(window, 'pointermove', { clientX: 150, clientY: 130, button: 0 });
+            dispatchPointer(window, 'pointermove', { clientX: 160, clientY: 140, button: 0 });
+            dispatchPointer(window, 'pointerup', { clientX: 160, clientY: 140, button: 0 });
+            dispatchClick(oceanRect, { clientX: 160, clientY: 140, button: 0 });
             await nextTick();
 
             expect(wrapper.emitted('country-select')).toBeUndefined();
 
-            dispatchMouse(oceanRect, 'click', { clientX: 100, clientY: 100, button: 0 });
+            dispatchClick(oceanRect, { clientX: 100, clientY: 100, button: 0 });
             await nextTick();
 
             expect(wrapper.emitted('country-select')).toHaveLength(1);
@@ -338,40 +409,68 @@ describe('InteractiveMap', () => {
         it('pans the map on left-button drag', async () => {
             const wrapper = await createWrapper();
             const oceanRect = wrapper.find('rect').element;
-            dispatchMouse(oceanRect, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
-            dispatchMouse(window, 'mousemove', { clientX: 150, clientY: 130, button: 0 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, button: 0 });
+            dispatchPointer(window, 'pointermove', { clientX: 150, clientY: 130, button: 0 });
             await nextTick();
 
             const mapGroup = wrapper.find('.map-group');
             expect(mapGroup.attributes('transform')).toBe('translate(50,30) scale(1)');
 
-            dispatchMouse(window, 'mouseup', { clientX: 150, clientY: 130, button: 0 });
+            dispatchPointer(window, 'pointerup', { clientX: 150, clientY: 130, button: 0 });
+        });
+
+        it('pans the map on touch drag', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            dispatchPointer(oceanRect, 'pointerdown', {
+                clientX: 100,
+                clientY: 100,
+                button: 0,
+                pointerType: 'touch',
+            });
+            dispatchPointer(window, 'pointermove', {
+                clientX: 150,
+                clientY: 130,
+                button: 0,
+                pointerType: 'touch',
+            });
+            await nextTick();
+
+            const mapGroup = wrapper.find('.map-group');
+            expect(mapGroup.attributes('transform')).toBe('translate(50,30) scale(1)');
+
+            dispatchPointer(window, 'pointerup', {
+                clientX: 150,
+                clientY: 130,
+                button: 0,
+                pointerType: 'touch',
+            });
         });
 
         it('pans the map on middle-button drag and prevents the default action', async () => {
             const wrapper = await createWrapper();
             const oceanRect = wrapper.find('rect').element;
-            const mousedownEvent = dispatchMouse(oceanRect, 'mousedown', {
+            const pointerDownEvent = dispatchPointer(oceanRect, 'pointerdown', {
                 clientX: 100,
                 clientY: 100,
                 button: 1,
             });
-            expect(mousedownEvent.defaultPrevented).toBe(true);
+            expect(pointerDownEvent.defaultPrevented).toBe(true);
 
-            dispatchMouse(window, 'mousemove', { clientX: 130, clientY: 100, button: 1 });
+            dispatchPointer(window, 'pointermove', { clientX: 130, clientY: 100, button: 1 });
             await nextTick();
 
             const mapGroup = wrapper.find('.map-group');
             expect(mapGroup.attributes('transform')).toBe('translate(30,0) scale(1)');
 
-            dispatchMouse(window, 'mouseup', { clientX: 130, clientY: 100, button: 1 });
+            dispatchPointer(window, 'pointerup', { clientX: 130, clientY: 100, button: 1 });
         });
 
         it('does not start a drag for other mouse buttons', async () => {
             const wrapper = await createWrapper();
             const svgElement = wrapper.find('svg').element;
-            dispatchMouse(svgElement, 'mousedown', { clientX: 0, clientY: 0, button: 2 });
-            dispatchMouse(window, 'mousemove', { clientX: 50, clientY: 30, button: 2 });
+            dispatchPointer(svgElement, 'pointerdown', { clientX: 0, clientY: 0, button: 2 });
+            dispatchPointer(window, 'pointermove', { clientX: 50, clientY: 30, button: 2 });
             await nextTick();
 
             const mapGroup = wrapper.find('.map-group');
@@ -383,8 +482,8 @@ describe('InteractiveMap', () => {
             const svgElement = wrapper.find('svg').element as SVGSVGElement;
             svgElement.getScreenCTM = () => null;
 
-            dispatchMouse(svgElement, 'mousedown', { clientX: 0, clientY: 0, button: 0 });
-            dispatchMouse(window, 'mousemove', { clientX: 50, clientY: 30, button: 0 });
+            dispatchPointer(svgElement, 'pointerdown', { clientX: 0, clientY: 0, button: 0 });
+            dispatchPointer(window, 'pointermove', { clientX: 50, clientY: 30, button: 0 });
             await nextTick();
 
             const mapGroup = wrapper.find('.map-group');
@@ -394,24 +493,54 @@ describe('InteractiveMap', () => {
         it('stops panning if the screen CTM becomes unavailable mid-drag', async () => {
             const wrapper = await createWrapper();
             const svgElement = wrapper.find('svg').element as SVGSVGElement;
-            dispatchMouse(svgElement, 'mousedown', { clientX: 0, clientY: 0, button: 0 });
+            dispatchPointer(svgElement, 'pointerdown', { clientX: 0, clientY: 0, button: 0 });
             svgElement.getScreenCTM = () => null;
 
-            dispatchMouse(window, 'mousemove', { clientX: 50, clientY: 30, button: 0 });
+            dispatchPointer(window, 'pointermove', { clientX: 50, clientY: 30, button: 0 });
             await nextTick();
 
             const mapGroup = wrapper.find('.map-group');
             expect(mapGroup.attributes('transform')).toBeFalsy();
 
-            dispatchMouse(window, 'mouseup', { clientX: 50, clientY: 30, button: 0 });
+            dispatchPointer(window, 'pointerup', { clientX: 50, clientY: 30, button: 0 });
+        });
+
+        it('ignores moves from another pointer while a drag is active', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, pointerId: 1 });
+            dispatchPointer(window, 'pointermove', { clientX: 150, clientY: 130, pointerId: 2 });
+            await nextTick();
+
+            const mapGroup = wrapper.find('.map-group');
+            expect(mapGroup.attributes('transform')).toBeFalsy();
+
+            dispatchPointer(window, 'pointermove', { clientX: 150, clientY: 130, pointerId: 1 });
+            await nextTick();
+
+            expect(mapGroup.attributes('transform')).toBe('translate(50,30) scale(1)');
+
+            dispatchPointer(window, 'pointerup', { clientX: 150, clientY: 130, pointerId: 1 });
+        });
+
+        it('stops panning after pointercancel', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, pointerId: 1 });
+            dispatchPointer(window, 'pointercancel', { clientX: 120, clientY: 110, pointerId: 1 });
+
+            dispatchPointer(window, 'pointermove', { clientX: 150, clientY: 130, pointerId: 1 });
+            await nextTick();
+
+            expect(wrapper.find('.map-group').attributes('transform')).toBeFalsy();
         });
 
         it('still selects the country on a plain click with no movement', async () => {
             const wrapper = await createWrapper();
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]').element;
-            dispatchMouse(germanPath, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
-            dispatchMouse(window, 'mouseup', { clientX: 100, clientY: 100, button: 0 });
-            dispatchMouse(germanPath, 'click', { clientX: 100, clientY: 100, button: 0 });
+            dispatchPointer(germanPath, 'pointerdown', { clientX: 100, clientY: 100, button: 0 });
+            dispatchPointer(window, 'pointerup', { clientX: 100, clientY: 100, button: 0 });
+            dispatchClick(germanPath, { clientX: 100, clientY: 100, button: 0 });
             await nextTick();
 
             expect(wrapper.emitted('country-select')).toHaveLength(1);
@@ -420,33 +549,146 @@ describe('InteractiveMap', () => {
         it('suppresses country-select when the click followed a drag', async () => {
             const wrapper = await createWrapper();
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]').element;
-            dispatchMouse(germanPath, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
-            dispatchMouse(window, 'mousemove', { clientX: 150, clientY: 100, button: 0 });
-            dispatchMouse(window, 'mousemove', { clientX: 160, clientY: 100, button: 0 });
-            dispatchMouse(window, 'mouseup', { clientX: 160, clientY: 100, button: 0 });
-            dispatchMouse(germanPath, 'click', { clientX: 160, clientY: 100, button: 0 });
+            dispatchPointer(germanPath, 'pointerdown', { clientX: 100, clientY: 100, button: 0 });
+            dispatchPointer(window, 'pointermove', { clientX: 150, clientY: 100, button: 0 });
+            dispatchPointer(window, 'pointermove', { clientX: 160, clientY: 100, button: 0 });
+            dispatchPointer(window, 'pointerup', { clientX: 160, clientY: 100, button: 0 });
+            dispatchClick(germanPath, { clientX: 160, clientY: 100, button: 0 });
             await nextTick();
 
             expect(wrapper.emitted('country-select')).toBeUndefined();
 
-            dispatchMouse(germanPath, 'click', { clientX: 150, clientY: 100, button: 0 });
+            dispatchClick(germanPath, { clientX: 150, clientY: 100, button: 0 });
             await nextTick();
 
             expect(wrapper.emitted('country-select')).toHaveLength(1);
         });
 
-        it('removes the window mousemove/mouseup listeners added by an in-progress drag on unmount', async () => {
+        it('removes the window pointer listeners added by an in-progress drag on unmount', async () => {
             const wrapper = await createWrapper();
             const oceanRect = wrapper.find('rect').element;
             const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
 
-            dispatchMouse(oceanRect, 'mousedown', { clientX: 100, clientY: 100, button: 0 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, button: 0 });
             wrapper.unmount();
 
-            expect(removeEventListenerSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
-            expect(removeEventListenerSpy).toHaveBeenCalledWith('mouseup', expect.any(Function));
+            expect(removeEventListenerSpy).toHaveBeenCalledWith(
+                'pointermove',
+                expect.any(Function),
+            );
+            expect(removeEventListenerSpy).toHaveBeenCalledWith('pointerup', expect.any(Function));
+            expect(removeEventListenerSpy).toHaveBeenCalledWith(
+                'pointercancel',
+                expect.any(Function),
+            );
 
             removeEventListenerSpy.mockRestore();
+        });
+    });
+
+    describe('pinch to zoom', () => {
+        it('zooms the map around the pinch midpoint', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, pointerId: 1 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 200, clientY: 100, pointerId: 2 });
+
+            dispatchPointer(window, 'pointermove', { clientX: 300, clientY: 100, pointerId: 2 });
+            await nextTick();
+
+            expect(wrapper.find('.map-group').attributes('transform')).toBe(
+                'translate(-200,-100) scale(2)',
+            );
+
+            dispatchPointer(window, 'pointerup', { clientX: 300, clientY: 100, pointerId: 2 });
+            dispatchPointer(window, 'pointermove', { clientX: 400, clientY: 400, pointerId: 1 });
+            await nextTick();
+
+            expect(wrapper.find('.map-group').attributes('transform')).toBe(
+                'translate(-200,-100) scale(2)',
+            );
+        });
+
+        it('ignores a third pointer while a pinch is active', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, pointerId: 1 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 200, clientY: 100, pointerId: 2 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 400, clientY: 400, pointerId: 3 });
+
+            dispatchPointer(window, 'pointermove', { clientX: 500, clientY: 500, pointerId: 3 });
+            await nextTick();
+            expect(wrapper.find('.map-group').attributes('transform')).toBeFalsy();
+
+            dispatchPointer(window, 'pointermove', { clientX: 300, clientY: 100, pointerId: 2 });
+            await nextTick();
+            expect(wrapper.find('.map-group').attributes('transform')).toBe(
+                'translate(-200,-100) scale(2)',
+            );
+
+            dispatchPointer(window, 'pointerup', { clientX: 300, clientY: 100, pointerId: 2 });
+        });
+
+        it('skips pinch zoom when the fingers share a starting point', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, pointerId: 1 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, pointerId: 2 });
+
+            dispatchPointer(window, 'pointermove', { clientX: 130, clientY: 140, pointerId: 1 });
+            await nextTick();
+
+            expect(wrapper.find('.map-group').attributes('transform')).toBeFalsy();
+
+            dispatchPointer(window, 'pointerup', { clientX: 130, clientY: 140, pointerId: 1 });
+        });
+
+        it('skips pinch zoom when the fingers collapse onto one point', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, pointerId: 1 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 200, clientY: 100, pointerId: 2 });
+
+            dispatchPointer(window, 'pointermove', { clientX: 150, clientY: 100, pointerId: 1 });
+            await nextTick();
+            expect(wrapper.find('.map-group').attributes('transform')).toBeFalsy();
+
+            dispatchPointer(window, 'pointermove', { clientX: 150, clientY: 100, pointerId: 2 });
+            await nextTick();
+            expect(wrapper.find('.map-group').attributes('transform')).toBeFalsy();
+
+            dispatchPointer(window, 'pointerup', { clientX: 150, clientY: 100, pointerId: 2 });
+        });
+
+        it('stops pinch zoom when the screen CTM becomes unavailable', async () => {
+            const wrapper = await createWrapper();
+            const mapGroupElement = wrapper.find('.map-group').element as SVGGElement;
+            const oceanRect = wrapper.find('rect').element;
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, pointerId: 1 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 200, clientY: 100, pointerId: 2 });
+            mapGroupElement.getScreenCTM = () => null;
+
+            dispatchPointer(window, 'pointermove', { clientX: 300, clientY: 100, pointerId: 2 });
+            await nextTick();
+
+            expect(wrapper.find('.map-group').attributes('transform')).toBeFalsy();
+
+            dispatchPointer(window, 'pointerup', { clientX: 300, clientY: 100, pointerId: 2 });
+        });
+
+        it('suppresses country-select after a pinch gesture', async () => {
+            const wrapper = await createWrapper();
+            const oceanRect = wrapper.find('rect').element;
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]').element;
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 100, clientY: 100, pointerId: 1 });
+            dispatchPointer(oceanRect, 'pointerdown', { clientX: 200, clientY: 100, pointerId: 2 });
+            dispatchPointer(window, 'pointermove', { clientX: 300, clientY: 100, pointerId: 2 });
+            dispatchPointer(window, 'pointerup', { clientX: 300, clientY: 100, pointerId: 2 });
+            dispatchPointer(window, 'pointerup', { clientX: 300, clientY: 100, pointerId: 1 });
+            dispatchClick(germanPath, { clientX: 150, clientY: 100, button: 0 });
+            await nextTick();
+
+            expect(wrapper.emitted('country-select')).toBeUndefined();
         });
     });
 
