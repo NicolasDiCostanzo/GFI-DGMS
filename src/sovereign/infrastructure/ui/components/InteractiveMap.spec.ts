@@ -247,6 +247,32 @@ describe('InteractiveMap', () => {
             expect(wrapper.find('.map-tooltip').exists()).toBe(false);
         });
 
+        it('hides tooltip div on mouseleave', async () => {
+            const wrapper = await createWrapper();
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+            await germanPath.trigger('mouseenter');
+            await germanPath.trigger('mouseleave');
+            expect(wrapper.find('.map-tooltip').exists()).toBe(false);
+        });
+
+        it('hides tooltip div when a country is selected by click', async () => {
+            const wrapper = await createWrapper();
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+            await germanPath.trigger('mouseenter');
+            await germanPath.trigger('click');
+            expect(wrapper.find('.map-tooltip').exists()).toBe(false);
+            expect(wrapper.emitted('country-select')).toHaveLength(1);
+        });
+
+        it('hides tooltip div when a country is selected via keyboard', async () => {
+            const wrapper = await createWrapper();
+            const germanPath = wrapper.find('path.country-path[data-country-id="276"]');
+            await germanPath.trigger('focus');
+            await germanPath.trigger('keydown.enter');
+            expect(wrapper.find('.map-tooltip').exists()).toBe(false);
+            expect(wrapper.emitted('country-select')).toHaveLength(1);
+        });
+
         it('country path has clickable cursor', async () => {
             const wrapper = await createWrapper();
             const germanPath = wrapper.find('path.country-path[data-country-id="276"]');

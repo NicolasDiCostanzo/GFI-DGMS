@@ -87,6 +87,7 @@ function handlePathClick(countryName: string): void {
     if (!hasCountryData(countryName)) {
         return;
     }
+    hideTooltip();
     emit('country-select', countryName);
 }
 
