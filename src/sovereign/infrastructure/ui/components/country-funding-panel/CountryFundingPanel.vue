@@ -38,7 +38,9 @@ const emit = defineEmits<{
 const { themeMode } = useTheme();
 
 const isExpanded = ref(false);
-const { isLegendExpanded, hasUserToggledLegend, toggleLegend } = useLegendState();
+const { isLegendExpanded, hasUserToggledLegend, toggleLegend } = useLegendState(
+    props.countryFunding?.countryName ?? '',
+);
 
 watch(
     [isCompactView, isExpanded],

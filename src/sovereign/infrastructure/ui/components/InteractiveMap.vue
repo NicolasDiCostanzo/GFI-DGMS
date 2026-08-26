@@ -4,6 +4,7 @@ import { useCountryDisplay } from '@/sovereign/infrastructure/ui/composables/use
 import { useMapDrag } from '@/sovereign/infrastructure/ui/composables/useMapDrag';
 import { useMapTooltip } from '@/sovereign/infrastructure/ui/composables/useMapTooltip';
 import { useMapZoom } from '@/sovereign/infrastructure/ui/composables/useMapZoom';
+import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
@@ -61,6 +62,7 @@ const { getCountryFill, getCountryAriaLabel, getTooltipText, hasCountryData } = 
 );
 
 const themeColors = computed(() => getThemeColors(themeMode.value));
+const isMobile = useMediaQuery('(max-width: 768px)');
 const legendItems = computed(() => {
     const thresholds = calculateFundingColorThresholds(
         props.countryFundings.map((funding) => funding.totalAmountUsd),
@@ -70,13 +72,19 @@ const legendItems = computed(() => {
 
 const { isDragging, handleDragStart, didDragOccur, resetDidDrag } = useMapDrag(
     svgRef,
+    mapGroupRef,
     panTo,
     () => ({ x: zoomState.value.translateX, y: zoomState.value.translateY }),
+    zoomAtPoint,
 );
 
 function getCountryPath(countryFeature: Feature<Geometry, NamedFeatureProperties>): string {
     /* istanbul ignore next -- pathGenerator only returns null for degenerate geometries; unreachable with the current world-atlas dataset */
     return pathGenerator.value(countryFeature) ?? '';
+}
+
+function isSelectedCountry(countryName: string): boolean {
+    return !isMobile.value && countryName === props.selectedCountryName;
 }
 
 function handlePathClick(countryName: string): void {
@@ -87,6 +95,7 @@ function handlePathClick(countryName: string): void {
     if (!hasCountryData(countryName)) {
         return;
     }
+    hideTooltip();
     emit('country-select', countryName);
 }
 
@@ -134,7 +143,7 @@ function handleWheel(event: WheelEvent): void {
             xmlns="http://www.w3.org/2000/svg"
             :class="{ 'is-dragging': isDragging }"
             @wheel.prevent="handleWheel"
-            @mousedown="handleDragStart"
+            @pointerdown="handleDragStart"
         >
             <rect
                 :width="SVG_WIDTH"
@@ -155,15 +164,15 @@ function handleWheel(event: WheelEvent): void {
                         :fill="getCountryFill(countryFeature.properties.name)"
                         :aria-label="getCountryAriaLabel(countryFeature.properties.name)"
                         :stroke="
-                            countryFeature.properties.name === selectedCountryName
+                            isSelectedCountry(countryFeature.properties.name)
                                 ? MapColors.BLUE
                                 : themeColors.BORDER
                         "
                         :stroke-opacity="
-                            countryFeature.properties.name === selectedCountryName ? 1 : 0.35
+                            isSelectedCountry(countryFeature.properties.name) ? 1 : 0.35
                         "
                         :stroke-width="
-                            countryFeature.properties.name === selectedCountryName ? 0.5 : 0.1
+                            isSelectedCountry(countryFeature.properties.name) ? 0.5 : 0.1
                         "
                         :role="hasCountryData(countryFeature.properties.name) ? 'button' : 'img'"
                         :tabindex="hasCountryData(countryFeature.properties.name) ? 0 : -1"
@@ -211,6 +220,8 @@ function handleWheel(event: WheelEvent): void {
 
 .map-container svg {
     cursor: grab;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .map-container svg.is-dragging {
@@ -227,6 +238,13 @@ function handleWheel(event: WheelEvent): void {
 .country-path.clickable:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+    .country-path:focus,
+    .country-path:focus-visible {
+        outline: none;
+    }
 }
 
 .country-path.clickable:hover {

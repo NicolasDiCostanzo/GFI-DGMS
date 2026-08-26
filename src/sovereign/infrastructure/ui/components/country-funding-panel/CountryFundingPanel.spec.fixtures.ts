@@ -80,6 +80,26 @@ export const FRANCE_FUNDING_WITH_LONG_DESCRIPTION = new CountryFunding(CountryNa
 
 export const GERMANY_FUNDING = new CountryFunding(CountryName('Germany'), []);
 
+export const GRANT_GERMANY = new Grant(
+    GrantId('rec5'),
+    CountryName('Germany'),
+    'Germany grant',
+    1_000_000,
+    ['Funder'],
+    'Funder Name',
+    'Recipient',
+    'Description',
+    'Commercialization',
+    'Business Grant',
+    ['Cultivated'],
+    ['2024'],
+    'https://example.com/germany',
+);
+
+export const GERMANY_FUNDING_WITH_GRANTS = new CountryFunding(CountryName('Germany'), [
+    GRANT_GERMANY,
+]);
+
 export interface WrapperOptions {
     countryFunding?: CountryFunding | null;
 }

@@ -4,22 +4,35 @@ const DRAG_THRESHOLD_PX = 2;
 const PANNABLE_BUTTONS = [0, 1];
 
 interface DragState {
+    pointerId: number;
     startClient: { x: number; y: number };
     startLocal: { x: number; y: number };
     startTranslate: { x: number; y: number };
 }
 
+interface PinchState {
+    lastDistance: number;
+}
+
 export function useMapDrag(
     svgRef: Readonly<Ref<SVGSVGElement | null>>,
+    groupRef: Readonly<Ref<SVGGElement | null>>,
     panTo: (x: number, y: number) => void,
     getCurrentTranslate: () => { x: number; y: number },
+    zoomAtPoint: (point: { x: number; y: number }, factor: number) => void,
 ) {
     const isDragging = ref(false);
     let dragState: DragState | null = null;
+    let pinchState: PinchState | null = null;
     let didDrag = false;
+    const activePointers = new Map<number, { x: number; y: number }>();
 
-    function toLocalPoint(clientX: number, clientY: number): { x: number; y: number } | null {
-        const ctm = svgRef.value?.getScreenCTM();
+    function clientToLocal(
+        element: SVGGraphicsElement | null,
+        clientX: number,
+        clientY: number,
+    ): { x: number; y: number } | null {
+        const ctm = element?.getScreenCTM();
         if (!ctm) {
             return null;
         }
@@ -27,9 +40,39 @@ export function useMapDrag(
         return { x: point.x, y: point.y };
     }
 
-    function handleDragMove(event: MouseEvent): void {
-        /* istanbul ignore next -- this listener is only attached between handleDragStart and
-           handleDragEnd, which always set/clear these together; unreachable via the DOM */
+    function toPanDeltaPoint(clientX: number, clientY: number): { x: number; y: number } | null {
+        return clientToLocal(svgRef.value, clientX, clientY);
+    }
+
+    function toZoomAnchorPoint(clientX: number, clientY: number): { x: number; y: number } | null {
+        return clientToLocal(groupRef.value, clientX, clientY);
+    }
+
+    function handlePinchMove(pinch: PinchState): void {
+        const [first, second] = [...activePointers.values()];
+        const distance = Math.hypot(second.x - first.x, second.y - first.y);
+        if (distance === 0 || pinch.lastDistance === 0) {
+            return;
+        }
+        const local = toZoomAnchorPoint((first.x + second.x) / 2, (first.y + second.y) / 2);
+        if (!local) {
+            return;
+        }
+        zoomAtPoint(local, distance / pinch.lastDistance);
+        pinch.lastDistance = distance;
+    }
+
+    function handleDragMove(event: PointerEvent): void {
+        if (!activePointers.has(event.pointerId)) {
+            return;
+        }
+        activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+        if (pinchState) {
+            handlePinchMove(pinchState);
+            return;
+        }
+
         if (!dragState) {
             return;
         }
@@ -42,7 +85,7 @@ export function useMapDrag(
             didDrag = distance > DRAG_THRESHOLD_PX;
         }
 
-        const local = toLocalPoint(event.clientX, event.clientY);
+        const local = toPanDeltaPoint(event.clientX, event.clientY);
         if (!local) {
             return;
         }
@@ -52,21 +95,54 @@ export function useMapDrag(
         );
     }
 
-    function handleDragEnd(): void {
-        isDragging.value = false;
-        dragState = null;
-        window.removeEventListener('mousemove', handleDragMove);
-        window.removeEventListener('mouseup', handleDragEnd);
+    function addDragListeners(): void {
+        window.addEventListener('pointermove', handleDragMove);
+        window.addEventListener('pointerup', handleDragEnd);
+        window.addEventListener('pointercancel', handleDragEnd);
     }
 
-    function handleDragStart(event: MouseEvent): void {
-        if (!PANNABLE_BUTTONS.includes(event.button)) {
+    function removeDragListeners(): void {
+        window.removeEventListener('pointermove', handleDragMove);
+        window.removeEventListener('pointerup', handleDragEnd);
+        window.removeEventListener('pointercancel', handleDragEnd);
+    }
+
+    function handleDragEnd(event: PointerEvent): void {
+        if (!activePointers.has(event.pointerId)) {
+            return;
+        }
+        activePointers.clear();
+        dragState = null;
+        pinchState = null;
+        isDragging.value = false;
+        removeDragListeners();
+    }
+
+    function beginPinch(): void {
+        const [first, second] = [...activePointers.values()];
+        dragState = null;
+        isDragging.value = false;
+        didDrag = true;
+        pinchState = {
+            lastDistance: Math.hypot(second.x - first.x, second.y - first.y),
+        };
+    }
+
+    function handleDragStart(event: PointerEvent): void {
+        if (activePointers.size >= 2 || !PANNABLE_BUTTONS.includes(event.button)) {
             return;
         }
         if (event.button === 1) {
             event.preventDefault();
         }
-        const local = toLocalPoint(event.clientX, event.clientY);
+        activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (activePointers.size === 2) {
+            beginPinch();
+            return;
+        }
+        addDragListeners();
+
+        const local = toPanDeltaPoint(event.clientX, event.clientY);
         if (!local) {
             return;
         }
@@ -74,19 +150,15 @@ export function useMapDrag(
         didDrag = false;
         const currentTranslate = getCurrentTranslate();
         dragState = {
+            pointerId: event.pointerId,
             startClient: { x: event.clientX, y: event.clientY },
             startLocal: local,
             startTranslate: { x: currentTranslate.x, y: currentTranslate.y },
         };
         isDragging.value = true;
-        window.addEventListener('mousemove', handleDragMove);
-        window.addEventListener('mouseup', handleDragEnd);
     }
 
-    onUnmounted(() => {
-        window.removeEventListener('mousemove', handleDragMove);
-        window.removeEventListener('mouseup', handleDragEnd);
-    });
+    onUnmounted(removeDragListeners);
 
     function didDragOccur(): boolean {
         return didDrag;
