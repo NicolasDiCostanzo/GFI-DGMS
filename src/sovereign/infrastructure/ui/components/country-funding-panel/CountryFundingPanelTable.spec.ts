@@ -7,6 +7,7 @@ import { nextTick } from 'vue';
 import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import {
     basicGrant,
+    cardSortGrants,
     customDefaultsGrant,
     invalidUrlGrant,
     longDescriptionGrant,
@@ -406,5 +407,68 @@ describe('CountryFundingPanelTable', () => {
 
         const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
         expect(rowTitles).toEqual(['No years', 'Ends 2024', 'Ends 2026']);
+    });
+
+    describe('compact card sorting', () => {
+        it('shows the sort control only in compact view', () => {
+            const compact = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+            expect(compact.find('.card-sort-bar').exists()).toBe(true);
+
+            const expanded = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: false },
+            });
+            expect(expanded.find('.card-sort-bar').exists()).toBe(false);
+        });
+
+        it('lists only sortable columns as sort options', () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+            const optionValues = wrapper
+                .findAll('.card-sort-select option')
+                .map((o) => o.attributes('value'))
+                .filter((v) => v !== '');
+            expect(optionValues).not.toContain('url');
+            expect(optionValues).not.toContain('description');
+            expect(optionValues).not.toContain('platform');
+            expect(optionValues).toContain('projectTitle');
+        });
+
+        it('sorts the cards by the selected column ascending', async () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+
+            await wrapper.find('.card-sort-select').setValue('projectTitle');
+
+            const titles = wrapper.findAll('.grant-card-title').map((c) => c.text());
+            expect(titles).toEqual(['Apple Project', 'Banana Project', 'Cherry Project']);
+        });
+
+        it('reverses the order when the direction toggle is clicked', async () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+
+            await wrapper.find('.card-sort-select').setValue('projectTitle');
+            await wrapper.find('.card-sort-direction').trigger('click');
+
+            const titles = wrapper.findAll('.grant-card-title').map((c) => c.text());
+            expect(titles).toEqual(['Cherry Project', 'Banana Project', 'Apple Project']);
+        });
+
+        it('restores the original order when Default is selected', async () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+
+            await wrapper.find('.card-sort-select').setValue('projectTitle');
+            await wrapper.find('.card-sort-select').setValue('');
+
+            const titles = wrapper.findAll('.grant-card-title').map((c) => c.text());
+            expect(titles).toEqual(['Banana Project', 'Apple Project', 'Cherry Project']);
+        });
     });
 });
