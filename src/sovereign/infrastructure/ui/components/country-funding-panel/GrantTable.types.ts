@@ -18,6 +18,16 @@ export const GRANT_TABLE_COLUMN_ORDER = [
 
 export type GrantTableColumn = (typeof GRANT_TABLE_COLUMN_ORDER)[number];
 
+const NON_SORTABLE_GRANT_TABLE_COLUMNS: ReadonlySet<GrantTableColumn> = new Set([
+    'platform',
+    'description',
+    'url',
+]);
+
+export function isSortableGrantTableColumn(column: GrantTableColumn): boolean {
+    return !NON_SORTABLE_GRANT_TABLE_COLUMNS.has(column);
+}
+
 export const GRANT_TABLE_COLUMN_LABELS: Record<GrantTableColumn, string> = {
     projectTitle: 'Title',
     recipients: 'Recipient(s)',
