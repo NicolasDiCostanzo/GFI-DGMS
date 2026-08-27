@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EnrichedGrantRow, GrantTableColumn } from './GrantTable.types';
 import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
-import StretchedSortControls from './StretchedSortControls.vue';
+import SortControls from './SortControls.vue';
 
 type ColumnKey = GrantTableColumn;
 
@@ -22,7 +22,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <StretchedSortControls
+    <SortControls
         :sortable-columns="sortableColumns"
         :column-labels="columnLabels"
         :sort-column="sortColumn"
