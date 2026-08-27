@@ -1,40 +1,25 @@
 <template>
     <section class="environmental-impact-panel" :style="cssVars">
-        <div
-            class="pillar-tabs"
-            role="tablist"
-            aria-label="Select production method for comparison"
-        >
-            <button
-                v-for="pillar in PILLARS"
-                :key="pillar"
-                type="button"
-                role="tab"
-                :aria-selected="pillar === selectedPillar"
-                class="pillar-tab"
-                :class="{ 'pillar-tab--active': pillar === selectedPillar }"
-                @click="selectedPillar = pillar"
-            >
-                {{ PILLAR_LABELS[pillar] }}
-            </button>
+        <div class="pillar-tabs-container">
+            <TabSelector
+                :options="PILLARS"
+                :labels="PILLAR_LABELS"
+                :model-value="selectedPillar"
+                :accessibility-label="'Select production method for comparison'"
+                @update:model-value="selectedPillar = $event"
+            />
         </div>
 
         <h3 class="panel-title">Conventional meat vs. {{ pillarLabel }}</h3>
 
-        <div class="meat-type-tabs" role="tablist" aria-label="Select meat type for comparison">
-            <button
-                v-for="type in MEAT_TYPES"
-                :key="type"
-                type="button"
-                role="tab"
-                :aria-selected="type === selectedMeatType"
-                class="meat-type-tab"
-                :class="{ 'meat-type-tab--active': type === selectedMeatType }"
-                @click="selectedMeatType = type"
-            >
-                {{ MEAT_TYPE_LABELS[type] }}
-            </button>
-        </div>
+        <TabSelector
+            :options="MEAT_TYPES"
+            :labels="MEAT_TYPE_LABELS"
+            :model-value="selectedMeatType"
+            :font-weight="600"
+            :accessibility-label="'Select meat type for comparison'"
+            @update:model-value="selectedMeatType = $event"
+        />
 
         <div class="metric-rings">
             <div
@@ -98,6 +83,7 @@ import {
 } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { computed, ref } from 'vue';
 import EnvironmentalMetricRing from './EnvironmentalMetricRing.vue';
+import TabSelector from './TabSelector.vue';
 
 const MEAT_TYPES = ['beef', 'pork', 'chicken'] as const;
 type MeatType = (typeof MEAT_TYPES)[number];
@@ -165,53 +151,8 @@ const sourceText = computed(() => {
     text-align: center;
 }
 
-.pillar-tabs {
-    display: flex;
-    border: 1px solid var(--panel-border-strong);
-    border-radius: 9999px;
-    padding: 3px;
+.pillar-tabs-container {
     margin-bottom: 0.75rem;
-}
-
-.pillar-tab {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: var(--text);
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 6px 12px;
-    border-radius: 9999px;
-    cursor: pointer;
-    transition: all 0.15s ease-in-out;
-}
-
-.pillar-tab--active {
-    background: var(--highlight);
-}
-
-.meat-type-tabs {
-    display: flex;
-    border: 1px solid var(--panel-border-strong);
-    border-radius: 9999px;
-    padding: 3px;
-}
-
-.meat-type-tab {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: var(--text);
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 9999px;
-    cursor: pointer;
-    transition: all 0.15s ease-in-out;
-}
-
-.meat-type-tab--active {
-    background: var(--highlight);
 }
 
 .metric-rings {
