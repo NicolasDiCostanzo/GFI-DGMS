@@ -1,6 +1,25 @@
 <template>
-    <section v-if="figures.length" class="environmental-impact-panel" :style="cssVars">
-        <h3 class="panel-title">Environmental impact: {{ pillarLabel }} vs. conventional meat</h3>
+    <section class="environmental-impact-panel" :style="cssVars">
+        <div
+            class="pillar-tabs"
+            role="tablist"
+            aria-label="Select production method for comparison"
+        >
+            <button
+                v-for="pillar in PILLARS"
+                :key="pillar"
+                type="button"
+                role="tab"
+                :aria-selected="pillar === selectedPillar"
+                class="pillar-tab"
+                :class="{ 'pillar-tab--active': pillar === selectedPillar }"
+                @click="selectedPillar = pillar"
+            >
+                {{ PILLAR_LABELS[pillar] }}
+            </button>
+        </div>
+
+        <h3 class="panel-title">Conventional meat vs. {{ pillarLabel }}</h3>
 
         <div class="meat-type-tabs" role="tablist" aria-label="Select meat type for comparison">
             <button
@@ -43,7 +62,7 @@
                     :value="selectedFigure?.landReductionPercent"
                     label="Land use"
                     :color="ENVIRONMENTAL_METRIC_COLORS.land"
-                    icon="🌱"
+                    icon="🌾"
                 />
             </div>
             <div
@@ -67,17 +86,16 @@
 </template>
 
 <script setup lang="ts">
-import type { Grant } from '@/sovereign/domain/Grant';
 import {
     CULTIVATED_LCA_FIGURES,
     PLANT_BASED_LCA_FIGURES,
 } from '@/sovereign/domain/constants/EnvironmentalImpactFigures';
+import type { ProductionPillar } from '@/sovereign/domain/services/resolveDominantProductionPillar';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import {
     ENVIRONMENTAL_METRIC_COLORS,
     getThemeColors,
 } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
-import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
-import { resolveDominantProductionPillar } from '@/sovereign/domain/services/resolveDominantProductionPillar';
 import { computed, ref } from 'vue';
 import EnvironmentalMetricRing from './EnvironmentalMetricRing.vue';
 
@@ -90,15 +108,14 @@ const MEAT_TYPE_LABELS: Record<MeatType, string> = {
     chicken: 'Chicken',
 };
 
-const props = withDefaults(
-    defineProps<{
-        grants?: readonly Grant[];
-    }>(),
-    {
-        grants: () => [],
-    },
-);
+const PILLARS: readonly ProductionPillar[] = ['Plant-based', 'Cultivated'];
 
+const PILLAR_LABELS: Record<ProductionPillar, string> = {
+    'Plant-based': 'Plant-based 🌱',
+    Cultivated: 'Cultivated meat 🧫',
+};
+
+const selectedPillar = ref<ProductionPillar>('Plant-based');
 const selectedMeatType = ref<MeatType>('beef');
 
 const { themeMode } = useTheme();
@@ -112,28 +129,22 @@ const cssVars = computed(() => {
     };
 });
 
-const dominantPillar = computed(() => resolveDominantProductionPillar(props.grants));
-
-const figures = computed(() => {
-    if (dominantPillar.value === 'Plant-based') return PLANT_BASED_LCA_FIGURES;
-    if (dominantPillar.value === 'Cultivated') return CULTIVATED_LCA_FIGURES;
-    return [];
-});
+const figures = computed(() =>
+    selectedPillar.value === 'Cultivated' ? CULTIVATED_LCA_FIGURES : PLANT_BASED_LCA_FIGURES,
+);
 
 const selectedFigure = computed(
     () => figures.value.find((figure) => figure.meatType === selectedMeatType.value) ?? null,
 );
 
 const pillarLabel = computed(() =>
-    dominantPillar.value === 'Cultivated'
-        ? 'cultivated meat (renewable energy)'
-        : 'plant-based meat',
+    selectedPillar.value === 'Cultivated' ? 'cultivated meat' : 'plant-based meat',
 );
 
 const sourceText = computed(() => {
     const commonText =
         'Savings compared to conventional meat production; not tied to specific grants.';
-    return dominantPillar.value === 'Cultivated'
+    return selectedPillar.value === 'Cultivated'
         ? `${commonText} Source: CE Delft.`
         : `${commonText} Source: GFI.`;
 });
@@ -141,6 +152,7 @@ const sourceText = computed(() => {
 
 <style scoped>
 .environmental-impact-panel {
+    max-width: 315px;
     padding: 1rem;
     border-radius: 8px;
     border: 1px solid var(--panel-border);
@@ -150,6 +162,32 @@ const sourceText = computed(() => {
     margin: 0 0 0.75rem 0;
     font-size: 0.85rem;
     font-weight: 600;
+    text-align: center;
+}
+
+.pillar-tabs {
+    display: flex;
+    border: 1px solid var(--panel-border-strong);
+    border-radius: 9999px;
+    padding: 3px;
+    margin-bottom: 0.75rem;
+}
+
+.pillar-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.pillar-tab--active {
+    background: var(--highlight);
 }
 
 .meat-type-tabs {
@@ -190,7 +228,7 @@ const sourceText = computed(() => {
 }
 
 .figure-source {
-    font-size: 0.7rem;
+    font-size: 0.63rem;
     margin-top: 0.75rem;
     margin-bottom: 0;
     line-height: 1.3;

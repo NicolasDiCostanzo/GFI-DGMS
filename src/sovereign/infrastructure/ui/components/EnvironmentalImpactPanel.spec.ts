@@ -2,13 +2,16 @@ import { ENVIRONMENTAL_METRIC_COLORS } from '@/sovereign/infrastructure/ui/const
 import { describe, expect, it } from 'vitest';
 import {
     createWrapper,
-    CULTIVATED_DOMINANT_GRANTS,
-    PLANT_BASED_DOMINANT_GRANTS,
+    CULTIVATED_MEAT_TYPE_CASES,
     PLANT_BASED_MEAT_TYPE_CASES,
-    TIED_GRANTS,
 } from './EnvironmentalImpactPanel.spec.fixtures';
 
-async function selectTab(wrapper: ReturnType<typeof createWrapper>, tabLabel: string) {
+async function selectPillarTab(wrapper: ReturnType<typeof createWrapper>, tabLabel: string) {
+    const tab = wrapper.findAll('.pillar-tab').find((button) => button.text() === tabLabel);
+    await tab?.trigger('click');
+}
+
+async function selectMeatTab(wrapper: ReturnType<typeof createWrapper>, tabLabel: string) {
     const tab = wrapper.findAll('.meat-type-tab').find((button) => button.text() === tabLabel);
     await tab?.trigger('click');
 }
@@ -27,33 +30,26 @@ function ringValue(wrapper: ReturnType<typeof createWrapper>, variant: string) {
 }
 
 describe('EnvironmentalImpactPanel', () => {
-    describe('with no grants', () => {
-        it('renders nothing', () => {
-            const wrapper = createWrapper();
-            expect(wrapper.find('.environmental-impact-panel').exists()).toBe(false);
-        });
+    it('renders a pillar tab for each production method with Plant-based selected by default', () => {
+        const wrapper = createWrapper();
+        const tabs = wrapper.findAll('.pillar-tab');
+        expect(tabs.map((tab) => tab.text())).toEqual(['Plant-based 🌱', 'Cultivated meat 🧫']);
+        expect(tabs[0]?.classes()).toContain('pillar-tab--active');
     });
 
-    describe('with a tied production mix', () => {
-        it('renders nothing', () => {
-            const wrapper = createWrapper(TIED_GRANTS);
-            expect(wrapper.find('.environmental-impact-panel').exists()).toBe(false);
-        });
-    });
-
-    describe('with a plant-based-dominant mix', () => {
+    describe('plant-based pillar', () => {
         it('renders a tab for each meat type with Beef selected by default', () => {
-            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
+            const wrapper = createWrapper();
             const tabs = wrapper.findAll('.meat-type-tab');
             expect(tabs.map((tab) => tab.text())).toEqual(['Beef', 'Pork', 'Chicken']);
             expect(tabs[0]?.classes()).toContain('meat-type-tab--active');
             expect(wrapper.find('.panel-title').text()).toBe(
-                'Environmental impact: plant-based meat vs. conventional meat',
+                'Conventional meat vs. plant-based meat',
             );
         });
 
         it('renders no metrics when no figure matches the selected meat type', async () => {
-            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
+            const wrapper = createWrapper();
             const vm = wrapper.vm as unknown as { selectedMeatType: string };
             vm.selectedMeatType = 'unknown';
             await wrapper.vm.$nextTick();
@@ -64,8 +60,8 @@ describe('EnvironmentalImpactPanel', () => {
         it.each(PLANT_BASED_MEAT_TYPE_CASES)(
             'shows $tabLabel figures when its tab is selected',
             async ({ tabLabel, ghg, land, water }) => {
-                const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
-                await selectTab(wrapper, tabLabel);
+                const wrapper = createWrapper();
+                await selectMeatTab(wrapper, tabLabel);
 
                 expect(ringValue(wrapper, 'ghg')).toBe(ghg);
                 expect(ringValue(wrapper, 'land')).toBe(land);
@@ -74,7 +70,7 @@ describe('EnvironmentalImpactPanel', () => {
         );
 
         it('applies the GHG, Land, and Water metric colors to their rings', () => {
-            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
+            const wrapper = createWrapper();
 
             const expectGradientColor = (variant: string, color: string) => {
                 const labels: Record<string, string> = {
@@ -99,37 +95,54 @@ describe('EnvironmentalImpactPanel', () => {
                 .map((gradient) => gradient.attributes('id'));
             expect(new Set(gradientIds).size).toBe(3);
         });
+
+        it('cites the GFI source', () => {
+            const wrapper = createWrapper();
+            expect(wrapper.find('.figure-source').text()).toBe(
+                'Savings compared to conventional meat production; not tied to specific grants. Source: GFI.',
+            );
+        });
     });
 
-    describe('with a cultivated-dominant mix', () => {
-        it('shows the cultivated GHG reduction for the default Beef tab', () => {
-            const wrapper = createWrapper(CULTIVATED_DOMINANT_GRANTS);
+    describe('cultivated pillar', () => {
+        it('shows the cultivated GHG reduction for the default Beef tab', async () => {
+            const wrapper = createWrapper();
+            await selectPillarTab(wrapper, 'Cultivated meat 🧫');
+
+            expect(wrapper.find('.panel-title').text()).toBe(
+                'Conventional meat vs. cultivated meat',
+            );
             expect(ringValue(wrapper, 'ghg')).toBe('-98%');
         });
 
-        it('cites the CE Delft LCA source for the cultivated figures', () => {
-            const wrapper = createWrapper(CULTIVATED_DOMINANT_GRANTS);
+        it('cites the CE Delft LCA source for the cultivated figures', async () => {
+            const wrapper = createWrapper();
+            await selectPillarTab(wrapper, 'Cultivated meat 🧫');
+
             expect(wrapper.find('.figure-source').text()).toBe(
                 'Savings compared to conventional meat production; not tied to specific grants. Source: CE Delft.',
             );
         });
 
-        it('omits metrics whose cultivated figure is unavailable', async () => {
-            const wrapper = createWrapper(CULTIVATED_DOMINANT_GRANTS);
-            await selectTab(wrapper, 'Pork');
+        it.each(CULTIVATED_MEAT_TYPE_CASES)(
+            'shows $tabLabel figures when its tab is selected',
+            async ({ tabLabel, ghg, land, water }) => {
+                const wrapper = createWrapper();
+                await selectPillarTab(wrapper, 'Cultivated meat 🧫');
+                await selectMeatTab(wrapper, tabLabel);
 
-            expect(ringValue(wrapper, 'ghg')).toBe('-80%');
-            expect(ringValue(wrapper, 'land')).toBe('-70%');
-            expect(ringValue(wrapper, 'water')).toBeNull();
-        });
+                expect(ringValue(wrapper, 'ghg')).toBe(ghg);
+                expect(ringValue(wrapper, 'land')).toBe(land);
+                expect(ringValue(wrapper, 'water')).toBe(water);
+            },
+        );
     });
 
-    describe('sourcing', () => {
-        it('cites the GFI plant-based source when plant-based is dominant', () => {
-            const wrapper = createWrapper(PLANT_BASED_DOMINANT_GRANTS);
-            expect(wrapper.find('.figure-source').text()).toBe(
-                'Savings compared to conventional meat production; not tied to specific grants. Source: GFI.',
-            );
-        });
+    it('switches back to plant-based figures when the plant-based tab is reselected', async () => {
+        const wrapper = createWrapper();
+        await selectPillarTab(wrapper, 'Cultivated meat 🧫');
+        await selectPillarTab(wrapper, 'Plant-based 🌱');
+
+        expect(wrapper.find('.panel-title').text()).toBe('Conventional meat vs. plant-based meat');
     });
 });

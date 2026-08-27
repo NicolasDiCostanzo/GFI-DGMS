@@ -7,6 +7,8 @@ import { createMockLocalStorage, FRANCE_FUNDING, GERMANY_FUNDING } from './App.s
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
 import CountryFundingPanel from './sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
+import EnvironmentalImpactPanel from './sovereign/infrastructure/ui/components/EnvironmentalImpactPanel.vue';
+import GlobalImpactBenchmarksToggle from './sovereign/infrastructure/ui/components/GlobalImpactBenchmarksToggle.vue';
 import InteractiveMap from './sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import { resetTheme } from './sovereign/infrastructure/ui/composables/useTheme';
 
@@ -277,6 +279,36 @@ describe('App', () => {
             map.vm.$emit('country-select', 'Germany');
             await flushPromises();
             expect(mountCount).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe('global impact benchmarks panel', () => {
+        it('does not render the panel by default', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+            const wrapper = mountApp();
+            await flushPromises();
+
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(false);
+        });
+
+        it('toggles the panel visibility when the toggle button is clicked', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+            const wrapper = mountApp();
+            await flushPromises();
+
+            await wrapper
+                .findComponent(GlobalImpactBenchmarksToggle)
+                .find('button')
+                .trigger('click');
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(true);
+
+            await wrapper
+                .findComponent(GlobalImpactBenchmarksToggle)
+                .find('button')
+                .trigger('click');
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(false);
         });
     });
 
