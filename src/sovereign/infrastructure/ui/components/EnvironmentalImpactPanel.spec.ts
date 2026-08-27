@@ -7,12 +7,18 @@ import {
 } from './EnvironmentalImpactPanel.spec.fixtures';
 
 async function selectPillarTab(wrapper: ReturnType<typeof createWrapper>, tabLabel: string) {
-    const tab = wrapper.findAll('.pillar-tab').find((button) => button.text() === tabLabel);
+    const tab = wrapper
+        .find('[aria-label="Select production method for comparison"]')
+        .findAll('.tab-selector-option')
+        .find((button) => button.text() === tabLabel);
     await tab?.trigger('click');
 }
 
 async function selectMeatTab(wrapper: ReturnType<typeof createWrapper>, tabLabel: string) {
-    const tab = wrapper.findAll('.meat-type-tab').find((button) => button.text() === tabLabel);
+    const tab = wrapper
+        .find('[aria-label="Select meat type for comparison"]')
+        .findAll('.tab-selector-option')
+        .find((button) => button.text() === tabLabel);
     await tab?.trigger('click');
 }
 
@@ -32,17 +38,21 @@ function ringValue(wrapper: ReturnType<typeof createWrapper>, variant: string) {
 describe('EnvironmentalImpactPanel', () => {
     it('renders a pillar tab for each production method with Plant-based selected by default', () => {
         const wrapper = createWrapper();
-        const tabs = wrapper.findAll('.pillar-tab');
+        const tabs = wrapper
+            .find('[role="tablist"][aria-label="Select production method for comparison"]')
+            .findAll('.tab-selector-option');
         expect(tabs.map((tab) => tab.text())).toEqual(['Plant-based 🌱', 'Cultivated meat 🧫']);
-        expect(tabs[0]?.classes()).toContain('pillar-tab--active');
+        expect(tabs[0]?.classes()).toContain('tab-selector-option--active');
     });
 
     describe('plant-based pillar', () => {
         it('renders a tab for each meat type with Beef selected by default', () => {
             const wrapper = createWrapper();
-            const tabs = wrapper.findAll('.meat-type-tab');
+            const tabs = wrapper
+                .find('[role="tablist"][aria-label="Select meat type for comparison"]')
+                .findAll('.tab-selector-option');
             expect(tabs.map((tab) => tab.text())).toEqual(['Beef', 'Pork', 'Chicken']);
-            expect(tabs[0]?.classes()).toContain('meat-type-tab--active');
+            expect(tabs[0]?.classes()).toContain('tab-selector-option--active');
             expect(wrapper.find('.panel-title').text()).toBe(
                 'Conventional meat vs. plant-based meat',
             );
