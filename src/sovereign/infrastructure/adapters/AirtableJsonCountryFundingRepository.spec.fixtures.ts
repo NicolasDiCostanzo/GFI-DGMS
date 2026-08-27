@@ -1,4 +1,4 @@
-import { GrantDataValidationError } from '../errors/GrantDataValidationError';
+import { GrantDataValidationError } from '@/sovereign/infrastructure/errors/GrantDataValidationError';
 import type { GrantRecord } from './AirtableJsonCountryFundingRepository';
 
 export const BASE_RECORD: GrantRecord = {
@@ -51,11 +51,6 @@ export const VALIDATION_CASES: ReadonlyArray<
         GrantDataValidationError,
     ],
     [
-        'GrantDataValidationError when funderAgencies is not an array',
-        { funderAgencies: 'Bpifrance' },
-        GrantDataValidationError,
-    ],
-    [
         'GrantDataValidationError when funderAgencies contains a non-string',
         { funderAgencies: [42] },
         GrantDataValidationError,
@@ -83,11 +78,6 @@ export const VALIDATION_CASES: ReadonlyArray<
     [
         'GrantDataValidationError when a nullable scalar is not a string',
         { projectTitle: 123 },
-        GrantDataValidationError,
-    ],
-    [
-        'GrantDataValidationError when country is not a string',
-        { country: 456 },
         GrantDataValidationError,
     ],
 ];

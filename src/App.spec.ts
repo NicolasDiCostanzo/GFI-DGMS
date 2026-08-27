@@ -1,4 +1,4 @@
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import type { Grant } from '@/sovereign/domain/Grant';
 import { flushPromises, mount } from '@vue/test-utils';
@@ -7,8 +7,10 @@ import { createMockLocalStorage, FRANCE_FUNDING, GERMANY_FUNDING } from './App.s
 import App from './App.vue';
 import { SettingsParseError } from './shared/errors/SettingsParseError.ts';
 import CountryFundingPanel from './sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
-import EuAmbitionDial from './sovereign/infrastructure/ui/components/eu-ambition-dial/EuAmbitionDial.vue';
+import EnvironmentalImpactPanel from './sovereign/infrastructure/ui/components/EnvironmentalImpactPanel.vue';
+import GlobalImpactBenchmarksToggle from './sovereign/infrastructure/ui/components/GlobalImpactBenchmarksToggle.vue';
 import InteractiveMap from './sovereign/infrastructure/ui/components/InteractiveMap.vue';
+import { resetTheme } from './sovereign/infrastructure/ui/composables/useTheme';
 
 const findAllMock = vi.fn<() => Promise<CountryFunding[]>>();
 const findUnattributedGrantsMock = vi.fn<() => Promise<readonly Grant[]>>();
@@ -25,7 +27,7 @@ function mountApp(options: Parameters<typeof mount<typeof App>>[1] = {}) {
         ...options,
         global: {
             ...options.global,
-            stubs: { InteractiveMap: true, CountryFundingPanel: true, EuAmbitionDial: true },
+            stubs: { InteractiveMap: true, CountryFundingPanel: true },
         },
     });
 }
@@ -35,7 +37,6 @@ function mountWithTrackingPanel({ count }: { count: () => void }) {
         global: {
             stubs: {
                 InteractiveMap: true,
-                EuAmbitionDial: true,
                 CountryFundingPanel: {
                     template: '<div class="tracked-panel"><slot /></div>',
                     mounted() {
@@ -53,6 +54,7 @@ describe('App', () => {
         findAllMock.mockReset();
         findUnattributedGrantsMock.mockReset();
         findUnattributedGrantsMock.mockResolvedValue([]);
+        resetTheme();
     });
 
     it('loads country fundings and passes them down to the map and the EU dial', async () => {
@@ -65,23 +67,6 @@ describe('App', () => {
             GERMANY_FUNDING,
             FRANCE_FUNDING,
         ]);
-        expect(wrapper.findComponent(EuAmbitionDial).props('countryFundings')).toEqual([
-            GERMANY_FUNDING,
-            FRANCE_FUNDING,
-        ]);
-    });
-
-    it('passes unattributed grants down to the EU dial', async () => {
-        const unattributed: Grant[] = [];
-        findAllMock.mockResolvedValue([]);
-        findUnattributedGrantsMock.mockResolvedValue(unattributed);
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        expect(wrapper.findComponent(EuAmbitionDial).props('unattributedGrants')).toEqual(
-            unattributed,
-        );
     });
 
     it('displays error message when loading country fundings fails', async () => {
@@ -92,16 +77,6 @@ describe('App', () => {
 
         expect(wrapper.find('p[role="alert"]').exists()).toBe(true);
         expect(wrapper.find('p[role="alert"]').text()).toContain('network down');
-    });
-
-    it('displays error message when loading unattributed grants fails', async () => {
-        findAllMock.mockResolvedValue([]);
-        findUnattributedGrantsMock.mockRejectedValue(new Error('network down'));
-
-        const wrapper = mountApp();
-        await flushPromises();
-
-        expect(wrapper.find('p[role="alert"]').exists()).toBe(true);
     });
 
     it('does not render CountryFundingPanel when no country is selected', async () => {
@@ -162,7 +137,7 @@ describe('App', () => {
     });
 
     it('defaults to dark theme when no localStorage value exists', async () => {
-        localStorage.removeItem('gfi-dgms-settings');
+        localStorage.removeItem('gfi-funding-map-settings');
         findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
@@ -172,7 +147,7 @@ describe('App', () => {
     });
 
     it('loads theme from localStorage on mount', async () => {
-        localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+        localStorage.setItem('gfi-funding-map-settings', JSON.stringify({ themeMode: 'light' }));
         findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
@@ -182,7 +157,7 @@ describe('App', () => {
     });
 
     it('persists theme change to localStorage', async () => {
-        localStorage.removeItem('gfi-dgms-settings');
+        localStorage.removeItem('gfi-funding-map-settings');
         findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
@@ -193,13 +168,13 @@ describe('App', () => {
         const options = wrapper.findAll('.theme-toggle-option');
         await options[2].trigger('click');
 
-        const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
+        const stored = JSON.parse(localStorage.getItem('gfi-funding-map-settings') || '{}');
         expect(stored.themeMode).toBe('colorblind-light');
     });
 
     describe('settings persistence errors', () => {
         it('throws SettingsParseError when localStorage contains invalid JSON', async () => {
-            localStorage.setItem('gfi-dgms-settings', '{invalid json}');
+            localStorage.setItem('gfi-funding-map-settings', '{invalid json}');
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             expect(() => mountApp()).toThrow(SettingsParseError);
@@ -218,7 +193,7 @@ describe('App', () => {
                 await flushPromises();
 
                 expect(wrapper.find('.theme-dark').exists()).toBe(true);
-                expect(getItem).toHaveBeenCalledWith('gfi-dgms-settings');
+                expect(getItem).toHaveBeenCalledWith('gfi-funding-map-settings');
             } finally {
                 vi.unstubAllGlobals();
             }
@@ -266,7 +241,7 @@ describe('App', () => {
 
     describe('CountryFundingPanel remounting', () => {
         beforeEach(() => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'dark' }));
+            localStorage.setItem('gfi-funding-map-settings', JSON.stringify({ themeMode: 'dark' }));
         });
 
         it('remounts the panel when a different country is selected', async () => {
@@ -307,9 +282,57 @@ describe('App', () => {
         });
     });
 
+    describe('global impact benchmarks panel', () => {
+        it('does not render the panel by default', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+            const wrapper = mountApp();
+            await flushPromises();
+
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(false);
+        });
+
+        it('toggles the panel visibility when the toggle button is clicked', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+            const wrapper = mountApp();
+            await flushPromises();
+
+            await wrapper
+                .findComponent(GlobalImpactBenchmarksToggle)
+                .find('button')
+                .trigger('click');
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(true);
+
+            await wrapper
+                .findComponent(GlobalImpactBenchmarksToggle)
+                .find('button')
+                .trigger('click');
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(false);
+        });
+
+        it('hides the panel when EnvironmentalImpactPanel emits close', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+            const wrapper = mountApp();
+            await flushPromises();
+
+            await wrapper
+                .findComponent(GlobalImpactBenchmarksToggle)
+                .find('button')
+                .trigger('click');
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(true);
+
+            wrapper.findComponent(EnvironmentalImpactPanel).vm.$emit('close');
+            await flushPromises();
+
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(false);
+        });
+    });
+
     describe('theme prop', () => {
         it('uses the theme prop value when provided, overrides localStorage', async () => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'dark' }));
+            localStorage.setItem('gfi-funding-map-settings', JSON.stringify({ themeMode: 'dark' }));
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
@@ -322,7 +345,10 @@ describe('App', () => {
         });
 
         it('uses the theme prop value when provided, regardless of localStorage', async () => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+            localStorage.setItem(
+                'gfi-funding-map-settings',
+                JSON.stringify({ themeMode: 'light' }),
+            );
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
@@ -333,28 +359,8 @@ describe('App', () => {
             expect(wrapper.find('.theme-colorblind-dark').exists()).toBe(true);
         });
 
-        it('falls back to localStorage when theme prop is not provided', async () => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
-            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
-
-            const wrapper = mountApp();
-            await flushPromises();
-
-            expect(wrapper.find('.theme-light').exists()).toBe(true);
-        });
-
-        it('defaults to dark when neither theme prop nor localStorage is set', async () => {
-            localStorage.removeItem('gfi-dgms-settings');
-            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
-
-            const wrapper = mountApp();
-            await flushPromises();
-
-            expect(wrapper.find('.theme-dark').exists()).toBe(true);
-        });
-
         it('still persists through localStorage when theme prop is used', async () => {
-            localStorage.removeItem('gfi-dgms-settings');
+            localStorage.removeItem('gfi-funding-map-settings');
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             mountApp({
@@ -362,12 +368,15 @@ describe('App', () => {
             });
             await flushPromises();
 
-            const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
+            const stored = JSON.parse(localStorage.getItem('gfi-funding-map-settings') || '{}');
             expect(stored.themeMode).toBe('colorblind-light');
         });
 
         it('falls back to settings when theme prop has an invalid runtime value', async () => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+            localStorage.setItem(
+                'gfi-funding-map-settings',
+                JSON.stringify({ themeMode: 'light' }),
+            );
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
@@ -380,7 +389,7 @@ describe('App', () => {
         });
 
         it('updates the UI when theme prop changes', async () => {
-            localStorage.removeItem('gfi-dgms-settings');
+            localStorage.removeItem('gfi-funding-map-settings');
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
@@ -395,39 +404,6 @@ describe('App', () => {
 
             expect(wrapper.find('.theme-dark').exists()).toBe(false);
             expect(wrapper.find('.theme-light').exists()).toBe(true);
-        });
-
-        it('passes theme mode to CountryFundingPanel', async () => {
-            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
-
-            const wrapper = mountApp({
-                props: { theme: 'light' },
-            });
-            await flushPromises();
-
-            wrapper.findComponent(InteractiveMap).vm.$emit('country-select', 'Germany');
-            await flushPromises();
-
-            expect(wrapper.findComponent(CountryFundingPanel).props('themeMode')).toBe('light');
-        });
-
-        it('updates CountryFundingPanel theme when theme prop changes', async () => {
-            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
-
-            const wrapper = mountApp({
-                props: { theme: 'dark' },
-            });
-            await flushPromises();
-
-            wrapper.findComponent(InteractiveMap).vm.$emit('country-select', 'Germany');
-            await flushPromises();
-            const panel = wrapper.findComponent(CountryFundingPanel);
-            expect(panel.props('themeMode')).toBe('dark');
-
-            await wrapper.setProps({ theme: 'light' });
-            await flushPromises();
-
-            expect(panel.props('themeMode')).toBe('light');
         });
 
         it('applies theme CSS variables to the app container', async () => {

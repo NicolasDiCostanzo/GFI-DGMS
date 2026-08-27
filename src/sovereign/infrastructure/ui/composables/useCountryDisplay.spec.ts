@@ -1,4 +1,4 @@
-import { MapColors } from '@/sovereign/domain/constants/MapColors';
+import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { describe, expect, it } from 'vitest';
 import { ref } from 'vue';
 import { useCountryDisplay } from './useCountryDisplay';
@@ -9,14 +9,13 @@ describe('useCountryDisplay', () => {
         it('returns true for a country with funding data', () => {
             const { hasCountryData } = useCountryDisplay(
                 ref([buildCountryFunding('Germany', 1_000_000)]),
-                ref('dark'),
             );
 
             expect(hasCountryData('Germany')).toBe(true);
         });
 
         it('returns false for a country with no funding data', () => {
-            const { hasCountryData } = useCountryDisplay(ref([]), ref('dark'));
+            const { hasCountryData } = useCountryDisplay(ref([]));
 
             expect(hasCountryData('France')).toBe(false);
         });
@@ -24,33 +23,29 @@ describe('useCountryDisplay', () => {
 
     describe('getCountryFill', () => {
         it('returns the inactive color for a country with no data', () => {
-            const { getCountryFill } = useCountryDisplay(ref([]), ref('dark'));
+            const { getCountryFill } = useCountryDisplay(ref([]));
 
-            expect(getCountryFill('France')).toBe(MapColors.INACTIVE);
+            expect(getCountryFill('France')).toBe(MapColors.GREY);
         });
 
         it('returns the inactive color for a country with zero disclosed funding', () => {
-            const { getCountryFill } = useCountryDisplay(
-                ref([buildCountryFunding('France', 0)]),
-                ref('dark'),
-            );
+            const { getCountryFill } = useCountryDisplay(ref([buildCountryFunding('France', 0)]));
 
-            expect(getCountryFill('France')).toBe(MapColors.INACTIVE);
+            expect(getCountryFill('France')).toBe(MapColors.GREY);
         });
 
         it('returns a funding-tier color for a country with disclosed funding', () => {
             const { getCountryFill } = useCountryDisplay(
                 ref([buildCountryFunding('Germany', 1_000_000)]),
-                ref('dark'),
             );
 
-            expect(getCountryFill('Germany')).not.toBe(MapColors.INACTIVE);
+            expect(getCountryFill('Germany')).not.toBe(MapColors.GREY);
         });
     });
 
     describe('getCountryAriaLabel / getTooltipText', () => {
         it('reports no disclosed funding for a country with none', () => {
-            const { getCountryAriaLabel, getTooltipText } = useCountryDisplay(ref([]), ref('dark'));
+            const { getCountryAriaLabel, getTooltipText } = useCountryDisplay(ref([]));
 
             expect(getCountryAriaLabel('France')).toBe('France — no disclosed funding');
             expect(getTooltipText('France')).toBe('France — no disclosed funding');
@@ -59,7 +54,6 @@ describe('useCountryDisplay', () => {
         it('reports the formatted total for a country with disclosed funding', () => {
             const { getCountryAriaLabel, getTooltipText } = useCountryDisplay(
                 ref([buildCountryFunding('Germany', 5_000_000)]),
-                ref('dark'),
             );
 
             expect(getCountryAriaLabel('Germany')).toBe('Germany — $5M tracked');

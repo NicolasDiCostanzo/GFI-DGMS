@@ -1,4 +1,7 @@
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import {
+    isDarkTheme,
+    type ThemeMode,
+} from '@/sovereign/infrastructure/ui/constants/ThemePrimitives';
 import { INSTRUMENT_FAMILY_COLORS } from './ThemeColors';
 
 export interface FundingInstrumentDisplay {
@@ -6,15 +9,6 @@ export interface FundingInstrumentDisplay {
     readonly label: string;
     readonly color: string;
 }
-
-const FAMILY_ORDER: readonly (keyof typeof INSTRUMENT_FAMILY_COLORS)[] = [
-    'Research',
-    'Business',
-    'Debt',
-    'Equity',
-    'Infrastructure',
-    'Other',
-];
 
 const INSTRUMENT_ENTRIES: Readonly<
     Record<
@@ -52,10 +46,6 @@ const INSTRUMENT_ENTRIES: Readonly<
     Other: { family: 'Other', label: 'Other' },
 };
 
-function isDarkTheme(themeMode: ThemeMode): boolean {
-    return themeMode === 'dark' || themeMode === 'colorblind-dark';
-}
-
 export function getFundingInstrumentDisplay(
     instrument: string | null | undefined,
     themeMode: ThemeMode,
@@ -73,17 +63,4 @@ export function getFundingInstrumentDisplay(
         ? INSTRUMENT_FAMILY_COLORS[family].dark
         : INSTRUMENT_FAMILY_COLORS[family].light;
     return { family, label, color };
-}
-
-export function getFundingInstrumentLegend(
-    themeMode: ThemeMode,
-): readonly FundingInstrumentDisplay[] {
-    const dark = isDarkTheme(themeMode);
-    return FAMILY_ORDER.map((family) => ({
-        family,
-        label: family,
-        color: dark
-            ? INSTRUMENT_FAMILY_COLORS[family].dark
-            : INSTRUMENT_FAMILY_COLORS[family].light,
-    }));
 }

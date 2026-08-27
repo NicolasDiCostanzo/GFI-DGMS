@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
 import {
     COLORBLIND_FUNDING_PROGRESS_COLORS,
     type ThemeMode,
-} from '../../../domain/constants/MapColors';
-import { getThemeColors } from '../constants/ThemeColors';
-import type { ThemeIconName } from '../utils/themeIcons';
+} from '@/sovereign/infrastructure/ui/constants/MapColors';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import type { ThemeIconName } from '@/sovereign/infrastructure/ui/utils/themeIcons';
+import { computed, ref } from 'vue';
 import ThemeIcon from './ThemeIcon.vue';
 
 const props = defineProps<{
@@ -53,7 +53,7 @@ function select(value: ThemeMode): void {
             class="theme-toggle-button"
             aria-haspopup="listbox"
             :aria-expanded="isOpen"
-            @click="isOpen = true"
+            @click="isOpen = !isOpen"
         >
             <span class="theme-toggle-icon">
                 <ThemeIcon :name="currentIcon" />
@@ -151,12 +151,10 @@ function select(value: ThemeMode): void {
 
 .theme-toggle-option-label {
     flex: 1;
-    color: var(--text);
 }
 
 .theme-toggle-option.is-selected {
     background: var(--inactive);
-    color: var(--text);
 }
 
 .theme-toggle-swatch {

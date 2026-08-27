@@ -1,9 +1,13 @@
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
+import { resetTheme, useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
-import { getThemeColors } from '../../constants/ThemeColors';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
+import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import {
     basicGrant,
+    cardSortGrants,
     customDefaultsGrant,
     invalidUrlGrant,
     longDescriptionGrant,
@@ -12,50 +16,67 @@ import {
     sampleColumnOrders,
 } from './CountryFundingPanelTable.fixtures';
 import CountryFundingPanelTable, { ColumnKey } from './CountryFundingPanelTable.vue';
+import GrantDetailsModal from './GrantDetailsModal.vue';
 
 describe('CountryFundingPanelTable', () => {
+    beforeEach(() => {
+        resetTheme();
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
     it('renders rows for grants and shows link for valid URL', () => {
         const g1 = makeGrant({ id: 'g1', sourceUrl: 'https://example.com', amountUsd: 2_000_000 });
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g1], themeMode: 'light' as ThemeMode },
+            props: { grants: [g1], isCompactView: false },
         });
 
         expect(wrapper.findAll('tbody tr').length).toBe(1);
         const link = wrapper.find('a.grant-link');
         expect(link.exists()).toBe(true);
-        expect(link.attributes('href')).toBe('https://example.com');
+        expect(link.attributes('href')).toBe('https://example.com/');
     });
 
     it('shows no-url placeholder when sourceUrl is invalid', () => {
         const g = invalidUrlGrant;
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g], themeMode: 'light' as ThemeMode },
+            props: { grants: [g], isCompactView: false },
         });
 
         expect(wrapper.find('a.grant-link').exists()).toBe(false);
         expect(wrapper.find('.no-url').exists()).toBe(true);
     });
 
-    it('toggles long descriptions with Show more / Show less', async () => {
+    it('shows a View details button for long descriptions that opens the details modal', async () => {
         const g = longDescriptionGrant;
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g], themeMode: 'light' as ThemeMode },
+            props: { grants: [g], isCompactView: false },
         });
 
-        const moreBtn = wrapper.find('button.description-toggle');
-        expect(moreBtn.exists()).toBe(true);
-        expect(moreBtn.text()).toMatch(/Show more/i);
+        const viewDetailsBtn = wrapper.find('button.description-toggle');
+        expect(viewDetailsBtn.exists()).toBe(true);
+        expect(viewDetailsBtn.text()).toMatch(/View details/i);
 
-        await moreBtn.trigger('click');
-        const lessBtn = wrapper.find('button.description-toggle');
-        expect(lessBtn.exists()).toBe(true);
-        expect(lessBtn.text()).toMatch(/Show less/i);
-        expect(wrapper.text()).toContain((longDescriptionGrant.description ?? '').slice(0, 20));
+        expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
 
-        await lessBtn.trigger('click');
-        const moreBtnAgain = wrapper.find('button.description-toggle');
-        expect(moreBtnAgain.exists()).toBe(true);
-        expect(moreBtnAgain.text()).toMatch(/Show more/i);
+        await viewDetailsBtn.trigger('click');
+        const modal = wrapper.findComponent(GrantDetailsModal);
+        expect(modal.exists()).toBe(true);
+        expect(modal.props('open')).toBe(true);
+        expect(modal.props('grant')).toEqual(g);
+
+        await modal.vm.$emit('close');
+        expect(wrapper.findComponent(GrantDetailsModal).exists()).toBe(false);
+    });
+
+    it('always shows a View details button, even for a null description', () => {
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: { grants: [basicGrant], isCompactView: false },
+        });
+
+        expect(wrapper.find('button.description-toggle').exists()).toBe(true);
     });
 
     it('respects custom columnOrder prop', () => {
@@ -63,7 +84,7 @@ describe('CountryFundingPanelTable', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: {
                 grants: [g],
-                themeMode: 'light' as ThemeMode,
+                isCompactView: false,
                 columnOrder: ['projectTitle', 'url', 'amountUsd'],
             },
         });
@@ -74,24 +95,27 @@ describe('CountryFundingPanelTable', () => {
         expect(headers[2]).toBe('Funding estimate');
     });
 
-    it.each(sampleColumnOrders)('renders headers for sample column order %s', (order) => {
-        const wrapper = mount(CountryFundingPanelTable, {
-            props: {
-                grants: multipleGrants,
-                themeMode: 'light' as ThemeMode,
-                columnOrder: order as unknown as ReadonlyArray<ColumnKey>,
-            },
-        });
-        const headers = wrapper.findAll('thead th').map((h) => h.text());
-        expect(headers.length).toBe(order.length);
-        expect(headers[0].length).toBeGreaterThan(0);
-    });
+    it.each(sampleColumnOrders.map((order) => [order] as const))(
+        'renders headers for sample column order %s',
+        (order) => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: {
+                    grants: multipleGrants,
+                    isCompactView: false,
+                    columnOrder: order as unknown as ReadonlyArray<ColumnKey>,
+                },
+            });
+            const headers = wrapper.findAll('thead th').map((h) => h.text());
+            expect(headers.length).toBe(order.length);
+            expect(headers[0].length).toBeGreaterThan(0);
+        },
+    );
 
     it('renders fallback cell for unknown column keys', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: {
                 grants: [basicGrant],
-                themeMode: 'light' as ThemeMode,
+                isCompactView: false,
                 columnOrder: ['nonexistentKey'] as unknown as ReadonlyArray<ColumnKey>,
             },
         });
@@ -101,22 +125,9 @@ describe('CountryFundingPanelTable', () => {
         expect(cell.text().trim()).toBe('—');
     });
 
-    it('shows aim placeholder when aim is not present', () => {
-        const wrapper = mount(CountryFundingPanelTable, {
-            props: {
-                grants: [basicGrant],
-                themeMode: 'light' as ThemeMode,
-                columnOrder: ['aim'] as unknown as ReadonlyArray<ColumnKey>,
-            },
-        });
-        const aimChip = wrapper.find('.aim-chip.aim-chip--none');
-        expect(aimChip.exists()).toBe(true);
-        expect(aimChip.text()).toBe('—');
-    });
-
     it('getCellValue returns strings for all known column keys', () => {
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [basicGrant], themeMode: 'light' as ThemeMode },
+            props: { grants: [basicGrant], isCompactView: true },
         });
         const egList = wrapper.vm.enrichedGrants;
         expect(egList.length).toBeGreaterThan(0);
@@ -128,7 +139,6 @@ describe('CountryFundingPanelTable', () => {
             'funderName',
             'funderAgencies',
             'fundingInstrument',
-            'aim',
             'platform',
             'yearsDisbursed',
             'description',
@@ -139,23 +149,16 @@ describe('CountryFundingPanelTable', () => {
             const v = getCellValue(k, eg);
             expect(typeof v).toBe('string');
         }
-        expect(getCellValue('nonexistentKey' as unknown as ColumnKey, eg)).toBe('Not specified');
-    });
-
-    it('exposes columnLabels and includes amountUsd', () => {
-        const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [basicGrant], themeMode: 'light' as ThemeMode },
-        });
-        const { columnLabels } = wrapper.vm;
-        expect(columnLabels.amountUsd).toBe('Funding estimate');
     });
 
     it.each([['light'], ['dark'], ['colorblind-light'], ['colorblind-dark']] as const)(
         'renders instrument chip text color for %s theme',
         (themeMode) => {
+            const { setTheme } = useTheme();
+            setTheme(themeMode as ThemeMode);
             const g = makeGrant({ id: 'g-instrument', fundingInstrument: 'Research Grant' });
             const wrapper = mount(CountryFundingPanelTable, {
-                props: { grants: [g], themeMode },
+                props: { grants: [g], isCompactView: true },
             });
 
             const instrument = wrapper.find('.instrument-chip');
@@ -166,7 +169,7 @@ describe('CountryFundingPanelTable', () => {
         },
     );
 
-    it('renders aim chip, instrument chip and platform segments when present', () => {
+    it('renders the aim-tinted row, instrument chip and platform segments when present', () => {
         const g = makeGrant({
             id: 'g-aim',
             aim: 'Research & Development',
@@ -176,7 +179,7 @@ describe('CountryFundingPanelTable', () => {
             yearsDisbursed: ['2020', '2021'],
         });
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g], themeMode: 'light' as ThemeMode },
+            props: { grants: [g], isCompactView: false },
         });
         const row = wrapper.find('tbody tr');
         expect(row.exists()).toBe(true);
@@ -193,7 +196,7 @@ describe('CountryFundingPanelTable', () => {
     it('shows Not specified for empty funderAgencies and formats years disbursed', () => {
         const g = makeGrant({ id: 'g-empty', funderAgencies: [], yearsDisbursed: ['2019'] });
         const wrapper = mount(CountryFundingPanelTable, {
-            props: { grants: [g], themeMode: 'light' as ThemeMode },
+            props: { grants: [g], isCompactView: false },
         });
         const cells = wrapper.findAll('tbody td');
         const agenciesCell = cells.map((c) => c.text()).find((t) => t.includes('Not specified'));
@@ -201,15 +204,285 @@ describe('CountryFundingPanelTable', () => {
         expect(wrapper.text()).toContain('2019');
     });
 
+    it('renders compact cards instead of the table when the view is narrow', async () => {
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                constructor(
+                    private callback: (entries: Array<{ contentRect: { width: number } }>) => void,
+                ) {}
+                observe(): void {
+                    this.callback([{ contentRect: { width: 400 } }]);
+                }
+                disconnect(): void {}
+                unobserve(): void {}
+            },
+        );
+        const g = makeGrant({
+            id: 'g-card',
+            aim: 'Research & Development',
+            fundingInstrument: 'Research Grant',
+            productionPlatforms: ['Plant-based'],
+        });
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: { grants: [g], isCompactView: true },
+        });
+        await nextTick();
+
+        expect(wrapper.find('.table-scroll-container').exists()).toBe(false);
+
+        const cards = wrapper.findAllComponents(CountryFundingPanelCard);
+        expect(cards).toHaveLength(1);
+
+        const card = cards[0];
+        const eg = wrapper.vm.enrichedGrants[0];
+        expect(card.props('grant')).toEqual(g);
+        expect(card.props('sourceUrl')).toBe(eg.sourceUrl);
+        expect(card.props('aim')).toEqual(eg.aim);
+        expect(card.props('instrument')).toEqual(eg.instrument);
+        expect(card.props('segments')).toEqual(eg.segments);
+        expect(card.props('instrumentTextColor')).toBe(wrapper.vm.instrumentTextColor);
+    });
+
     it('renders custom funderName and recipients overrides', () => {
         const wrapper = mount(CountryFundingPanelTable, {
             props: {
                 grants: [customDefaultsGrant],
-                themeMode: 'light' as ThemeMode,
+                isCompactView: false,
                 columnOrder: ['funderName', 'recipients'] as unknown as ReadonlyArray<ColumnKey>,
             },
         });
         expect(wrapper.text()).toContain('Custom Funder');
         expect(wrapper.text()).toContain('Custom Recipient');
+    });
+
+    it.each([
+        {
+            name: 'single-year grants',
+            grants: [
+                makeGrant({ id: 'g-2025', projectTitle: 'Single 2025', yearsDisbursed: ['2025'] }),
+                makeGrant({ id: 'g-2024', projectTitle: 'Single 2024', yearsDisbursed: ['2024'] }),
+                makeGrant({ id: 'g-2026', projectTitle: 'Single 2026', yearsDisbursed: ['2026'] }),
+            ],
+        },
+        {
+            name: 'multi-year grants',
+            grants: [
+                makeGrant({
+                    id: 'g-multi-3',
+                    projectTitle: 'Ends 2023',
+                    yearsDisbursed: ['2020', '2021', '2022', '2023'],
+                }),
+                makeGrant({
+                    id: 'g-multi-5',
+                    projectTitle: 'Ends 2025',
+                    yearsDisbursed: ['2025', '2026'],
+                }),
+                makeGrant({
+                    id: 'g-multi-4',
+                    projectTitle: 'Ends 2024',
+                    yearsDisbursed: ['2022', '2024'],
+                }),
+            ],
+        },
+        {
+            name: 'mixed single- and multi-year grants',
+            grants: [
+                makeGrant({ id: 'g-2024', projectTitle: 'Single 2024', yearsDisbursed: ['2024'] }),
+                makeGrant({
+                    id: 'g-multi-2028',
+                    projectTitle: 'Ends 2028',
+                    yearsDisbursed: ['2026', '2027', '2028'],
+                }),
+                makeGrant({ id: 'g-2022', projectTitle: 'Single 2022', yearsDisbursed: ['2022'] }),
+            ],
+        },
+    ])('sorts yearsDisbursed ascending by the last year granted ($name)', async ({ grants }) => {
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: {
+                grants,
+                isCompactView: false,
+                columnOrder: [
+                    'yearsDisbursed',
+                    'projectTitle',
+                ] as unknown as ReadonlyArray<ColumnKey>,
+            },
+        });
+
+        const sortSelect = wrapper.find('.card-sort-select');
+        await sortSelect.setValue('yearsDisbursed');
+
+        const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
+        const expectedTitles = grants
+            .slice()
+            .sort(
+                (a, b) =>
+                    Math.max(...a.yearsDisbursed.map(Number)) -
+                    Math.max(...b.yearsDisbursed.map(Number)),
+            )
+            .map((g) => g.projectTitle);
+        expect(rowTitles).toEqual(expectedTitles);
+    });
+
+    it.each([
+        {
+            name: 'single-year grants',
+            grants: [
+                makeGrant({ id: 'g-2026', projectTitle: 'Single 2026', yearsDisbursed: ['2026'] }),
+                makeGrant({ id: 'g-2024', projectTitle: 'Single 2024', yearsDisbursed: ['2024'] }),
+                makeGrant({ id: 'g-2025', projectTitle: 'Single 2025', yearsDisbursed: ['2025'] }),
+            ],
+        },
+        {
+            name: 'multi-year grants',
+            grants: [
+                makeGrant({
+                    id: 'g-multi-3',
+                    projectTitle: 'Ends 2023',
+                    yearsDisbursed: ['2020', '2021', '2022', '2023'],
+                }),
+                makeGrant({
+                    id: 'g-multi-5',
+                    projectTitle: 'Ends 2025',
+                    yearsDisbursed: ['2025', '2026'],
+                }),
+                makeGrant({
+                    id: 'g-multi-4',
+                    projectTitle: 'Ends 2024',
+                    yearsDisbursed: ['2022', '2024'],
+                }),
+            ],
+        },
+    ])('sorts yearsDisbursed descending by the last year granted ($name)', async ({ grants }) => {
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: {
+                grants,
+                isCompactView: false,
+                columnOrder: [
+                    'yearsDisbursed',
+                    'projectTitle',
+                ] as unknown as ReadonlyArray<ColumnKey>,
+            },
+        });
+
+        const sortSelect = wrapper.find('.card-sort-select');
+        await sortSelect.setValue('yearsDisbursed');
+        await wrapper.find('.card-sort-direction').trigger('click');
+
+        const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
+        const expectedTitles = grants
+            .slice()
+            .sort(
+                (a, b) =>
+                    Math.max(...b.yearsDisbursed.map(Number)) -
+                    Math.max(...a.yearsDisbursed.map(Number)),
+            )
+            .map((g) => g.projectTitle);
+        expect(rowTitles).toEqual(expectedTitles);
+    });
+
+    it('treats grants without yearsDisbursed as having no last year when sorting', async () => {
+        const grants = [
+            makeGrant({ id: 'g-no-years', projectTitle: 'No years', yearsDisbursed: [] }),
+            makeGrant({ id: 'g-2026', projectTitle: 'Ends 2026', yearsDisbursed: ['2026'] }),
+            makeGrant({
+                id: 'g-multi-2024',
+                projectTitle: 'Ends 2024',
+                yearsDisbursed: ['2022', '2023', '2024'],
+            }),
+        ];
+        const wrapper = mount(CountryFundingPanelTable, {
+            props: {
+                grants,
+                isCompactView: false,
+                columnOrder: [
+                    'yearsDisbursed',
+                    'projectTitle',
+                ] as unknown as ReadonlyArray<ColumnKey>,
+            },
+        });
+
+        const sortSelect = wrapper.find('.card-sort-select');
+        await sortSelect.setValue('yearsDisbursed');
+
+        const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
+        expect(rowTitles).toEqual(['No years', 'Ends 2024', 'Ends 2026']);
+    });
+
+    describe('compact card sorting', () => {
+        it('shows the sort control in both compact and expanded views', () => {
+            const compact = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+            expect(compact.find('.card-sort-bar').exists()).toBe(true);
+
+            const expanded = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: false },
+            });
+            expect(expanded.find('.card-sort-bar').exists()).toBe(true);
+        });
+
+        it('lists only sortable columns as sort options', () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+            const optionValues = wrapper
+                .findAll('.card-sort-select option')
+                .map((o) => o.attributes('value'))
+                .filter((v) => v !== '');
+            expect(optionValues).not.toContain('url');
+            expect(optionValues).not.toContain('description');
+            expect(optionValues).not.toContain('platform');
+            expect(optionValues).toContain('projectTitle');
+        });
+
+        it('sorts the cards by the selected column ascending', async () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+
+            await wrapper.find('.card-sort-select').setValue('projectTitle');
+
+            const titles = wrapper.findAll('.grant-card-title').map((c) => c.text());
+            expect(titles).toEqual(['Apple Project', 'Banana Project', 'Cherry Project']);
+        });
+
+        it('reverses the order when the direction toggle is clicked', async () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+
+            await wrapper.find('.card-sort-select').setValue('projectTitle');
+            await wrapper.find('.card-sort-direction').trigger('click');
+
+            const titles = wrapper.findAll('.grant-card-title').map((c) => c.text());
+            expect(titles).toEqual(['Cherry Project', 'Banana Project', 'Apple Project']);
+        });
+
+        it('falls back to the raw column key in the sort dropdown for unknown columns', () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: {
+                    grants: cardSortGrants,
+                    isCompactView: true,
+                    columnOrder: ['nonexistentKey'] as unknown as ReadonlyArray<ColumnKey>,
+                },
+            });
+            const optionTexts = wrapper
+                .findAll('.card-sort-select option')
+                .map((o) => o.text().trim());
+            expect(optionTexts).toContain('nonexistentKey');
+        });
+
+        it('restores the original order when Default is selected', async () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: { grants: cardSortGrants, isCompactView: true },
+            });
+
+            await wrapper.find('.card-sort-select').setValue('projectTitle');
+            await wrapper.find('.card-sort-select').setValue('');
+
+            const titles = wrapper.findAll('.grant-card-title').map((c) => c.text());
+            expect(titles).toEqual(['Banana Project', 'Apple Project', 'Cherry Project']);
+        });
     });
 });

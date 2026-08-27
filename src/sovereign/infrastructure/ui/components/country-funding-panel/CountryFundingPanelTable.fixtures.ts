@@ -1,3 +1,4 @@
+import { CountryName } from '@/sovereign/domain/CountryName';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 
 export function makeGrant(
@@ -48,7 +49,7 @@ export function makeGrant(
 
     return new Grant(
         GrantId(id),
-        country,
+        CountryName(country),
         projectTitle,
         amountUsd,
         funderAgencies,
@@ -86,8 +87,14 @@ export const multipleGrants = [
     invalidUrlGrant,
 ];
 
+export const cardSortGrants = [
+    makeGrant({ id: 'g-banana', projectTitle: 'Banana Project' }),
+    makeGrant({ id: 'g-apple', projectTitle: 'Apple Project' }),
+    makeGrant({ id: 'g-cherry', projectTitle: 'Cherry Project' }),
+];
+
 export const sampleColumnOrders: ReadonlyArray<ReadonlyArray<string>> = [
     ['projectTitle', 'url', 'amountUsd'],
     ['amountUsd', 'projectTitle', 'recipients', 'url'],
-    ['aim', 'platform', 'projectTitle', 'url'],
+    ['platform', 'projectTitle', 'url'],
 ];

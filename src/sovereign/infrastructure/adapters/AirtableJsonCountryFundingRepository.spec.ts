@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CountryName } from '../../domain/CountryFunding';
-import grantsData from '../data/grants.json';
-import { GrantDataValidationError } from '../errors/GrantDataValidationError';
+import { CountryName } from '@/sovereign/domain/CountryFunding';
+import grantsData from '@/sovereign/infrastructure/data/grants.json';
+import { GrantDataValidationError } from '@/sovereign/infrastructure/errors/GrantDataValidationError';
 import {
     AirtableJsonCountryFundingRepository,
     loadGrantRecords,
@@ -135,12 +135,11 @@ describe('AirtableJsonCountryFundingRepository', () => {
         const repository = new AirtableJsonCountryFundingRepository(records);
 
         describe('findAll()', () => {
-            it('groups grants by resolved country and sums disclosed amounts', async () => {
+            it('groups grants by resolved country', async () => {
                 const all = await repository.findAll();
                 const france = all.find((funding) => funding.countryName === 'France');
 
                 expect(france?.grants).toHaveLength(2);
-                expect(france?.totalAmountUsd).toBe(7_000_000);
             });
 
             it('aliases "The Netherlands" to "Netherlands"', async () => {

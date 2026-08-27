@@ -1,29 +1,33 @@
 <script setup lang="ts">
 import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
+import { useCountryDisplay } from '@/sovereign/infrastructure/ui/composables/useCountryDisplay';
+import { useMapDrag } from '@/sovereign/infrastructure/ui/composables/useMapDrag';
+import { useMapTooltip } from '@/sovereign/infrastructure/ui/composables/useMapTooltip';
+import { useMapZoom } from '@/sovereign/infrastructure/ui/composables/useMapZoom';
+import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { calculateFundingColorThresholds } from '@/sovereign/infrastructure/ui/utils/calculateFundingColorThresholds';
+import { createFundingAmountLegendItems } from '@/sovereign/infrastructure/ui/utils/fundingAmountLegend';
+import MapLegend from './MapLegend.vue';
 import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import { computed, toRef, useTemplateRef } from 'vue';
 import worldAtlas from 'world-atlas/countries-110m.json';
-import { MapColors, type ThemeMode } from '../../../domain/constants/MapColors';
-import { useCountryDisplay } from '../composables/useCountryDisplay';
-import { useMapDrag } from '../composables/useMapDrag';
-import { useMapTooltip } from '../composables/useMapTooltip';
-import { useMapZoom } from '../composables/useMapZoom';
-import { getThemeColors } from '../constants/ThemeColors';
-import { calculateFundingColorThresholds } from '../utils/calculateFundingColorThresholds';
-import { createFundingAmountLegendItems } from '../utils/fundingAmountLegend';
 
 const props = defineProps<{
     countryFundings: readonly CountryFunding[];
     selectedCountryName: string | null;
-    themeMode: ThemeMode;
 }>();
 
 const emit = defineEmits<{
     'country-select': [countryName: string | null];
 }>();
+
+const { themeMode } = useTheme();
 
 const SVG_WIDTH = 960;
 const SVG_HEIGHT = 500;
@@ -50,30 +54,38 @@ const pathGenerator = computed(() => geoPath(projection.value));
 const mapGroupRef = useTemplateRef<SVGGElement>('mapGroupRef');
 const svgRef = useTemplateRef<SVGSVGElement>('svgRef');
 
+const PRESERVE_ASPECT_RATIO = 'xMidYMid slice';
+
 const { tooltip, showTooltip, hideTooltip } = useMapTooltip();
 const { zoomState, mapTransform, isAnimated, zoomAtPoint, panTo } = useMapZoom();
 const { getCountryFill, getCountryAriaLabel, getTooltipText, hasCountryData } = useCountryDisplay(
     toRef(props, 'countryFundings'),
-    toRef(props, 'themeMode'),
 );
 
-const themeColors = computed(() => getThemeColors(props.themeMode));
+const themeColors = computed(() => getThemeColors(themeMode.value));
+const isMobile = useMediaQuery('(max-width: 768px)');
 const legendItems = computed(() => {
     const thresholds = calculateFundingColorThresholds(
         props.countryFundings.map((funding) => funding.totalAmountUsd),
     );
-    return createFundingAmountLegendItems(thresholds, props.themeMode);
+    return createFundingAmountLegendItems(thresholds, themeMode.value);
 });
 
 const { isDragging, handleDragStart, didDragOccur, resetDidDrag } = useMapDrag(
     svgRef,
+    mapGroupRef,
     panTo,
     () => ({ x: zoomState.value.translateX, y: zoomState.value.translateY }),
+    zoomAtPoint,
 );
 
 function getCountryPath(countryFeature: Feature<Geometry, NamedFeatureProperties>): string {
     /* istanbul ignore next -- pathGenerator only returns null for degenerate geometries; unreachable with the current world-atlas dataset */
     return pathGenerator.value(countryFeature) ?? '';
+}
+
+function isSelectedCountry(countryName: string): boolean {
+    return !isMobile.value && countryName === props.selectedCountryName;
 }
 
 function handlePathClick(countryName: string): void {
@@ -84,6 +96,7 @@ function handlePathClick(countryName: string): void {
     if (!hasCountryData(countryName)) {
         return;
     }
+    hideTooltip();
     emit('country-select', countryName);
 }
 
@@ -125,12 +138,13 @@ function handleWheel(event: WheelEvent): void {
         <svg
             ref="svgRef"
             :viewBox="`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`"
+            :preserveAspectRatio="PRESERVE_ASPECT_RATIO"
             width="100%"
             height="100%"
             xmlns="http://www.w3.org/2000/svg"
             :class="{ 'is-dragging': isDragging }"
             @wheel.prevent="handleWheel"
-            @mousedown="handleDragStart"
+            @pointerdown="handleDragStart"
         >
             <rect
                 :width="SVG_WIDTH"
@@ -151,15 +165,15 @@ function handleWheel(event: WheelEvent): void {
                         :fill="getCountryFill(countryFeature.properties.name)"
                         :aria-label="getCountryAriaLabel(countryFeature.properties.name)"
                         :stroke="
-                            countryFeature.properties.name === selectedCountryName
-                                ? MapColors.SELECTION
+                            isSelectedCountry(countryFeature.properties.name)
+                                ? MapColors.BLUE
                                 : themeColors.BORDER
                         "
                         :stroke-opacity="
-                            countryFeature.properties.name === selectedCountryName ? 1 : 0.35
+                            isSelectedCountry(countryFeature.properties.name) ? 1 : 0.35
                         "
                         :stroke-width="
-                            countryFeature.properties.name === selectedCountryName ? 0.5 : 0.1
+                            isSelectedCountry(countryFeature.properties.name) ? 0.5 : 0.1
                         "
                         :role="hasCountryData(countryFeature.properties.name) ? 'button' : 'img'"
                         :tabindex="hasCountryData(countryFeature.properties.name) ? 0 : -1"
@@ -188,12 +202,7 @@ function handleWheel(event: WheelEvent): void {
         >
             {{ tooltip.text }}
         </div>
-        <div class="map-legend">
-            <div v-for="(entry, idx) in legendItems" :key="idx" class="legend-item">
-                <span class="legend-swatch" :style="{ backgroundColor: entry.color }" />
-                <span class="legend-label">{{ entry.label }}</span>
-            </div>
-        </div>
+        <MapLegend :items="legendItems" />
     </div>
 </template>
 
@@ -207,6 +216,8 @@ function handleWheel(event: WheelEvent): void {
 
 .map-container svg {
     cursor: grab;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .map-container svg.is-dragging {
@@ -220,8 +231,16 @@ function handleWheel(event: WheelEvent): void {
         stroke 0.3s;
 }
 
-.country-path.clickable:focus {
-    outline: none;
+.country-path.clickable:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+    .country-path:focus,
+    .country-path:focus-visible {
+        outline: none;
+    }
 }
 
 .country-path.clickable:hover {
@@ -238,37 +257,5 @@ function handleWheel(event: WheelEvent): void {
     border-radius: 4px;
     pointer-events: none;
     white-space: nowrap;
-}
-
-.map-legend {
-    position: absolute;
-    bottom: 16px;
-    right: 16px;
-    background: var(--legend-bg);
-    border-radius: 6px;
-    padding: 8px 12px;
-    box-shadow: 0 1px 4px var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.legend-swatch {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border-radius: 2px;
-    flex-shrink: 0;
-}
-
-.legend-label {
-    font-size: 12px;
-    color: var(--legend-text);
 }
 </style>

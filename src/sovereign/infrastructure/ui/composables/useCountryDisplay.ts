@@ -1,14 +1,13 @@
 import type { CountryFunding } from '@/sovereign/domain/CountryFunding';
 import { computed, type Ref } from 'vue';
-import type { ThemeMode } from '../../../domain/constants/MapColors';
-import { calculateFundingColorThresholds } from '../utils/calculateFundingColorThresholds';
-import { formatInvestment } from '../utils/formatInvestment';
-import { getColorForFundingAmount } from '../utils/getColorForFundingAmount';
+import { calculateFundingColorThresholds } from '@/sovereign/infrastructure/ui/utils/calculateFundingColorThresholds';
+import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment';
+import { getColorForFundingAmount } from '@/sovereign/infrastructure/ui/utils/getColorForFundingAmount';
+import { useTheme } from './useTheme';
 
-export function useCountryDisplay(
-    countryFundings: Ref<readonly CountryFunding[]>,
-    themeMode: Ref<ThemeMode>,
-) {
+export function useCountryDisplay(countryFundings: Ref<readonly CountryFunding[]>) {
+    const { themeMode } = useTheme();
+
     const fundingByName = computed(() => {
         const map = new Map<string, CountryFunding>();
         for (const funding of countryFundings.value) {

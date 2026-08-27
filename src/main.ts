@@ -1,1 +1,1 @@
-export { default } from '@/sovereign/infrastructure/ui/entry/gfi-dgms-widget.ce';
+export { default } from '@/sovereign/infrastructure/ui/entry/gfi-widget.ce';

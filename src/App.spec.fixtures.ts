@@ -1,10 +1,10 @@
 import { CountryFunding, CountryName } from '@/sovereign/domain/CountryFunding';
 import { Grant, GrantId } from '@/sovereign/domain/Grant';
 
-export function buildCountryFunding(countryName: string, amountUsd: number): CountryFunding {
-    const grant = new Grant(
-        GrantId('rec1'),
-        countryName,
+export function buildGrant(id: string, countryName: string, amountUsd: number): Grant {
+    return new Grant(
+        GrantId(id),
+        CountryName(countryName),
         'Untitled grant',
         amountUsd,
         [],
@@ -17,7 +17,12 @@ export function buildCountryFunding(countryName: string, amountUsd: number): Cou
         [],
         null,
     );
-    return new CountryFunding(CountryName(countryName), [grant]);
+}
+
+export function buildCountryFunding(countryName: string, amountUsd: number): CountryFunding {
+    return new CountryFunding(CountryName(countryName), [
+        buildGrant('rec1', countryName, amountUsd),
+    ]);
 }
 
 export const GERMANY_FUNDING = buildCountryFunding('Germany', 5_000_000);

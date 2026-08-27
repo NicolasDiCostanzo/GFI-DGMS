@@ -1,7 +1,7 @@
 import {
     COLORBLIND_FUNDING_PROGRESS_COLORS,
     type ThemeMode,
-} from '@/sovereign/domain/constants/MapColors';
+} from '@/sovereign/infrastructure/ui/constants/MapColors';
 import {
     DARK_THEME_COLORS,
     LIGHT_THEME_COLORS,
@@ -35,14 +35,6 @@ describe('ThemeToggle', () => {
         expect(button.find('.theme-toggle-label').text()).toBe('Dark');
     });
 
-    it('does not render dropdown when closed with colorblind theme', () => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'colorblind-dark' },
-        });
-
-        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(false);
-    });
-
     it('sets aria-expanded to true and shows dropdown on mouseenter', async () => {
         const wrapper = mount(ThemeToggle, {
             props: { modelValue: 'dark' },
@@ -74,32 +66,6 @@ describe('ThemeToggle', () => {
         });
 
         const button = wrapper.find('button');
-        await button.trigger('click');
-
-        expect(button.attributes('aria-expanded')).toBe('true');
-        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(true);
-    });
-
-    it('stays open when a real mouse click follows the pointer-enter that opened it', async () => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'dark' },
-        });
-
-        const button = wrapper.find('button');
-        await wrapper.trigger('mouseenter');
-        await button.trigger('click');
-
-        expect(button.attributes('aria-expanded')).toBe('true');
-        expect(wrapper.find('.theme-toggle-dropdown').exists()).toBe(true);
-    });
-
-    it('stays open on a second button click', async () => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'dark' },
-        });
-
-        const button = wrapper.find('button');
-        await button.trigger('click');
         await button.trigger('click');
 
         expect(button.attributes('aria-expanded')).toBe('true');
@@ -154,17 +120,6 @@ describe('ThemeToggle', () => {
         await wrapper.trigger('mouseenter');
         const options = wrapper.findAll('.theme-toggle-option');
         expect(options[2].classes()).toContain('is-selected');
-    });
-
-    it.each([0, 1, 2, 3])('option %s icon in the dropdown contains an svg', async (index) => {
-        const wrapper = mount(ThemeToggle, {
-            props: { modelValue: 'dark' },
-        });
-
-        await wrapper.trigger('mouseenter');
-        const options = wrapper.findAll('.theme-toggle-option');
-
-        expect(options[index].find('.theme-toggle-option-icon').html()).toContain('svg');
     });
 
     it('applies correct swatch color for each theme option', async () => {

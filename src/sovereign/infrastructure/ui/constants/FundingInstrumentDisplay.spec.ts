@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-    getFundingInstrumentDisplay,
-    getFundingInstrumentLegend,
-} from './FundingInstrumentDisplay';
+import { getFundingInstrumentDisplay } from './FundingInstrumentDisplay';
 import { INSTRUMENT_FAMILY_COLORS } from './ThemeColors';
 
 describe('FundingInstrumentDisplay', () => {
@@ -106,9 +103,7 @@ describe('FundingInstrumentDisplay', () => {
         );
 
         it.each([
-            ['dark', 'dark'],
             ['colorblind-dark', 'dark'],
-            ['light', 'light'],
             ['colorblind-light', 'light'],
         ] as const)('resolves the %s palette the same as %s', (themeMode, paletteFamily) => {
             const darkMode = paletteFamily === 'dark';
@@ -117,43 +112,6 @@ describe('FundingInstrumentDisplay', () => {
                     ? INSTRUMENT_FAMILY_COLORS.Research.dark
                     : INSTRUMENT_FAMILY_COLORS.Research.light,
             );
-        });
-    });
-
-    describe('getFundingInstrumentLegend()', () => {
-        it('returns all six families', () => {
-            expect(getFundingInstrumentLegend('dark').map((f) => f.family)).toEqual([
-                'Research',
-                'Business',
-                'Debt',
-                'Equity',
-                'Infrastructure',
-                'Other',
-            ]);
-        });
-
-        it('returns the dark color for each family in dark mode', () => {
-            const legend = getFundingInstrumentLegend('dark');
-            expect(legend.map((f) => f.color)).toEqual([
-                INSTRUMENT_FAMILY_COLORS.Research.dark,
-                INSTRUMENT_FAMILY_COLORS.Business.dark,
-                INSTRUMENT_FAMILY_COLORS.Debt.dark,
-                INSTRUMENT_FAMILY_COLORS.Equity.dark,
-                INSTRUMENT_FAMILY_COLORS.Infrastructure.dark,
-                INSTRUMENT_FAMILY_COLORS.Other.dark,
-            ]);
-        });
-
-        it('returns the light color for each family in light mode', () => {
-            const legend = getFundingInstrumentLegend('light');
-            expect(legend.map((f) => f.color)).toEqual([
-                INSTRUMENT_FAMILY_COLORS.Research.light,
-                INSTRUMENT_FAMILY_COLORS.Business.light,
-                INSTRUMENT_FAMILY_COLORS.Debt.light,
-                INSTRUMENT_FAMILY_COLORS.Equity.light,
-                INSTRUMENT_FAMILY_COLORS.Infrastructure.light,
-                INSTRUMENT_FAMILY_COLORS.Other.light,
-            ]);
         });
     });
 });

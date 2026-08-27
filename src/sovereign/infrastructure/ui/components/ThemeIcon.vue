@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type ThemeIconName, THEME_ICONS } from '../utils/themeIcons';
+import { type ThemeIconName, THEME_ICONS } from '@/sovereign/infrastructure/ui/utils/themeIcons';
 
 const props = defineProps<{
     name: ThemeIconName;
@@ -7,7 +7,6 @@ const props = defineProps<{
 </script>
 
 <template>
-    <!-- eslint-disable-next-line vue/no-v-html -- safe: SVG strings are hardcoded, prop is type-safe -->
     <span class="theme-icon" v-html="THEME_ICONS[props.name]" />
 </template>
 

@@ -1,4 +1,4 @@
-import { type ThemeMode } from '@/sovereign/domain/constants/MapColors';
+import { type ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColors';
 
 export const ICON_CASES: ReadonlyArray<
     [title: string, modelValue: ThemeMode, expectedSubstrings: readonly string[]]

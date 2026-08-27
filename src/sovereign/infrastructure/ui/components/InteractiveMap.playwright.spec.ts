@@ -1,12 +1,27 @@
 import { expect, test } from '@/../e2e/coverage-fixtures';
-import { MapColors, toRGB } from '@/sovereign/domain/constants/MapColors';
 import { MOCK_GRANT_RECORDS } from '@/sovereign/infrastructure/ui/components/InteractiveMap.playwright.spec.fixtures';
+import { MapColors } from '@/sovereign/infrastructure/ui/constants/MapColors';
 import { DARK_THEME_COLORS } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { toRGB } from '@/sovereign/infrastructure/ui/constants/ThemePrimitives';
 import { checkA11y, injectAxe } from 'axe-playwright';
 
 const GERMANY_ID = '276';
 const BORDER_COLOR = DARK_THEME_COLORS.BORDER;
-const SELECTION_COLOR = MapColors.SELECTION;
+const SELECTION_COLOR = MapColors.BLUE;
+
+// Mirrors InteractiveMap's own screen-to-user-space conversion (getScreenCTM().inverse()),
+// so a screen-space drag delta can be checked against the real, non-identity CTM the
+// browser computes for this SVG's actual rendered size - something happy-dom can't provide.
+async function toUserSpaceDelta(
+    page: import('@playwright/test').Page,
+    delta: { dx: number; dy: number },
+): Promise<{ x: number; y: number }> {
+    return page.evaluate(({ dx, dy }) => {
+        const svg = document.querySelector('svg[width="100%"]') as SVGSVGElement;
+        const inverse = svg.getScreenCTM()!.inverse();
+        return { x: dx * inverse.a + dy * inverse.c, y: dx * inverse.b + dy * inverse.d };
+    }, delta);
+}
 
 test.describe('InteractiveMap', () => {
     test.beforeEach(async ({ page }) => {
@@ -17,9 +32,7 @@ test.describe('InteractiveMap', () => {
     });
 
     test('mounts as a standalone app with no shadow-DOM encapsulation', async ({ page }) => {
-        const hasWidget = await page.evaluate(
-            () => document.querySelector('gfi-dgms-widget') !== null,
-        );
+        const hasWidget = await page.evaluate(() => document.querySelector('gfi-widget') !== null);
         expect(hasWidget).toBe(false);
 
         const appRoot = page.locator('#app');
@@ -31,9 +44,9 @@ test.describe('InteractiveMap', () => {
         await checkA11y(page);
     });
 
-    test('country paths have black border stroke', async ({ page }) => {
+    test('country paths have the theme border stroke', async ({ page }) => {
         const firstPath = page.locator('path.country-path').first();
-        await expect(firstPath).toHaveCSS('stroke', toRGB(BORDER_COLOR));
+        await expect(firstPath).toHaveAttribute('stroke', BORDER_COLOR);
         await expect(firstPath).toHaveCSS('stroke-opacity', '0.35');
     });
 
@@ -72,16 +85,23 @@ test.describe('InteractiveMap', () => {
     }) => {
         const germanyPath = page.locator(`path.country-path[data-country-id="${GERMANY_ID}"]`);
         const box = (await germanyPath.boundingBox())!;
+        const dx = 150;
+        const dy = 80;
 
         await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
         await page.mouse.down({ button: 'left' });
-        await page.mouse.move(box.x + box.width / 2 + 150, box.y + box.height / 2 + 80, {
+        await page.mouse.move(box.x + box.width / 2 + dx, box.y + box.height / 2 + dy, {
             steps: 15,
         });
         await page.mouse.up({ button: 'left' });
 
+        const expected = await toUserSpaceDelta(page, { dx, dy });
         const mapGroup = page.locator('.map-group');
-        await expect(mapGroup).toHaveAttribute('transform', /scale\(1\)$/);
+        const transform = await mapGroup.getAttribute('transform');
+        const match = transform!.match(/translate\(([^,]+),([^)]+)\)\s+scale\(1\)$/);
+        expect(match).not.toBeNull();
+        expect(parseFloat(match![1])).toBeCloseTo(expected.x, 1);
+        expect(parseFloat(match![2])).toBeCloseTo(expected.y, 1);
         expect(await page.evaluate(() => window.scrollY)).toBe(0);
     });
 
@@ -89,14 +109,21 @@ test.describe('InteractiveMap', () => {
         const svgBox = (await page.locator('svg[width="100%"]').boundingBox())!;
         const centerX = svgBox.x + svgBox.width / 2;
         const centerY = svgBox.y + svgBox.height / 2;
+        const dx = -100;
+        const dy = -60;
 
         await page.mouse.move(centerX, centerY);
         await page.mouse.down({ button: 'middle' });
-        await page.mouse.move(centerX - 100, centerY - 60, { steps: 15 });
+        await page.mouse.move(centerX + dx, centerY + dy, { steps: 15 });
         await page.mouse.up({ button: 'middle' });
 
+        const expected = await toUserSpaceDelta(page, { dx, dy });
         const mapGroup = page.locator('.map-group');
-        await expect(mapGroup).toHaveAttribute('transform', /scale\(1\)$/);
+        const transform = await mapGroup.getAttribute('transform');
+        const match = transform!.match(/translate\(([^,]+),([^)]+)\)\s+scale\(1\)$/);
+        expect(match).not.toBeNull();
+        expect(parseFloat(match![1])).toBeCloseTo(expected.x, 1);
+        expect(parseFloat(match![2])).toBeCloseTo(expected.y, 1);
         expect(await page.evaluate(() => window.scrollY)).toBe(0);
     });
 
@@ -120,8 +147,8 @@ test.describe('InteractiveMap', () => {
         expect(match).not.toBeNull();
         const translateX = parseFloat(match![1]);
         const translateY = parseFloat(match![2]);
-        expect(translateX).toBeCloseTo(112.5, 1);
-        expect(translateY).toBeCloseTo(75, 1);
+        expect(translateX).toBeCloseTo(104.15, 1);
+        expect(translateY).toBeCloseTo(69.4, 1);
 
         await expect(germanyPath).toHaveCSS('stroke', toRGB(SELECTION_COLOR));
         await expect(germanyPath).toHaveCSS('stroke-opacity', '1');
@@ -136,6 +163,9 @@ test.describe('InteractiveMap', () => {
         const focused = page.locator(':focus');
         await expect(focused).toHaveAttribute('role', 'button');
         await expect(focused).toHaveClass(/\bclickable\b/);
+        await expect(focused).toHaveCSS('outline-style', 'solid');
+        await expect(focused).toHaveCSS('outline-width', '2px');
+        await expect(focused).not.toHaveCSS('outline-color', 'transparent');
         const countryId = await focused.getAttribute('data-country-id');
 
         await page.keyboard.press('Enter');

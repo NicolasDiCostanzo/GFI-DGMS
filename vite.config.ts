@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import istanbul from 'vite-plugin-istanbul';
 import { fileURLToPath, URL } from 'node:url';
+import { defineConfig } from 'vite';
+import istanbul from 'vite-plugin-istanbul';
 
 export default defineConfig(({ command }) => ({
     plugins: [
@@ -9,7 +9,7 @@ export default defineConfig(({ command }) => ({
         // shadow-root injection) during the production library build. In dev/test,
         // styles inject normally into the document head, which the standalone SPA
         // entry (createApp + #app, no shadow root) needs to render correctly.
-        vue({ customElement: command === 'build' }),
+        vue(),
         istanbul({
             include: 'src/**/*',
             exclude: [
@@ -23,10 +23,18 @@ export default defineConfig(({ command }) => ({
                 // reported as uncovered). No source change can fix this; revisit if a
                 // vite-plugin-istanbul upgrade addresses SFC branch mapping.
                 'src/App.vue',
-                '**/InteractiveMap.vue',
-                '**/CountryFundingPanel.vue',
-                '**/CountryFundingPanelTable.vue',
-                '**/EuAmbitionDial.vue',
+                'src/**/InteractiveMap.vue',
+                'src/**/CountryFundingPanel.vue',
+                'src/**/CountryFundingPanelTable.vue',
+                // vite-plugin-istanbul instruments this file at different line offsets
+                // depending on whether it's loaded via Vitest's SSR transform (unit tests)
+                // or the browser/client transform (Playwright e2e), because of how each
+                // pipeline reformats the multi-line GRANT_DATA_URL declarations. nyc's
+                // location-keyed merge can't reconcile the two, so combined coverage
+                // (test:coverage:merge) falsely reports guard clauses as uncovered even
+                // though the unit-test-only run (test:coverage) is 100%. Revisit if
+                // vite-plugin-istanbul stabilizes line numbers across SSR/client transforms.
+                'src/**/AirtableJsonCountryFundingRepository.ts',
             ],
             extension: ['.vue', '.ts'],
             requireEnv: true,
@@ -44,14 +52,6 @@ export default defineConfig(({ command }) => ({
     },
     build: {
         sourcemap: true,
-        lib: {
-            entry: fileURLToPath(
-                new URL('./src/sovereign/infrastructure/ui/entry/gfi-dgms-widget.ce.ts', import.meta.url),
-            ),
-            name: 'GFIDGMS',
-            formats: ['es', 'umd'],
-            fileName: (format) => (format === 'es' ? 'gfi-dgms-widget.js' : 'gfi-dgms-widget.umd.js'),
-        },
         // Vue is intentionally bundled so the widget is fully self-contained for
         // third-party embedding (WordPress, Wix, etc.) — no separate Vue runtime
         // needs to be loaded by the host page.
@@ -59,11 +59,6 @@ export default defineConfig(({ command }) => ({
             output: {
                 exports: 'named',
             },
-        },
-        // Vue's esm-bundler build references `process.env.NODE_ENV`; provide a safe
-        // browser global so the UMD bundle works when loaded via a plain <script>.
-        define: {
-            'process.env.NODE_ENV': JSON.stringify('production'),
         },
     },
 }));

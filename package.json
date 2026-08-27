@@ -1,21 +1,23 @@
 {
-  "name": "gfi-dgms",
+  "name": "gfi-funding-map",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "GFI-DGMS Web Component",
-  "main": "./dist/gfi-dgms-widget.umd.js",
-  "module": "./dist/gfi-dgms-widget.js",
+  "description": "GFI Funding Map Web Component",
+  "main": "./dist/gfi-widget.umd.js",
+  "module": "./dist/gfi-widget.js",
   "exports": {
     ".": {
-      "import": "./dist/gfi-dgms-widget.js",
-      "require": "./dist/gfi-dgms-widget.umd.js"
+      "import": "./dist/gfi-widget.js",
+      "require": "./dist/gfi-widget.umd.js"
     }
   },
   "scripts": {
     "prepare": "husky",
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build:app": "vue-tsc -b && vite build",
+    "build:widget": "vite build --config vite.config.widget.ts",
+    "build": "npm run build:app && npm run build:widget",
     "preview": "vite preview",
     "typecheck": "vue-tsc -b --noEmit",
     "lint": "eslint . --ext .vue,.ts",
@@ -54,28 +56,28 @@
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
     "@types/d3-geo": "^3.1.1",
-    "@types/node": "^26.1.2",
+    "@types/node": "^26.2.0",
     "@types/topojson-client": "^3.1.5",
-    "@typescript-eslint/eslint-plugin": "^8.66.0",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.64.0",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/test-utils": "^2.4.11",
     "axe-playwright": "^2.2.2",
-    "dependency-cruiser": "^18.1.1",
-    "eslint": "^10.8.0",
+    "dependency-cruiser": "^18.2.0",
+    "eslint": "^10.8.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.10.0",
-    "happy-dom": "^20.11.1",
+    "happy-dom": "^20.11.6",
     "husky": "^9.1.7",
     "nyc": "^18.0.0",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
     "vite": "^8.2.0",
     "typescript": "^5.9.3",
-    "vite": "^8.2.1",
+    "vite": "^8.2.2",
     "vite-plugin-istanbul": "^9.0.1",
-    "vitest": "^4.1.10",
+    "vitest": "^4.1.11",
     "vue-eslint-parser": "^10.4.1",
-    "vue-tsc": "^3.3.9"
+    "vue-tsc": "^3.3.10"
   }
 }

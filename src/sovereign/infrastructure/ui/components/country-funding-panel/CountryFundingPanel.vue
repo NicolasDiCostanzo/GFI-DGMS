@@ -1,39 +1,35 @@
 <script setup lang="ts">
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
-import type { ThemeMode } from '@/sovereign/domain/constants/MapColors';
-import { computed, ref } from 'vue';
-import { getThemeColors } from '../../constants/ThemeColors.ts';
-import { formatInvestment } from '../../utils/formatInvestment.ts';
+import closeIcon from '@/sovereign/infrastructure/ui/assets/icons/close.svg?raw';
+import panelExpandIcon from '@/sovereign/infrastructure/ui/assets/icons/panel-expand.svg?raw';
+import panelRestoreIcon from '@/sovereign/infrastructure/ui/assets/icons/panel-restore.svg?raw';
+import { useCompactView } from '@/sovereign/infrastructure/ui/composables/useCompactView';
+import { useLegendState } from '@/sovereign/infrastructure/ui/composables/useLegendState';
+import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
+import { usePanelResize } from '@/sovereign/infrastructure/ui/composables/usePanelResize';
+import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
+import { COUNTRY_2040_PROJECTIONS } from '@/sovereign/infrastructure/ui/constants/CountryProjections';
+import { getThemeColors } from '@/sovereign/infrastructure/ui/constants/ThemeColors.ts';
+import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInvestment.ts';
+import { computed, ref, watch } from 'vue';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
 import CountryHeader from './CountryHeader.vue';
-import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
 import Legend from './Legend.vue';
 import PanelFooter from './PanelFooter.vue';
-import PlatformLegend from './PlatformLegend.vue';
 import ProjectionSection from './ProjectionSection.vue';
 
 const AIRTABLE_SOURCE_URL =
     'https://airtable.com/app9etL9LpZ9MKX3v/shr3Czph4N1AWaE18/tblxsTk9dw1Kq1qid';
 
-interface Country2040Projection {
-    readonly gvaEurBillions: number;
-    readonly jobs: number;
-}
-
-const COUNTRY_2040_PROJECTIONS: Readonly<Record<string, Country2040Projection>> = {
-    France: { gvaEurBillions: 18, jobs: 64_000 },
-    Italy: { gvaEurBillions: 10, jobs: 31_000 },
-    Spain: { gvaEurBillions: 10, jobs: 34_000 },
-};
+const viewEl = ref<HTMLElement | null>(null);
+const isCompactView = useCompactView(viewEl);
 
 const props = withDefaults(
     defineProps<{
         countryFunding?: CountryFunding | null;
-        themeMode?: ThemeMode;
     }>(),
     {
         countryFunding: null,
-        themeMode: 'dark',
     },
 );
 
@@ -41,7 +37,22 @@ const emit = defineEmits<{
     close: [];
 }>();
 
+const { themeMode } = useTheme();
+
 const isExpanded = ref(false);
+const { isLegendExpanded, hasUserToggledLegend, toggleLegend } = useLegendState(
+    props.countryFunding?.countryName ?? '',
+);
+
+watch(
+    [isCompactView, isExpanded],
+    ([isCompact, expanded]) => {
+        if (!hasUserToggledLegend.value && (isCompact || expanded)) {
+            isLegendExpanded.value = true;
+        }
+    },
+    { immediate: true },
+);
 
 const countryName = computed(() => props.countryFunding?.countryName ?? '');
 const grants = computed(() => props.countryFunding?.grants ?? []);
@@ -50,10 +61,10 @@ const totalAmountLabel = computed(() =>
     props.countryFunding ? formatInvestment(props.countryFunding.totalAmountUsd / 1_000_000) : '',
 );
 
-const disclosureLabel = computed(() => {
+const grantCountLabel = computed(() => {
     if (!props.countryFunding) return '';
     const { disclosedGrantCount, grants: countryGrants } = props.countryFunding;
-    return `${disclosedGrantCount} of ${countryGrants.length} grants have a disclosed amount`;
+    return `${disclosedGrantCount}/${countryGrants.length} grants`;
 });
 
 const projection = computed(() => COUNTRY_2040_PROJECTIONS[countryName.value] ?? null);
@@ -65,7 +76,6 @@ const tableColumnOrder = [
     'funderName',
     'funderAgencies',
     'fundingInstrument',
-    'aim',
     'platform',
     'yearsDisbursed',
     'description',
@@ -73,7 +83,7 @@ const tableColumnOrder = [
 ] as const;
 
 const cssVars = computed(() => {
-    const colors = getThemeColors(props.themeMode!);
+    const colors = getThemeColors(themeMode.value);
     return {
         '--text': colors.TEXT,
         '--link': colors.LINK,
@@ -98,80 +108,95 @@ const cssVars = computed(() => {
         '--on-accent': colors.ON_ACCENT,
     } as Record<string, string>;
 });
+
+const containerEl = computed(() => viewEl.value?.parentElement ?? null);
+
+const DEFAULT_PANEL_WIDTH = 380;
+const panelWidth = ref(DEFAULT_PANEL_WIDTH);
+const { startResize, isResizing, clamp, getMaxWidth } = usePanelResize(
+    containerEl,
+    (width: number) => {
+        panelWidth.value = clamp(width);
+    },
+);
+
+const isMobile = useMediaQuery('(max-width: 768px)');
+
+function toggleExpanded(): void {
+    isExpanded.value = !shouldShowExpandedState.value;
+
+    if (!isExpanded.value) {
+        panelWidth.value = clamp(DEFAULT_PANEL_WIDTH);
+    }
+}
+
+const isMaxWidthExpanded = computed(() => panelWidth.value >= getMaxWidth() - 1);
+const shouldShowExpandedState = computed(
+    () => isExpanded.value || isMaxWidthExpanded.value || isMobile.value,
+);
+
+const panelStyle = computed(() => {
+    if (shouldShowExpandedState.value) {
+        return cssVars.value;
+    }
+    return { ...cssVars.value, width: `${panelWidth.value}px` };
+});
+
+const panelClasses = computed(() => ({
+    'is-expanded': shouldShowExpandedState.value,
+    'is-resizing': isResizing.value,
+}));
 </script>
 
 <template>
-    <aside class="country-funding-panel" :class="{ 'is-expanded': isExpanded }" :style="cssVars">
+    <aside ref="viewEl" class="country-funding-panel" :class="panelClasses" :style="panelStyle">
         <button
+            v-if="!shouldShowExpandedState && !isMobile"
+            class="resize-handle"
+            type="button"
+            aria-label="Resize panel width"
+            @mousedown="startResize"
+        />
+        <button
+            v-if="!isMobile"
             class="expand-button"
             type="button"
-            :aria-label="isExpanded ? 'Restore panel' : 'Expand panel'"
-            :aria-expanded="isExpanded"
-            @click="isExpanded = !isExpanded"
-        >
-            <svg
-                v-if="!isExpanded"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M1 6V1H6M15 6V1H10M1 10V15H6M15 10V15H10"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
-            </svg>
-            <svg
-                v-else
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M6 1V6H1M10 1V6H15M6 15V10H1M10 15V10H15"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
-            </svg>
-        </button>
-        <button class="close-button" aria-label="Close panel" @click="emit('close')">
-            <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M2 2L14 14M2 14L14 2"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                />
-            </svg>
-        </button>
+            :aria-label="shouldShowExpandedState ? 'Restore panel' : 'Expand panel'"
+            :aria-expanded="shouldShowExpandedState"
+            @click="toggleExpanded"
+            v-html="shouldShowExpandedState ? panelRestoreIcon : panelExpandIcon"
+        />
+        <button
+            class="close-button"
+            aria-label="Close panel"
+            @click="emit('close')"
+            v-html="closeIcon"
+        />
         <div class="panel-content">
             <CountryHeader
                 :country-name="countryName"
                 :total-amount-label="totalAmountLabel"
-                :disclosure-label="disclosureLabel"
+                :grant-count-label="grantCountLabel"
             />
             <ProjectionSection v-if="projection" :projection="projection" />
-            <EnvironmentalImpactPanel :grants="grants" />
-            <Legend />
-            <PlatformLegend />
+            <div class="sub-header-wrapper" :class="isCompactView ? 'is-compact' : ''">
+                <button
+                    class="legend-label"
+                    type="button"
+                    :aria-expanded="isLegendExpanded"
+                    @click="toggleLegend"
+                >
+                    Legend:
+                    <span class="legend-chevron" :class="{ 'is-collapsed': !isLegendExpanded }"
+                        >▾</span
+                    >
+                </button>
+                <Legend v-if="isLegendExpanded || !isCompactView" />
+            </div>
             <CountryFundingPanelTable
                 v-if="grants.length"
                 :grants="grants"
-                :theme-mode="props.themeMode"
+                :is-compact-view="isCompactView"
                 :column-order="tableColumnOrder"
             />
 
@@ -182,8 +207,9 @@ const cssVars = computed(() => {
 
 <style>
 .legend-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.75rem;
     font-weight: 600;
-    margin-right: 4px;
 }
 
 .panel-content {
@@ -194,26 +220,64 @@ const cssVars = computed(() => {
     gap: 16px;
 }
 
+.legend-label {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 12px;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-align: left;
+}
+
+.legend-chevron {
+    display: inline-block;
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.legend-chevron.is-collapsed {
+    transform: rotate(-90deg);
+}
+
+.sub-header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &:not(.is-compact) {
+        .legend-label {
+            display: none;
+        }
+    }
+}
+
 .country-funding-panel {
+    container: country-funding-panel / inline-size;
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     box-sizing: border-box;
-    width: 380px;
-    max-width: none;
+    width: 375px;
     height: 100%;
     background: var(--sidebar-bg);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    padding: 10px;
     box-shadow: -8px 0 8px var(--panel-shadow);
-    color: var(--text);
+
     overflow: hidden;
     transition:
         width 0.35s ease-in-out,
         box-shadow 0.35s ease-in-out;
+}
+
+.country-funding-panel.is-resizing {
+    transition: box-shadow 0.35s ease-in-out;
 }
 
 .country-funding-panel.is-expanded {
@@ -237,6 +301,7 @@ const cssVars = computed(() => {
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s ease;
+    z-index: 1;
 }
 
 .expand-button:hover {
@@ -259,9 +324,27 @@ const cssVars = computed(() => {
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s ease;
+    z-index: 20;
 }
 
 .close-button:hover {
+    background: var(--muted-light);
+}
+
+.resize-handle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    cursor: col-resize;
+    z-index: 20;
+}
+
+.resize-handle:hover {
     background: var(--muted-light);
 }
 </style>

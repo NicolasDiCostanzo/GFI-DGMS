@@ -60,6 +60,17 @@ export default [
         rules: {
             '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
             'no-undef': 'off',
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: ['../**'],
+                            message: 'Use absolute imports with the @/ alias.',
+                        },
+                    ],
+                },
+            ],
         },
     },
     {
@@ -72,7 +83,19 @@ export default [
         rules: {
             'vue/multi-word-component-names': 'off',
             'vue/html-indent': ['warn', 4],
+            'vue/no-v-html': 'off',
             'no-undef': 'off',
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: ['../**'],
+                            message: 'Use absolute imports with the @/ alias.',
+                        },
+                    ],
+                },
+            ],
         },
     },
     eslintConfigPrettier,

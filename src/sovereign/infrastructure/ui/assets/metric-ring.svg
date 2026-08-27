@@ -1,0 +1,21 @@
+<svg
+    class="metric-ring-svg"
+    viewBox="0 0 36 36"
+    xmlns="http://www.w3.org/2000/svg"
+>
+    <defs>
+        <linearGradient id="__GRADIENT_ID__" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="__GRADIENT_START__" />
+            <stop offset="100%" stop-color="__GRADIENT_END__" />
+        </linearGradient>
+    </defs>
+    <circle class="metric-ring-track" cx="18" cy="18" r="15.9155" stroke="__TRACK_STROKE__" />
+    <circle
+        class="metric-ring-fill"
+        cx="18"
+        cy="18"
+        r="15.9155"
+        stroke-dasharray="__DASHARRAY__"
+        stroke="url(#__GRADIENT_ID__)"
+    />
+</svg>
