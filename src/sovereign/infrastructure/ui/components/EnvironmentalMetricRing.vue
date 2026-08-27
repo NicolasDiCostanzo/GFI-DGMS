@@ -1,44 +1,9 @@
-<template>
-    <div v-if="value !== null" class="metric-ring">
-        <div class="metric-ring-circle">
-            <svg class="metric-ring-svg" viewBox="0 0 36 36">
-                <defs>
-                    <linearGradient :id="gradientId" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" :style="{ stopColor: color }" />
-                        <stop
-                            offset="100%"
-                            :style="{ stopColor: getMetricGradientEndColor(color) }"
-                        />
-                    </linearGradient>
-                </defs>
-                <circle
-                    class="metric-ring-track"
-                    cx="18"
-                    cy="18"
-                    r="15.9155"
-                    :style="{ stroke: color }"
-                />
-                <circle
-                    class="metric-ring-fill"
-                    cx="18"
-                    cy="18"
-                    r="15.9155"
-                    :stroke-dasharray="`${value} ${100 - value}`"
-                    :style="{ stroke: `url(#${gradientId})` }"
-                />
-            </svg>
-            <span class="metric-ring-value">−{{ value }}%</span>
-        </div>
-        <span v-if="icon" class="metric-ring-icon">{{ icon }}</span>
-        <span class="metric-ring-label">{{ label }}</span>
-    </div>
-</template>
-
 <script setup lang="ts">
+import metricRingSvg from '@/sovereign/infrastructure/ui/assets/metric-ring.svg?raw';
 import { getMetricGradientEndColor } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
-import { useId } from 'vue';
+import { computed, useId } from 'vue';
 
-withDefaults(
+const props = withDefaults(
     defineProps<{
         value: number | null;
         label: string;
@@ -51,7 +16,35 @@ withDefaults(
 );
 
 const gradientId = `metric-ring-gradient-${useId()}`;
+
+const ringSvg = computed(() =>
+    substituteTokens(metricRingSvg, {
+        __GRADIENT_ID__: gradientId,
+        __GRADIENT_START__: props.color,
+        __GRADIENT_END__: getMetricGradientEndColor(props.color),
+        __TRACK_STROKE__: props.color,
+        __DASHARRAY__: `${props.value!} ${100 - props.value!}`,
+    }),
+);
+
+function substituteTokens(template: string, tokens: Record<string, string>): string {
+    return Object.entries(tokens).reduce(
+        (markup, [token, replacement]) => markup.split(token).join(replacement),
+        template,
+    );
+}
 </script>
+
+<template>
+    <div v-if="value !== null" class="metric-ring">
+        <div class="metric-ring-circle">
+            <div class="metric-ring-svg-slot" v-html="ringSvg" />
+            <span class="metric-ring-value">−{{ value }}%</span>
+        </div>
+        <span v-if="icon" class="metric-ring-icon">{{ icon }}</span>
+        <span class="metric-ring-label">{{ label }}</span>
+    </div>
+</template>
 
 <style scoped>
 .metric-ring {
@@ -67,23 +60,28 @@ const gradientId = `metric-ring-gradient-${useId()}`;
     height: 58px;
 }
 
-.metric-ring-svg {
+.metric-ring-svg-slot {
+    position: absolute;
+    inset: 0;
+}
+
+.metric-ring-circle :deep(.metric-ring-svg) {
     width: 100%;
     height: 100%;
     transform: rotate(-90deg);
 }
 
-.metric-ring-track,
-.metric-ring-fill {
+.metric-ring-circle :deep(.metric-ring-track),
+.metric-ring-circle :deep(.metric-ring-fill) {
     fill: none;
     stroke-width: 3;
 }
 
-.metric-ring-track {
+.metric-ring-circle :deep(.metric-ring-track) {
     opacity: 0.15;
 }
 
-.metric-ring-fill {
+.metric-ring-circle :deep(.metric-ring-fill) {
     stroke-linecap: round;
 }
 

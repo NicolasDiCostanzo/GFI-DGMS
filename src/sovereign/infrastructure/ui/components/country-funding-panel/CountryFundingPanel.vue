@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { CountryFunding } from '@/sovereign/domain/CountryFunding';
+import closeIcon from '@/sovereign/infrastructure/ui/assets/icons/close.svg?raw';
+import panelExpandIcon from '@/sovereign/infrastructure/ui/assets/icons/panel-expand.svg?raw';
+import panelRestoreIcon from '@/sovereign/infrastructure/ui/assets/icons/panel-restore.svg?raw';
 import { useCompactView } from '@/sovereign/infrastructure/ui/composables/useCompactView';
 import { useLegendState } from '@/sovereign/infrastructure/ui/composables/useLegendState';
 import { useMediaQuery } from '@/sovereign/infrastructure/ui/composables/useMediaQuery';
@@ -161,56 +164,14 @@ const panelClasses = computed(() => ({
             :aria-label="shouldShowExpandedState ? 'Restore panel' : 'Expand panel'"
             :aria-expanded="shouldShowExpandedState"
             @click="toggleExpanded"
-        >
-            <svg
-                v-if="!shouldShowExpandedState"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M1 6V1H6M15 6V1H10M1 10V15H6M15 10V15H10"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
-            </svg>
-            <svg
-                v-else
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M6 1V6H1M10 1V6H15M6 15V10H1M10 15V10H15"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
-            </svg>
-        </button>
-        <button class="close-button" aria-label="Close panel" @click="emit('close')">
-            <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M2 2L14 14M2 14L14 2"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                />
-            </svg>
-        </button>
+            v-html="shouldShowExpandedState ? panelRestoreIcon : panelExpandIcon"
+        />
+        <button
+            class="close-button"
+            aria-label="Close panel"
+            @click="emit('close')"
+            v-html="closeIcon"
+        />
         <div class="panel-content">
             <CountryHeader
                 :country-name="countryName"

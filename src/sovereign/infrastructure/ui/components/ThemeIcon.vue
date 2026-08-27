@@ -7,7 +7,6 @@ const props = defineProps<{
 </script>
 
 <template>
-    <!-- eslint-disable-next-line vue/no-v-html -- safe: SVG strings are hardcoded, prop is type-safe -->
     <span class="theme-icon" v-html="THEME_ICONS[props.name]" />
 </template>
 

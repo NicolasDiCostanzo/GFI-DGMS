@@ -32,14 +32,12 @@ describe('EnvironmentalMetricRing', () => {
             expect(fill.attributes('stroke-dasharray')).toBe(`${value!} ${100 - value!}`);
 
             const gradientId = wrapper.find('linearGradient').attributes('id');
-            expect(fill.attributes('style')).toContain(`url(#${gradientId})`);
+            expect(fill.attributes('stroke')).toContain(`url(#${gradientId})`);
 
             const stops = wrapper.findAll('stop');
             expect(stops).toHaveLength(2);
-            expect(stops[0]?.attributes('style')).toContain(`stop-color: ${color};`);
-            expect(stops[1]?.attributes('style')).toContain(
-                `stop-color: ${getMetricGradientEndColor(color)};`,
-            );
+            expect(stops[0]?.attributes('stop-color')).toBe(color);
+            expect(stops[1]?.attributes('stop-color')).toBe(getMetricGradientEndColor(color));
         },
     );
 
@@ -51,7 +49,7 @@ describe('EnvironmentalMetricRing', () => {
 
         expect(new Set(gradientIds).size).toBe(2);
         wrapper.findAll('.metric-ring-fill').forEach((fill, index) => {
-            expect(fill.attributes('style')).toContain(`url(#${gradientIds[index]})`);
+            expect(fill.attributes('stroke')).toContain(`url(#${gradientIds[index]})`);
         });
     });
 
