@@ -83,6 +83,7 @@ export default [
         rules: {
             'vue/multi-word-component-names': 'off',
             'vue/html-indent': ['warn', 4],
+            'vue/no-v-html': 'off',
             'no-undef': 'off',
             'no-restricted-imports': [
                 'error',

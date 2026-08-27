@@ -1,21 +1,12 @@
 <template>
     <section class="environmental-impact-panel" :style="cssVars">
-        <button class="close-button" type="button" aria-label="Close panel" @click="emit('close')">
-            <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M2 2L14 14M2 14L14 2"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                />
-            </svg>
-        </button>
+        <button
+            class="close-button"
+            type="button"
+            aria-label="Close panel"
+            @click="emit('close')"
+            v-html="closeIcon"
+        />
 
         <div class="pillar-tabs-container">
             <TabSelector
@@ -101,6 +92,7 @@ import {
     PLANT_BASED_LCA_FIGURES,
 } from '@/sovereign/domain/constants/EnvironmentalImpactFigures';
 import type { ProductionPillar } from '@/sovereign/domain/services/resolveDominantProductionPillar';
+import closeIcon from '@/sovereign/infrastructure/ui/assets/icons/close.svg?raw';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
 import {
     ENVIRONMENTAL_METRIC_COLORS,

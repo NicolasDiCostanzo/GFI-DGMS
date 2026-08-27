@@ -89,8 +89,8 @@ describe('EnvironmentalImpactPanel', () => {
                     .findAll('.metric-ring-slot')
                     .find((slot) => slot.find('.metric-ring-label').text() === labels[variant])
                     ?.findAll('stop');
-                expect(stops?.[0]?.attributes('style')).toContain(color);
-                expect(stops?.[1]?.attributes('style')).toContain(color);
+                expect(stops?.[0]?.attributes('stop-color')).toContain(color);
+                expect(stops?.[1]?.attributes('stop-color')).toContain(color);
             };
 
             expectGradientColor('ghg', ENVIRONMENTAL_METRIC_COLORS.ghg);

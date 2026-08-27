@@ -32,4 +32,4 @@ jobs:
         run: aws s3 sync dist/ s3://gfi-frontend-app --delete
 
       - name: Invalidate CloudFront Cache
-        run: aws cloudfront create-invalidation --distribution-id E2QC7N7ULW007X --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id E2QC7N7ULW0O7X --paths "/*"
