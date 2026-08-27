@@ -13,7 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     'select-column': [column: ColumnKey | null];
-    'toggle-direction': [];
+    sort: [column: ColumnKey];
 }>();
 
 const selectedSortColumn = computed<ColumnKey | ''>({
@@ -38,7 +38,7 @@ const selectedSortColumn = computed<ColumnKey | ''>({
             type="button"
             class="card-sort-direction"
             :aria-label="sortDirection === 'asc' ? 'Sort descending' : 'Sort ascending'"
-            @click="emit('toggle-direction')"
+            @click="emit('sort', sortColumn)"
         >
             {{ sortDirection === 'asc' ? '▴' : '▾' }}
         </button>

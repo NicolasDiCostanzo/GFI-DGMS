@@ -34,17 +34,10 @@ const props = defineProps<{
 const { themeMode, isDark } = useTheme();
 const selectedGrantId = ref<string | null>(null);
 
-const grantsWithValidatedUrls = computed(() =>
+const enrichedGrants = computed(() =>
     props.grants.map((grant: Grant) => ({
         grant,
         sourceUrl: validateSourceUrl(grant.sourceUrl),
-    })),
-);
-
-const enrichedGrants = computed(() =>
-    grantsWithValidatedUrls.value.map(({ grant, sourceUrl }) => ({
-        grant,
-        sourceUrl,
         aim: getAimDisplay(grant.aim, themeMode.value),
         instrument: getFundingInstrumentDisplay(grant.fundingInstrument, themeMode.value),
         segments: getPlatformSegments(grant.productionPlatforms),
@@ -94,12 +87,6 @@ function onSelectColumn(column: ColumnKey | null): void {
     handleSort(column);
 }
 
-function onToggleDirection(): void {
-    if (sortColumn.value !== null) {
-        handleSort(sortColumn.value);
-    }
-}
-
 const sortedEnrichedGrants = computed(() => {
     if (sortColumn.value === null) {
         return enrichedGrants.value;
@@ -112,6 +99,14 @@ const columns = computed<ReadonlyArray<ColumnKey>>(() =>
         ? (props.columnOrder as ReadonlyArray<ColumnKey>)
         : GRANT_TABLE_COLUMN_ORDER,
 );
+
+const viewProps = computed(() => ({
+    columnLabels,
+    sortColumn: sortColumn.value,
+    sortDirection: sortDirection.value,
+    rows: sortedEnrichedGrants.value,
+    instrumentTextColor: instrumentTextColor.value,
+}));
 
 function getCellValue(column: ColumnKey, eg: EnrichedGrantRow): string {
     const g = eg.grant;
@@ -153,24 +148,16 @@ defineExpose({
     <div v-if="grants.length" ref="viewEl" class="table-card">
         <StretchedGrantView
             v-if="isCompactView"
+            v-bind="viewProps"
             :sortable-columns="sortableColumns"
-            :column-labels="columnLabels"
-            :sort-column="sortColumn"
-            :sort-direction="sortDirection"
-            :rows="sortedEnrichedGrants"
-            :instrument-text-color="instrumentTextColor"
             @select-column="onSelectColumn"
-            @toggle-direction="onToggleDirection"
+            @sort="handleSort"
             @open-details="openDetailsModal"
         />
         <ExpandedGrantView
             v-else
+            v-bind="viewProps"
             :columns="columns"
-            :column-labels="columnLabels"
-            :sort-column="sortColumn"
-            :sort-direction="sortDirection"
-            :rows="sortedEnrichedGrants"
-            :instrument-text-color="instrumentTextColor"
             @sort="handleSort"
             @open-details="openDetailsModal"
         />
