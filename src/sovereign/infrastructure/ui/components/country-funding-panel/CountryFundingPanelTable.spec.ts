@@ -459,6 +459,20 @@ describe('CountryFundingPanelTable', () => {
             expect(titles).toEqual(['Cherry Project', 'Banana Project', 'Apple Project']);
         });
 
+        it('falls back to the raw column key in the sort dropdown for unknown columns', () => {
+            const wrapper = mount(CountryFundingPanelTable, {
+                props: {
+                    grants: cardSortGrants,
+                    isCompactView: true,
+                    columnOrder: ['nonexistentKey'] as unknown as ReadonlyArray<ColumnKey>,
+                },
+            });
+            const optionTexts = wrapper
+                .findAll('.card-sort-select option')
+                .map((o) => o.text().trim());
+            expect(optionTexts).toContain('nonexistentKey');
+        });
+
         it('restores the original order when Default is selected', async () => {
             const wrapper = mount(CountryFundingPanelTable, {
                 props: { grants: cardSortGrants, isCompactView: true },

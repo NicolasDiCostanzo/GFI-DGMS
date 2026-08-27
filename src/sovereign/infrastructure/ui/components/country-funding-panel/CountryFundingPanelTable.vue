@@ -11,7 +11,6 @@ import { formatList } from '@/sovereign/infrastructure/ui/utils/formatList';
 import { sortGrantRows } from '@/sovereign/infrastructure/ui/utils/sortGrantRows';
 import { validateSourceUrl } from '@/sovereign/infrastructure/ui/utils/validateSourceUrl';
 import { computed, ref } from 'vue';
-import CountryFundingPanelCard from './CountryFundingPanelCard.vue';
 import GrantDetailsModal from './GrantDetailsModal.vue';
 import type { EnrichedGrantRow, GrantTableColumn } from './GrantTable.types';
 import {
@@ -20,6 +19,7 @@ import {
     isSortableGrantTableColumn,
 } from './GrantTable.types';
 import GrantTableRow from './GrantTableRow.vue';
+import StretchedGrantView from './StretchedGrantView.vue';
 
 type ColumnKey = GrantTableColumn;
 
@@ -86,18 +86,15 @@ const sortableColumns = computed<ReadonlyArray<ColumnKey>>(() =>
     columns.value.filter(isSortableGrantTableColumn),
 );
 
-const selectedSortColumn = computed<ColumnKey | ''>({
-    get: () => sortColumn.value ?? '',
-    set: (value) => {
-        if (value === '') {
-            sortColumn.value = null;
-            return;
-        }
-        handleSort(value);
-    },
-});
+function onSelectColumn(column: ColumnKey | null): void {
+    if (column === null) {
+        sortColumn.value = null;
+        return;
+    }
+    handleSort(column);
+}
 
-function toggleSortDirection(): void {
+function onToggleDirection(): void {
     if (sortColumn.value !== null) {
         handleSort(sortColumn.value);
     }
@@ -154,39 +151,18 @@ defineExpose({
 
 <template>
     <div v-if="grants.length" ref="viewEl" class="table-card">
-        <template v-if="isCompactView">
-            <div class="card-sort-bar">
-                <label for="card-sort-select" class="card-sort-label">Sort by</label>
-                <select id="card-sort-select" v-model="selectedSortColumn" class="card-sort-select">
-                    <option value="">Default</option>
-                    <option v-for="col in sortableColumns" :key="col" :value="col">
-                        {{ columnLabels[col] ?? col }}
-                    </option>
-                </select>
-                <button
-                    v-if="sortColumn"
-                    type="button"
-                    class="card-sort-direction"
-                    :aria-label="sortDirection === 'asc' ? 'Sort descending' : 'Sort ascending'"
-                    @click="toggleSortDirection"
-                >
-                    {{ sortDirection === 'asc' ? '▴' : '▾' }}
-                </button>
-            </div>
-            <div class="grant-card-list" aria-label="Funding grants cards">
-                <CountryFundingPanelCard
-                    v-for="row in sortedEnrichedGrants"
-                    :key="row.grant.id"
-                    :grant="row.grant"
-                    :source-url="row.sourceUrl"
-                    :aim="row.aim"
-                    :instrument="row.instrument"
-                    :segments="row.segments"
-                    :instrument-text-color="instrumentTextColor"
-                    @open-details="openDetailsModal(row.grant.id)"
-                />
-            </div>
-        </template>
+        <StretchedGrantView
+            v-if="isCompactView"
+            :sortable-columns="sortableColumns"
+            :column-labels="columnLabels"
+            :sort-column="sortColumn"
+            :sort-direction="sortDirection"
+            :rows="sortedEnrichedGrants"
+            :instrument-text-color="instrumentTextColor"
+            @select-column="onSelectColumn"
+            @toggle-direction="onToggleDirection"
+            @open-details="openDetailsModal"
+        />
         <div v-else class="table-scroll-container" tabindex="0" aria-label="Funding grants table">
             <table class="grant-table">
                 <thead>
@@ -252,54 +228,6 @@ defineExpose({
     white-space: nowrap;
 }
 
-.grant-card-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 12px;
-}
-
-.card-sort-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px 0;
-    font-size: 0.75rem;
-}
-
-.card-sort-label {
-    font-weight: 600;
-    color: var(--text);
-}
-
-.card-sort-select {
-    flex: 1;
-    min-width: 0;
-    padding: 4px 8px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: transparent;
-    color: var(--text);
-    font-size: 0.75rem;
-}
-
-.card-sort-direction {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: transparent;
-    color: var(--text);
-    font-size: 0.75rem;
-    cursor: pointer;
-}
-
-.card-sort-direction:hover {
-    background: var(--muted-light);
-}
 .sort-arrow {
     font-size: 0.7rem;
     margin-left: 2px;
