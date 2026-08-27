@@ -1,48 +1,11 @@
-import { CountryName } from '@/sovereign/domain/CountryName';
-import { Grant, GrantId } from '@/sovereign/domain/Grant';
 import { mount } from '@vue/test-utils';
 import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
-
-function buildGrantWithPlatforms(productionPlatforms: string[]): Grant {
-    return new Grant(
-        GrantId('rec1'),
-        CountryName('France'),
-        'Untitled grant',
-        null,
-        [],
-        null,
-        null,
-        null,
-        null,
-        null,
-        productionPlatforms,
-        [],
-        null,
-    );
-}
-
-export const PLANT_BASED_DOMINANT_GRANTS = [
-    buildGrantWithPlatforms(['Plant-based']),
-    buildGrantWithPlatforms(['Plant-based']),
-    buildGrantWithPlatforms(['Cultivated']),
-];
-
-export const CULTIVATED_DOMINANT_GRANTS = [
-    buildGrantWithPlatforms(['Cultivated']),
-    buildGrantWithPlatforms(['Cultivated']),
-    buildGrantWithPlatforms(['Plant-based']),
-];
-
-export const TIED_GRANTS = [
-    buildGrantWithPlatforms(['Plant-based']),
-    buildGrantWithPlatforms(['Cultivated']),
-];
 
 interface MeatTypeCase {
     readonly tabLabel: string;
     readonly ghg: string;
     readonly land: string | null;
-    readonly water: string;
+    readonly water: string | null;
 }
 
 export const PLANT_BASED_MEAT_TYPE_CASES: readonly MeatTypeCase[] = [
@@ -51,8 +14,12 @@ export const PLANT_BASED_MEAT_TYPE_CASES: readonly MeatTypeCase[] = [
     { tabLabel: 'Chicken', ghg: '-36%', land: null, water: '-72%' },
 ];
 
-export function createWrapper(grants?: readonly Grant[]) {
-    return mount(EnvironmentalImpactPanel, {
-        props: grants === undefined ? {} : { grants },
-    });
+export const CULTIVATED_MEAT_TYPE_CASES: readonly MeatTypeCase[] = [
+    { tabLabel: 'Beef', ghg: '-98%', land: '-94%', water: '-84%' },
+    { tabLabel: 'Pork', ghg: '-80%', land: '-70%', water: null },
+    { tabLabel: 'Chicken', ghg: '-75%', land: '-61%', water: null },
+];
+
+export function createWrapper() {
+    return mount(EnvironmentalImpactPanel);
 }

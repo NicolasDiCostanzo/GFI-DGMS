@@ -35,8 +35,8 @@
 </template>
 
 <script setup lang="ts">
-import { useId } from 'vue';
 import { getMetricGradientEndColor } from '@/sovereign/infrastructure/ui/constants/ThemeColors';
+import { useId } from 'vue';
 
 withDefaults(
     defineProps<{
@@ -63,8 +63,8 @@ const gradientId = `metric-ring-gradient-${useId()}`;
 
 .metric-ring-circle {
     position: relative;
-    width: 68px;
-    height: 68px;
+    width: 58px;
+    height: 58px;
 }
 
 .metric-ring-svg {
@@ -93,7 +93,7 @@ const gradientId = `metric-ring-gradient-${useId()}`;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 700;
 }
 

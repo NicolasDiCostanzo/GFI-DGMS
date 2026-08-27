@@ -5,6 +5,8 @@ import { Grant } from '@/sovereign/domain/Grant';
 import { loadCountryFundingOverview } from '@/sovereign/infrastructure/composition';
 import { CountryLoadError } from '@/sovereign/infrastructure/errors/CountryLoadError';
 import CountryFundingPanel from '@/sovereign/infrastructure/ui/components/country-funding-panel/CountryFundingPanel.vue';
+import EnvironmentalImpactPanel from '@/sovereign/infrastructure/ui/components/EnvironmentalImpactPanel.vue';
+import GlobalImpactBenchmarksToggle from '@/sovereign/infrastructure/ui/components/GlobalImpactBenchmarksToggle.vue';
 import InteractiveMap from '@/sovereign/infrastructure/ui/components/InteractiveMap.vue';
 import ThemeToggle from '@/sovereign/infrastructure/ui/components/ThemeToggle.vue';
 import { useTheme } from '@/sovereign/infrastructure/ui/composables/useTheme';
@@ -25,6 +27,7 @@ const countryFundings = ref<CountryFunding[]>([]);
 const unattributedGrants = ref<Grant[]>([]);
 const selectedCountryName = ref<string | null>(null);
 const loadError = ref<CountryLoadError | null>(null);
+const isGlobalImpactBenchmarksOpen = ref(false);
 
 const { themeMode, setTheme, initTheme, isThemeMode } = useTheme();
 initTheme(props.theme);
@@ -108,6 +111,15 @@ function handleSidebarClosing(): void {
                 :selected-country-name="selectedCountryName"
                 @country-select="handleCountrySelect"
             />
+            <GlobalImpactBenchmarksToggle
+                v-model="isGlobalImpactBenchmarksOpen"
+                aria-controls="global-impact-benchmarks-panel"
+            />
+            <EnvironmentalImpactPanel
+                v-if="isGlobalImpactBenchmarksOpen"
+                id="global-impact-benchmarks-panel"
+                class="global-impact-benchmarks-panel"
+            />
             <Transition name="slide">
                 <CountryFundingPanel
                     v-if="selectedCountryName"
@@ -154,6 +166,20 @@ function handleSidebarClosing(): void {
     position: relative;
     width: 100%;
     height: 100%;
+}
+
+.global-impact-benchmarks-panel {
+    position: absolute;
+    top: 112px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    width: calc(100% - 32px);
+    max-height: 60vh;
+    overflow-y: auto;
+    background: var(--sidebar-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--border);
 }
 
 .sidebar-overlay {
