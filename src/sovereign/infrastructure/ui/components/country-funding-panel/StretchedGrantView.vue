@@ -16,7 +16,7 @@ defineProps<{
 
 const emit = defineEmits<{
     'select-column': [column: ColumnKey | null];
-    'toggle-direction': [];
+    sort: [column: ColumnKey];
     'open-details': [grantId: string];
 }>();
 </script>
@@ -28,7 +28,7 @@ const emit = defineEmits<{
         :sort-column="sortColumn"
         :sort-direction="sortDirection"
         @select-column="emit('select-column', $event)"
-        @toggle-direction="emit('toggle-direction')"
+        @sort="emit('sort', $event)"
     />
     <div class="grant-card-list" aria-label="Funding grants cards">
         <CountryFundingPanelCard
