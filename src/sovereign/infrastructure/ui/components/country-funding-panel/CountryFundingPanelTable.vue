@@ -18,7 +18,7 @@ import {
     GRANT_TABLE_COLUMN_ORDER,
     isSortableGrantTableColumn,
 } from './GrantTable.types';
-import GrantTableRow from './GrantTableRow.vue';
+import ExpandedGrantView from './ExpandedGrantView.vue';
 import StretchedGrantView from './StretchedGrantView.vue';
 
 type ColumnKey = GrantTableColumn;
@@ -163,35 +163,17 @@ defineExpose({
             @toggle-direction="onToggleDirection"
             @open-details="openDetailsModal"
         />
-        <div v-else class="table-scroll-container" tabindex="0" aria-label="Funding grants table">
-            <table class="grant-table">
-                <thead>
-                    <tr>
-                        <th
-                            v-for="col in columns"
-                            :key="col"
-                            :class="{ sorted: col === sortColumn }"
-                            @click="handleSort(col)"
-                        >
-                            {{ columnLabels[col] ?? col }}
-                            <span v-if="col === sortColumn" class="sort-arrow">
-                                {{ sortDirection === 'asc' ? '▴' : '▾' }}
-                            </span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <GrantTableRow
-                        v-for="row in sortedEnrichedGrants"
-                        :key="row.grant.id"
-                        :row="row"
-                        :columns="columns"
-                        :instrument-text-color="instrumentTextColor"
-                        @open-details="openDetailsModal"
-                    />
-                </tbody>
-            </table>
-        </div>
+        <ExpandedGrantView
+            v-else
+            :columns="columns"
+            :column-labels="columnLabels"
+            :sort-column="sortColumn"
+            :sort-direction="sortDirection"
+            :rows="sortedEnrichedGrants"
+            :instrument-text-color="instrumentTextColor"
+            @sort="handleSort"
+            @open-details="openDetailsModal"
+        />
         <GrantDetailsModal
             v-if="selectedGrant"
             :open="true"
@@ -207,34 +189,5 @@ defineExpose({
     flex-shrink: 0;
     border-radius: 8px;
     overflow: hidden;
-}
-
-.table-scroll-container {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.grant-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.75rem;
-    text-align: left;
-}
-
-.grant-table th {
-    padding: 10px 12px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.sort-arrow {
-    font-size: 0.7rem;
-    margin-left: 2px;
-    cursor: default;
-}
-.sorted {
-    background-color: var(--bg-color);
-    border-bottom: 2px solid var(--accent);
 }
 </style>
