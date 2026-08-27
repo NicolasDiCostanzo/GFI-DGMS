@@ -26,7 +26,7 @@ function toggle(): void {
 <style scoped>
 .global-impact-benchmarks-toggle {
     position: absolute;
-    top: 64px;
+    top: 16px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 0;

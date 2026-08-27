@@ -111,6 +111,7 @@ function handleSidebarClosing(): void {
                 :selected-country-name="selectedCountryName"
                 @country-select="handleCountrySelect"
             />
+            <ThemeToggle v-model:model-value="themeModel" style="z-index: 0" />
             <GlobalImpactBenchmarksToggle
                 v-model="isGlobalImpactBenchmarksOpen"
                 aria-controls="global-impact-benchmarks-panel"
@@ -130,7 +131,6 @@ function handleSidebarClosing(): void {
                 />
             </Transition>
         </div>
-        <ThemeToggle v-model:model-value="themeModel" style="z-index: 0" />
     </main>
 </template>
 
@@ -170,7 +170,7 @@ function handleSidebarClosing(): void {
 
 .global-impact-benchmarks-panel {
     position: absolute;
-    top: 112px;
+    top: 72px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;
