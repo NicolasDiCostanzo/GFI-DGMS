@@ -1,5 +1,22 @@
 <template>
     <section class="environmental-impact-panel" :style="cssVars">
+        <button class="close-button" type="button" aria-label="Close panel" @click="emit('close')">
+            <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    d="M2 2L14 14M2 14L14 2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                />
+            </svg>
+        </button>
+
         <div class="pillar-tabs-container">
             <TabSelector
                 :options="PILLARS"
@@ -10,16 +27,16 @@
             />
         </div>
 
-        <h3 class="panel-title">{{ pillarLabel }} vs. conventional meat</h3>
-
-        <TabSelector
-            :options="MEAT_TYPES"
-            :labels="MEAT_TYPE_LABELS"
-            :model-value="selectedMeatType"
-            :font-weight="600"
-            :accessibility-label="'Select meat type for comparison'"
-            @update:model-value="selectedMeatType = $event"
-        />
+        <div class="meat-tabs-container">
+            <TabSelector
+                :options="MEAT_TYPES"
+                :labels="MEAT_TYPE_LABELS"
+                :model-value="selectedMeatType"
+                :font-weight="600"
+                :accessibility-label="'Select meat type for comparison'"
+                @update:model-value="selectedMeatType = $event"
+            />
+        </div>
 
         <div class="metric-rings">
             <div
@@ -66,7 +83,15 @@
             </div>
         </div>
 
-        <p class="figure-source">{{ sourceText }}</p>
+        <p class="figure-source">
+            Compared to conventional meat production. <br /><a
+                class="source-link"
+                href="https://gfi.org/initiatives/climate/environmental-benefits-of-alt-proteins/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Source</a
+            >
+        </p>
     </section>
 </template>
 
@@ -104,6 +129,10 @@ const PILLAR_LABELS: Record<ProductionPillar, string> = {
 const selectedPillar = ref<ProductionPillar>('Plant-based');
 const selectedMeatType = ref<MeatType>('beef');
 
+const emit = defineEmits<{
+    close: [];
+}>();
+
 const { themeMode } = useTheme();
 
 const cssVars = computed(() => {
@@ -122,24 +151,13 @@ const figures = computed(() =>
 const selectedFigure = computed(
     () => figures.value.find((figure) => figure.meatType === selectedMeatType.value) ?? null,
 );
-
-const pillarLabel = computed(() =>
-    selectedPillar.value === 'Cultivated' ? 'Cultivated meat' : 'Plant-based meat',
-);
-
-const sourceText = computed(() => {
-    const commonText =
-        'Savings compared to conventional meat production; not tied to specific grants.';
-    return selectedPillar.value === 'Cultivated'
-        ? `${commonText} Source: CE Delft.`
-        : `${commonText} Source: GFI.`;
-});
 </script>
 
 <style scoped>
 .environmental-impact-panel {
+    /* position: relative; */
     max-width: 315px;
-    padding: 1rem;
+    padding: 1.3rem;
     border-radius: 8px;
     border: 1px solid var(--panel-border);
 }
@@ -152,7 +170,11 @@ const sourceText = computed(() => {
 }
 
 .pillar-tabs-container {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.meat-tabs-container {
+    padding: 0 1rem 0 1rem;
 }
 
 .metric-rings {
@@ -169,9 +191,30 @@ const sourceText = computed(() => {
 }
 
 .figure-source {
-    font-size: 0.63rem;
-    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    margin-top: 1rem;
     margin-bottom: 0;
     line-height: 1.3;
+}
+
+.source-link {
+    color: var(--highlight);
+}
+
+.close-button {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    padding: 3px;
+    border-radius: 3px;
+    top: 0.25rem;
+    right: 0.25rem;
+}
+
+.close-button:hover {
+    background: color-mix(in srgb, var(--text) 15%, transparent);
 }
 </style>

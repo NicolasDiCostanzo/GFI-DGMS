@@ -310,6 +310,24 @@ describe('App', () => {
                 .trigger('click');
             expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(false);
         });
+
+        it('hides the panel when EnvironmentalImpactPanel emits close', async () => {
+            findAllMock.mockResolvedValue([GERMANY_FUNDING]);
+
+            const wrapper = mountApp();
+            await flushPromises();
+
+            await wrapper
+                .findComponent(GlobalImpactBenchmarksToggle)
+                .find('button')
+                .trigger('click');
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(true);
+
+            wrapper.findComponent(EnvironmentalImpactPanel).vm.$emit('close');
+            await flushPromises();
+
+            expect(wrapper.findComponent(EnvironmentalImpactPanel).exists()).toBe(false);
+        });
     });
 
     describe('theme prop', () => {

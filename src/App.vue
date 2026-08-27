@@ -120,6 +120,7 @@ function handleSidebarClosing(): void {
                 v-if="isGlobalImpactBenchmarksOpen"
                 id="global-impact-benchmarks-panel"
                 class="global-impact-benchmarks-panel"
+                @close="isGlobalImpactBenchmarksOpen = false"
             />
             <Transition name="slide">
                 <CountryFundingPanel
