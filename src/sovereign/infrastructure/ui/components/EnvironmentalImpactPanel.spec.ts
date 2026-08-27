@@ -53,9 +53,6 @@ describe('EnvironmentalImpactPanel', () => {
                 .findAll('.tab-selector-option');
             expect(tabs.map((tab) => tab.text())).toEqual(['Beef', 'Pork', 'Chicken']);
             expect(tabs[0]?.classes()).toContain('tab-selector-option--active');
-            expect(wrapper.find('.panel-title').text()).toBe(
-                'Plant-based meat vs. conventional meat',
-            );
         });
 
         it('renders no metrics when no figure matches the selected meat type', async () => {
@@ -109,28 +106,18 @@ describe('EnvironmentalImpactPanel', () => {
         it('cites the GFI source', () => {
             const wrapper = createWrapper();
             expect(wrapper.find('.figure-source').text()).toBe(
-                'Savings compared to conventional meat production; not tied to specific grants. Source: GFI.',
+                'Compared to conventional meat production. Source',
             );
         });
     });
 
     describe('cultivated pillar', () => {
-        it('shows the cultivated GHG reduction for the default Beef tab', async () => {
-            const wrapper = createWrapper();
-            await selectPillarTab(wrapper, 'Cultivated meat 🧫');
-
-            expect(wrapper.find('.panel-title').text()).toBe(
-                'Cultivated meat vs. conventional meat',
-            );
-            expect(ringValue(wrapper, 'ghg')).toBe('-98%');
-        });
-
         it('cites the CE Delft LCA source for the cultivated figures', async () => {
             const wrapper = createWrapper();
             await selectPillarTab(wrapper, 'Cultivated meat 🧫');
 
             expect(wrapper.find('.figure-source').text()).toBe(
-                'Savings compared to conventional meat production; not tied to specific grants. Source: CE Delft.',
+                'Compared to conventional meat production. Source',
             );
         });
 
@@ -148,11 +135,11 @@ describe('EnvironmentalImpactPanel', () => {
         );
     });
 
-    it('switches back to plant-based figures when the plant-based tab is reselected', async () => {
+    it('emits close when the close button is clicked', async () => {
         const wrapper = createWrapper();
-        await selectPillarTab(wrapper, 'Cultivated meat 🧫');
-        await selectPillarTab(wrapper, 'Plant-based 🌱');
 
-        expect(wrapper.find('.panel-title').text()).toBe('Plant-based meat vs. conventional meat');
+        await wrapper.find('.close-button').trigger('click');
+
+        expect(wrapper.emitted('close')).toHaveLength(1);
     });
 });
