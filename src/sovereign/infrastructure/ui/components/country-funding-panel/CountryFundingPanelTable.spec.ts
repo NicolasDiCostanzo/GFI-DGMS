@@ -309,7 +309,7 @@ describe('CountryFundingPanelTable', () => {
             },
         });
 
-        const yearsHeader = wrapper.findAll('thead th')[0];
+        const yearsHeader = wrapper.findAll('thead th')[0].find('button');
         await yearsHeader.trigger('click');
 
         const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
@@ -365,7 +365,7 @@ describe('CountryFundingPanelTable', () => {
             },
         });
 
-        const yearsHeader = wrapper.findAll('thead th')[0];
+        const yearsHeader = wrapper.findAll('thead th')[0].find('button');
         await yearsHeader.trigger('click');
         await yearsHeader.trigger('click');
 
@@ -402,7 +402,7 @@ describe('CountryFundingPanelTable', () => {
             },
         });
 
-        const yearsHeader = wrapper.findAll('thead th')[0];
+        const yearsHeader = wrapper.findAll('thead th')[0].find('button');
         await yearsHeader.trigger('click');
 
         const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
