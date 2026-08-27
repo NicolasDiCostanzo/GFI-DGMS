@@ -11,7 +11,6 @@ import { formatInvestment } from '@/sovereign/infrastructure/ui/utils/formatInve
 import { computed, ref, watch } from 'vue';
 import CountryFundingPanelTable from './CountryFundingPanelTable.vue';
 import CountryHeader from './CountryHeader.vue';
-import EnvironmentalImpactPanel from './EnvironmentalImpactPanel.vue';
 import Legend from './Legend.vue';
 import PanelFooter from './PanelFooter.vue';
 import ProjectionSection from './ProjectionSection.vue';
@@ -220,7 +219,6 @@ const panelClasses = computed(() => ({
             />
             <ProjectionSection v-if="projection" :projection="projection" />
             <div class="sub-header-wrapper" :class="isCompactView ? 'is-compact' : ''">
-                <EnvironmentalImpactPanel :grants="grants" />
                 <button
                     class="legend-label"
                     type="button"
@@ -292,12 +290,6 @@ const panelClasses = computed(() => ({
     gap: 8px;
 
     &:not(.is-compact) {
-        flex-direction: row;
-
-        > * {
-            width: 50%;
-        }
-
         .legend-label {
             display: none;
         }
