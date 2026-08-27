@@ -22,29 +22,30 @@ defineProps<{
     right: 16px;
     background: var(--legend-bg);
     border-radius: 6px;
-    padding: 8px 12px;
+    padding: 6px 8px;
     box-shadow: 0 1px 4px var(--border);
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
 }
 
 .legend-swatch {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 2px;
-    flex-shrink: 0;
 }
 
 .legend-label {
-    font-size: 12px;
+    font-size: 0.7rem;
+    line-height: 12px;
+    display: block;
+    margin: 0;
     color: var(--legend-text);
 }
 </style>
