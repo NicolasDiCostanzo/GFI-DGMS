@@ -54,7 +54,7 @@ describe('EnvironmentalImpactPanel', () => {
             expect(tabs.map((tab) => tab.text())).toEqual(['Beef', 'Pork', 'Chicken']);
             expect(tabs[0]?.classes()).toContain('tab-selector-option--active');
             expect(wrapper.find('.panel-title').text()).toBe(
-                'Conventional meat vs. plant-based meat',
+                'Plant-based meat vs. conventional meat',
             );
         });
 
@@ -120,7 +120,7 @@ describe('EnvironmentalImpactPanel', () => {
             await selectPillarTab(wrapper, 'Cultivated meat 🧫');
 
             expect(wrapper.find('.panel-title').text()).toBe(
-                'Conventional meat vs. cultivated meat',
+                'Cultivated meat vs. conventional meat',
             );
             expect(ringValue(wrapper, 'ghg')).toBe('-98%');
         });
@@ -153,6 +153,6 @@ describe('EnvironmentalImpactPanel', () => {
         await selectPillarTab(wrapper, 'Cultivated meat 🧫');
         await selectPillarTab(wrapper, 'Plant-based 🌱');
 
-        expect(wrapper.find('.panel-title').text()).toBe('Conventional meat vs. plant-based meat');
+        expect(wrapper.find('.panel-title').text()).toBe('Plant-based meat vs. conventional meat');
     });
 });

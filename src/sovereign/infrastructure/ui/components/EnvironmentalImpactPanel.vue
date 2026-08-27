@@ -10,7 +10,7 @@
             />
         </div>
 
-        <h3 class="panel-title">Conventional meat vs. {{ pillarLabel }}</h3>
+        <h3 class="panel-title">{{ pillarLabel }} vs. conventional meat</h3>
 
         <TabSelector
             :options="MEAT_TYPES"
@@ -124,7 +124,7 @@ const selectedFigure = computed(
 );
 
 const pillarLabel = computed(() =>
-    selectedPillar.value === 'Cultivated' ? 'cultivated meat' : 'plant-based meat',
+    selectedPillar.value === 'Cultivated' ? 'Cultivated meat' : 'Plant-based meat',
 );
 
 const sourceText = computed(() => {
