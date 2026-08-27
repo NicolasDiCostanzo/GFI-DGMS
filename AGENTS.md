@@ -1,10 +1,10 @@
-# GFI-DGMS Development Guide
+# GFI Funding Map Development Guide
 
 > Tool-agnostic project context ([AGENTS.md](https://agents.md/) convention) — read by Claude Code, Codex, Copilot, Cursor, Gemini CLI, Aider, Windsurf, and other AI coding tools that support it, as well as human contributors.
 
 ## Project Overview
 
-The GoodFoodInstitute ROI is a web component for visualizing and calculating regional impact and ROI data. It outputs as a custom element (`gfi-dgms-widget`) and can be used as a standalone SPA for development.
+GFI Funding Map is a web component for visualizing public funding for alternative proteins and its environmental impact. It outputs as a custom element (`gfi-widget`) and can be used as a standalone SPA for development.
 
 ## Business Context & Scientific Foundation
 
@@ -194,8 +194,8 @@ Based on [Eric Evans' Domain-Driven Design](https://ddd.academy/blog/what-is-ddd
 
 ## Build Targets
 
-- **Custom Element**: `gfi-dgms-widget` (defined in `src/sovereign/infrastructure/ui/entry/gfi-dgms-widget.ce.ts`)
-- **Output Formats**: ES module (`gfi-dgms-widget.js`) and UMD (`gfi-dgms-widget.umd.js`)
+- **Custom Element**: `gfi-widget` (defined in `src/sovereign/infrastructure/ui/entry/gfi-widget.ce.ts`)
+- **Output Formats**: ES module (`gfi-widget.js`) and UMD (`gfi-widget.umd.js`)
 - **Development**: Standalone SPA via `index.html`; embed test via `embed-test.html`
 - **Self-contained**: Vue is bundled into the output so the widget can be embedded on any host page (WordPress, Wix, etc.) without loading a separate Vue runtime
 - **Bundle size**: `npm run check:size` enforces a gzip limit (default 120 kB, configurable via `MAX_GZIP_KB`); the 110m world topology is used to keep the bundle small, with Malta (ISO 470) added as a point feature

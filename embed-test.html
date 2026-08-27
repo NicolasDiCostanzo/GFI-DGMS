@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GFI-DGMS Embed Test</title>
+    <title>GFI Funding Map Embed Test</title>
     <style>
         body {
             font-family: system-ui, sans-serif;
@@ -17,7 +17,7 @@
             min-height: 100vh;
         }
 
-        gfi-dgms-widget {
+        gfi-widget {
             display: block;
             width: 960px;
             height: 500px;
@@ -28,7 +28,7 @@
 </head>
 
 <body>
-    <gfi-dgms-widget id="widget"></gfi-dgms-widget>
+    <gfi-widget id="widget"></gfi-widget>
 
     <!-- Polyfill `process` before loading the UMD bundle. -->
     <script>
@@ -37,7 +37,7 @@
     </script>
 
     <!-- Load the UMD bundle so this works as a plain script tag embed. -->
-    <script src="./dist/gfi-dgms-widget.umd.js"></script>
+    <script src="./dist/gfi-widget.umd.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             const widget = document.getElementById('widget');

@@ -19,11 +19,11 @@ export default defineConfig({
         emptyOutDir: false,
         lib: {
             entry: fileURLToPath(
-                new URL('./src/sovereign/infrastructure/ui/entry/gfi-dgms-widget.ce.ts', import.meta.url)
+                new URL('./src/sovereign/infrastructure/ui/entry/gfi-widget.ce.ts', import.meta.url)
             ),
-            name: 'GFIDGMS',
+            name: 'GFIWidget',
             formats: ['es', 'umd'],
-            fileName: (format) => (format === 'es' ? 'gfi-dgms-widget.js' : 'gfi-dgms-widget.umd.js'),
+            fileName: (format) => (format === 'es' ? 'gfi-widget.js' : 'gfi-widget.umd.js'),
         },
         rollupOptions: {
             output: {

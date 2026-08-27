@@ -1,16 +1,16 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('gfi-dgms-widget custom element (embed-test.html)', () => {
+test.describe('gfi-widget custom element (embed-test.html)', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/embed-test.html');
     });
 
     test('renders as a custom element with an encapsulated shadow root', async ({ page }) => {
-        const widget = page.locator('gfi-dgms-widget');
+        const widget = page.locator('gfi-widget');
         await expect(widget).toBeVisible();
 
         const shadowInfo = await page.evaluate(() => {
-            const el = document.querySelector('gfi-dgms-widget');
+            const el = document.querySelector('gfi-widget');
             if (!el || !el.shadowRoot) {
                 return null;
             }

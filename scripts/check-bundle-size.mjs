@@ -8,12 +8,12 @@ if (!Number.isFinite(maxGzipKb) || maxGzipKb <= 0) {
     throw new Error('MAX_GZIP_KB must be a positive finite number');
 }
 
-const bundlePath = join(process.cwd(), 'dist', 'gfi-dgms-widget.js');
+const bundlePath = join(process.cwd(), 'dist', 'gfi-widget.js');
 const bundle = readFileSync(bundlePath);
 const gzipBytes = gzipSync(bundle).length;
 const gzipKb = gzipBytes / 1024;
 
-console.log(`gfi-dgms-widget.js gzip: ${gzipKb.toFixed(2)} kB (limit: ${maxGzipKb} kB)`);
+console.log(`gfi-widget.js gzip: ${gzipKb.toFixed(2)} kB (limit: ${maxGzipKb} kB)`);
 
 if (gzipKb > maxGzipKb) {
     console.error(

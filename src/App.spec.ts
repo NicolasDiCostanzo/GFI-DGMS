@@ -137,7 +137,7 @@ describe('App', () => {
     });
 
     it('defaults to dark theme when no localStorage value exists', async () => {
-        localStorage.removeItem('gfi-dgms-settings');
+        localStorage.removeItem('gfi-funding-map-settings');
         findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
@@ -147,7 +147,7 @@ describe('App', () => {
     });
 
     it('loads theme from localStorage on mount', async () => {
-        localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+        localStorage.setItem('gfi-funding-map-settings', JSON.stringify({ themeMode: 'light' }));
         findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
@@ -157,7 +157,7 @@ describe('App', () => {
     });
 
     it('persists theme change to localStorage', async () => {
-        localStorage.removeItem('gfi-dgms-settings');
+        localStorage.removeItem('gfi-funding-map-settings');
         findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
         const wrapper = mountApp();
@@ -168,13 +168,13 @@ describe('App', () => {
         const options = wrapper.findAll('.theme-toggle-option');
         await options[2].trigger('click');
 
-        const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
+        const stored = JSON.parse(localStorage.getItem('gfi-funding-map-settings') || '{}');
         expect(stored.themeMode).toBe('colorblind-light');
     });
 
     describe('settings persistence errors', () => {
         it('throws SettingsParseError when localStorage contains invalid JSON', async () => {
-            localStorage.setItem('gfi-dgms-settings', '{invalid json}');
+            localStorage.setItem('gfi-funding-map-settings', '{invalid json}');
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             expect(() => mountApp()).toThrow(SettingsParseError);
@@ -193,7 +193,7 @@ describe('App', () => {
                 await flushPromises();
 
                 expect(wrapper.find('.theme-dark').exists()).toBe(true);
-                expect(getItem).toHaveBeenCalledWith('gfi-dgms-settings');
+                expect(getItem).toHaveBeenCalledWith('gfi-funding-map-settings');
             } finally {
                 vi.unstubAllGlobals();
             }
@@ -241,7 +241,7 @@ describe('App', () => {
 
     describe('CountryFundingPanel remounting', () => {
         beforeEach(() => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'dark' }));
+            localStorage.setItem('gfi-funding-map-settings', JSON.stringify({ themeMode: 'dark' }));
         });
 
         it('remounts the panel when a different country is selected', async () => {
@@ -332,7 +332,7 @@ describe('App', () => {
 
     describe('theme prop', () => {
         it('uses the theme prop value when provided, overrides localStorage', async () => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'dark' }));
+            localStorage.setItem('gfi-funding-map-settings', JSON.stringify({ themeMode: 'dark' }));
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
@@ -345,7 +345,10 @@ describe('App', () => {
         });
 
         it('uses the theme prop value when provided, regardless of localStorage', async () => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+            localStorage.setItem(
+                'gfi-funding-map-settings',
+                JSON.stringify({ themeMode: 'light' }),
+            );
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
@@ -357,7 +360,7 @@ describe('App', () => {
         });
 
         it('still persists through localStorage when theme prop is used', async () => {
-            localStorage.removeItem('gfi-dgms-settings');
+            localStorage.removeItem('gfi-funding-map-settings');
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             mountApp({
@@ -365,12 +368,15 @@ describe('App', () => {
             });
             await flushPromises();
 
-            const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
+            const stored = JSON.parse(localStorage.getItem('gfi-funding-map-settings') || '{}');
             expect(stored.themeMode).toBe('colorblind-light');
         });
 
         it('falls back to settings when theme prop has an invalid runtime value', async () => {
-            localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+            localStorage.setItem(
+                'gfi-funding-map-settings',
+                JSON.stringify({ themeMode: 'light' }),
+            );
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({
@@ -383,7 +389,7 @@ describe('App', () => {
         });
 
         it('updates the UI when theme prop changes', async () => {
-            localStorage.removeItem('gfi-dgms-settings');
+            localStorage.removeItem('gfi-funding-map-settings');
             findAllMock.mockResolvedValue([GERMANY_FUNDING]);
 
             const wrapper = mountApp({

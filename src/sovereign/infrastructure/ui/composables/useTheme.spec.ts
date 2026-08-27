@@ -35,7 +35,7 @@ describe('useTheme', () => {
     });
 
     it('loads theme from localStorage', () => {
-        localStorage.setItem('gfi-dgms-settings', JSON.stringify({ themeMode: 'light' }));
+        localStorage.setItem('gfi-funding-map-settings', JSON.stringify({ themeMode: 'light' }));
         const { themeMode } = useTheme();
         expect(themeMode.value).toBe('light');
     });
@@ -44,7 +44,7 @@ describe('useTheme', () => {
         const { themeMode, setTheme } = useTheme();
         setTheme('colorblind-light');
         expect(themeMode.value).toBe('colorblind-light');
-        const stored = JSON.parse(localStorage.getItem('gfi-dgms-settings') || '{}');
+        const stored = JSON.parse(localStorage.getItem('gfi-funding-map-settings') || '{}');
         expect(stored.themeMode).toBe('colorblind-light');
     });
 
@@ -78,7 +78,7 @@ describe('useTheme', () => {
     });
 
     it('throws SettingsParseError when localStorage contains invalid JSON', () => {
-        localStorage.setItem('gfi-dgms-settings', '{invalid json}');
+        localStorage.setItem('gfi-funding-map-settings', '{invalid json}');
         expect(() => useTheme()).toThrow(SettingsParseError);
     });
 

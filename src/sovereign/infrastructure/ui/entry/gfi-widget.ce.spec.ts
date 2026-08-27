@@ -1,15 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
-    GFI_DGMS_WIDGET_TAG,
-    GfiDgmsWidgetElement,
-    defineGfiDgmsWidget,
+    GFI_WIDGET_TAG,
+    GfiWidgetElement,
+    defineGfiWidget,
     polyfillProcessEnv,
-} from './gfi-dgms-widget.ce';
+} from './gfi-widget.ce';
 
-describe('gfi-dgms-widget custom element entry', () => {
+describe('gfi-widget custom element entry', () => {
     beforeEach(() => {
-        defineGfiDgmsWidget();
+        defineGfiWidget();
     });
 
     afterEach(() => {
@@ -17,16 +17,16 @@ describe('gfi-dgms-widget custom element entry', () => {
     });
 
     it('registers the custom element under the expected tag', () => {
-        expect(customElements.get(GFI_DGMS_WIDGET_TAG)).toBe(GfiDgmsWidgetElement);
+        expect(customElements.get(GFI_WIDGET_TAG)).toBe(GfiWidgetElement);
     });
 
     it('leaves the existing registration untouched when already defined', () => {
         const defineSpy = vi.spyOn(customElements, 'define');
 
-        defineGfiDgmsWidget();
+        defineGfiWidget();
 
         expect(defineSpy).not.toHaveBeenCalled();
-        expect(customElements.get(GFI_DGMS_WIDGET_TAG)).toBe(GfiDgmsWidgetElement);
+        expect(customElements.get(GFI_WIDGET_TAG)).toBe(GfiWidgetElement);
     });
 });
 

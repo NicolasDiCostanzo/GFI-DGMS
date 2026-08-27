@@ -32,9 +32,7 @@ test.describe('InteractiveMap', () => {
     });
 
     test('mounts as a standalone app with no shadow-DOM encapsulation', async ({ page }) => {
-        const hasWidget = await page.evaluate(
-            () => document.querySelector('gfi-dgms-widget') !== null,
-        );
+        const hasWidget = await page.evaluate(() => document.querySelector('gfi-widget') !== null);
         expect(hasWidget).toBe(false);
 
         const appRoot = page.locator('#app');

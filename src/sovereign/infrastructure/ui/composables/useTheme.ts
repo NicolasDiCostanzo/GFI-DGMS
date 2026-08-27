@@ -5,7 +5,7 @@ import type { ThemeMode } from '@/sovereign/infrastructure/ui/constants/MapColor
 import { isDarkTheme } from '@/sovereign/infrastructure/ui/constants/ThemePrimitives';
 import { computed, ref } from 'vue';
 
-const STORAGE_KEY = 'gfi-dgms-settings';
+const STORAGE_KEY = 'gfi-funding-map-settings';
 const THEME_MODES = new Set<ThemeMode>(['light', 'dark', 'colorblind-light', 'colorblind-dark']);
 
 function isThemeMode(value: unknown): value is ThemeMode {

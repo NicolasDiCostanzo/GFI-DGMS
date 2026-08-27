@@ -1,15 +1,15 @@
 {
-  "name": "gfi-dgms",
+  "name": "gfi-funding-map",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "GFI-DGMS Web Component",
-  "main": "./dist/gfi-dgms-widget.umd.js",
-  "module": "./dist/gfi-dgms-widget.js",
+  "description": "GFI Funding Map Web Component",
+  "main": "./dist/gfi-widget.umd.js",
+  "module": "./dist/gfi-widget.js",
   "exports": {
     ".": {
-      "import": "./dist/gfi-dgms-widget.js",
-      "require": "./dist/gfi-dgms-widget.umd.js"
+      "import": "./dist/gfi-widget.js",
+      "require": "./dist/gfi-widget.umd.js"
     }
   },
   "scripts": {
