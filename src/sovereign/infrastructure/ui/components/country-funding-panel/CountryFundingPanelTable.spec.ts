@@ -309,8 +309,8 @@ describe('CountryFundingPanelTable', () => {
             },
         });
 
-        const yearsHeader = wrapper.findAll('thead th')[0].find('button');
-        await yearsHeader.trigger('click');
+        const sortSelect = wrapper.find('.card-sort-select');
+        await sortSelect.setValue('yearsDisbursed');
 
         const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
         const expectedTitles = grants
@@ -365,9 +365,9 @@ describe('CountryFundingPanelTable', () => {
             },
         });
 
-        const yearsHeader = wrapper.findAll('thead th')[0].find('button');
-        await yearsHeader.trigger('click');
-        await yearsHeader.trigger('click');
+        const sortSelect = wrapper.find('.card-sort-select');
+        await sortSelect.setValue('yearsDisbursed');
+        await wrapper.find('.card-sort-direction').trigger('click');
 
         const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
         const expectedTitles = grants
@@ -402,15 +402,15 @@ describe('CountryFundingPanelTable', () => {
             },
         });
 
-        const yearsHeader = wrapper.findAll('thead th')[0].find('button');
-        await yearsHeader.trigger('click');
+        const sortSelect = wrapper.find('.card-sort-select');
+        await sortSelect.setValue('yearsDisbursed');
 
         const rowTitles = wrapper.findAll('tbody tr .title-cell').map((cell) => cell.text());
         expect(rowTitles).toEqual(['No years', 'Ends 2024', 'Ends 2026']);
     });
 
     describe('compact card sorting', () => {
-        it('shows the sort control only in compact view', () => {
+        it('shows the sort control in both compact and expanded views', () => {
             const compact = mount(CountryFundingPanelTable, {
                 props: { grants: cardSortGrants, isCompactView: true },
             });
@@ -419,7 +419,7 @@ describe('CountryFundingPanelTable', () => {
             const expanded = mount(CountryFundingPanelTable, {
                 props: { grants: cardSortGrants, isCompactView: false },
             });
-            expect(expanded.find('.card-sort-bar').exists()).toBe(false);
+            expect(expanded.find('.card-sort-bar').exists()).toBe(true);
         });
 
         it('lists only sortable columns as sort options', () => {

@@ -158,6 +158,8 @@ defineExpose({
             v-else
             v-bind="viewProps"
             :columns="columns"
+            :sortable-columns="sortableColumns"
+            @select-column="onSelectColumn"
             @sort="handleSort"
             @open-details="openDetailsModal"
         />

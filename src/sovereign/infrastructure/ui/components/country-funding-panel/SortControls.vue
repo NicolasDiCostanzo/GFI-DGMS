@@ -52,6 +52,7 @@ const selectedSortColumn = computed<ColumnKey | ''>({
     gap: 8px;
     padding: 10px 12px 0;
     font-size: 0.75rem;
+    width: 220px;
 }
 
 .card-sort-label {
