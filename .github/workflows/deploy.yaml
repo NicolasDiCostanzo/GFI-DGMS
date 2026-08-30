@@ -18,7 +18,7 @@ jobs:
           node-version: 22
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::283912199413:role/GitHubActions-Deploy-Role
           aws-region: us-east-1
